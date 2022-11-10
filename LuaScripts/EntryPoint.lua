@@ -9,7 +9,7 @@
 function SteamDetails()
 
     -- Setting of Steam details
-    ModBase.SetSteamWorkshopDetails("Storage Links", [[
+    ModBase.SetSteamWorkshopDetails("Storage Links 2.0", [[
 A set of links that can hook storages together. This is a great minimal mod.
 
 === Crude, Good, Super ===
