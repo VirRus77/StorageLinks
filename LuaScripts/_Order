@@ -1,8 +1,11 @@
 # The order in which the files are combined.
+Timer.lua
 Tools.lua
+Logging.lua
 Constants.lua
 GlobalParameters.lua
 Buildings.lua
+Building.Logic.lua
 Magnet.Logic.lua
 StorageLink.lua
 EntryPoint.lua

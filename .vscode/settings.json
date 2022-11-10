@@ -3,6 +3,9 @@
     ],
     "Lua.workspace.library": [
         "./lib/AutonautsLuaHeaders/Headers",
-        "./LuaScripts"
-    ]
+        "./LuaScripts"    
+    ],
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": true,
+    "editor.tabSize" : 4
 }

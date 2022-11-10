@@ -1,6 +1,7 @@
 Buildings = {
     -- Magnet
     MagnetCrude = {
+        Type = "MagnetCrude",
         Name = "Crude Magnet (SL)",
         Ingridients = { "Rock", "TreeSeed" },
         IngridientsAmount = {2, 1},
@@ -14,6 +15,7 @@ Buildings = {
         CustomModel = true,
     },
     MagnetGood = {
+        Type = "MagnetGood",
         Name = "Good Magnet (SL)",
         Ingridients = { "Rock", "StringBall" },
         IngridientsAmount = { 4, 3 },
@@ -27,6 +29,7 @@ Buildings = {
         CustomModel = true,
     },
     MagnetSuper = {
+        Type = "MagnetSuper",
         Name = "Super Magnet (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 2, 2, 4, 1 },
@@ -42,6 +45,7 @@ Buildings = {
 
     -- Pump
     PumpCrude = {
+        Type = "PumpCrude",
         Name = "Crude Pump (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -52,6 +56,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpGood = {
+        Type = "PumpGood",
         Name = "Good Pump (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -62,6 +67,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpSuper = {
+        Type = "PumpSuper",
         Name = "Super Pump (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -72,6 +78,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpSuperLong = {
+        Type = "PumpSuperLong",
         Name = "Super Pump Long (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -84,6 +91,7 @@ Buildings = {
 
     -- Overflow Pump
     OverflowPumpCrude = {
+        Type = "OverflowPumpCrude",
         Name = "Crude Overflow Pump (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -94,6 +102,7 @@ Buildings = {
         CustomModel = true,
     },
     OverflowPumpGood = {
+        Type = "OverflowPumpGood",
         Name = "Good Overflow Pump (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -104,6 +113,7 @@ Buildings = {
         CustomModel = true,
     },
     OverflowPumpSuper = {
+        Type = "OverflowPumpSuper",
         Name = "Super Overflow Pump (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -116,6 +126,7 @@ Buildings = {
 
 	-- Balancer
     BalancerCrude = {
+        Type = "BalancerCrude",
         Name = "Crude Balancer (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -126,6 +137,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerGood = {
+        Type = "BalancerGood",
         Name = "Good Balancer (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -136,6 +148,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerSuper = {
+        Type = "BalancerSuper",
         Name = "Super Balancer (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -146,6 +159,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerSuperLong = {
+        Type ="BalancerSuperLong",
         Name = "Super Balancer Long (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -158,6 +172,7 @@ Buildings = {
 
     -- Transmitter
     TransmitterCrude = {
+        Type = "TransmitterCrude",
         Name = "Crude Transmitter (SL)",
         Ingridients = { "Log", "Pole", "TreeSeed" },
         IngridientsAmount = { 2, 3, 1 },
@@ -168,6 +183,7 @@ Buildings = {
         CustomModel = true,
     },
     TransmitterGood = {
+        Type = "TransmitterGood",
         Name = "Good Transmitter (SL)",
         Ingridients = { "Mortar", "Pole", "TreeSeed" },
         IngridientsAmount = { 4, 10, 1 },
@@ -178,6 +194,7 @@ Buildings = {
         CustomModel = true,
     },
     TransmitterSuper = {
+        Type = "TransmitterSuper",
         Name = "Super Transmitter (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 4, 6, 6, 1 },
@@ -190,6 +207,7 @@ Buildings = {
 
     -- Receiver
     ReceiverCrude = {
+        Type = "ReceiverCrude",
         Name = "Crude Receiver (SL)",
         Ingridients = { "Log","Pole","TreeSeed" },
         IngridientsAmount = { 2, 3, 1 },
@@ -200,6 +218,7 @@ Buildings = {
         CustomModel = true,
     },
     ReceiverGood = {
+        Type = "ReceiverGood",
         Name = "Good Receiver (SL)",
         Ingridients = { "Mortar","Pole","TreeSeed" },
         IngridientsAmount = { 4, 10, 1 },
@@ -210,6 +229,7 @@ Buildings = {
         CustomModel = true,
     },
     ReceiverSuper = {
+        Type = "ReceiverSuper",
         Name = "Super Receiver (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 4, 6, 6, 1 },
@@ -222,6 +242,7 @@ Buildings = {
 
     -- Switch
     SwitchSuper = {
+        Type = "SwitchSuper",
         Name = "Super Switch (SL)",
         Ingridients = { "MetalPlateCrude", "Plank" },
         IngridientsAmount = { 1, 3 },
@@ -232,24 +253,60 @@ Buildings = {
         Walkable = true,
         CustomModel = true,
     },
+}
+
+Decoratives = {
     SwitchOnSymbol = {
+        Type = "SwitchOnSymbol",
         Name = "Switch On Symbol (SL)",
         Ingridients = { "TreeSeed", },
         IngridientsAmount = { 1 },
         ModelName = "SwitchOn",
         CustomModel = true,
-        Decorative = true
     },
 
     -- Misc Symbols
     SymbolBroken = {
+        Type = "SymbolBroken",
         Name = "Broken Symbol (SL)",
         Ingridients = { "TreeSeed" },
         IngridientsAmount = { 1 },
         ModelName = "BrokenSymbol",
         CustomModel = true,
-        Decorative = true
     },
+}
+
+---@type string[]
+Buildings.CrudeTypes = {
+    Buildings.PumpCrude.Name,
+    Buildings.OverflowPumpCrude.Name,
+    Buildings.BalancerCrude.Name,
+    Buildings.TransmitterCrude.Name,
+    Buildings.ReceiverCrude.Name,
+    Buildings.MagnetCrude.Name,
+}
+
+---@type string[]
+Buildings.GoodTypes = {
+    Buildings.PumpGood.Name,
+    Buildings.OverflowPumpGood.Name,
+    Buildings.BalancerGood.Name,
+    Buildings.TransmitterGood.Name,
+    Buildings.ReceiverGood.Name,
+    Buildings.MagnetGood.Name,
+}
+
+---@type string[]
+Buildings.SuperTypes = {
+    Buildings.PumpSuper.Name,
+    Buildings.PumpSuperLong.Name,
+    Buildings.OverflowPumpSuper.Name,
+    Buildings.BalancerSuper.Name,
+    Buildings.BalancerSuperLong.Name,
+    Buildings.TransmitterSuper.Name,
+    Buildings.ReceiverSuper.Name,
+    Buildings.MagnetSuper.Name,
+    Buildings.SwitchSuper.Name,
 }
 
 --- Add all buildings.
@@ -288,24 +345,34 @@ function Buildings.CreateAll ()
 
     -- Switch
     Buildings.Create (Buildings.SwitchSuper)
-    Buildings.CreateDecorative (Buildings.SwitchOnSymbol)
+    Buildings.CreateDecorative (Decoratives.SwitchOnSymbol)
 
     -- Misc Symbols
-    Buildings.CreateDecorative (Buildings.SymbolBroken)
+    Buildings.CreateDecorative (Decoratives.SymbolBroken)
 
     -- Old version buildings
-    Buildings.CreateOld ()
+    --Buildings.CreateOld ()
 end
 
 function Buildings.CreateOld ()
 	-- Discontinuing these names -- here so they show up in existing games
-	ModBuilding.CreateBuilding("Storage Pump (SL)"	  		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Pump XL (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Receiver (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Magnet (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {2, 2, 4, 1}, "MagnetSuper"  	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Balancer (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Balancer XL (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Pump (SL)"	  		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Pump XL (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Receiver (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Magnet (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {2, 2, 4, 1}, "MagnetSuper"  	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Balancer (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Balancer XL (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
+end
+
+--- UpdateType by uniq.
+function Buildings:UpdateTypeByUniq()
+    for name, buildingValue in pairs(self) do
+        if (type(buildingValue) == "table") then
+            buildingValue.Type = Constants.UniqueName(buildingValue.Type)
+            ModDebug.Log()
+        end
+    end
 end
 
 --- Extension ModBuilding.CreateBuilding

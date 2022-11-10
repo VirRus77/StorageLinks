@@ -33,17 +33,6 @@ TRANSMITTER_TYPES = {
     'Transmitter (SL)'
 }
 
--- Unlock a level when this is built
-GOOD_UNLOCK_BUILDINGS = {
-    'MortarMixerCrude',
-    'MortarMixerGood'
-}
-SUPER_UNLOCK_BUILDINGS = {
-    'MetalWorkbench'
-}
-SECONDS_BETWEEN_UNLOCK_CHECKS = 5
-UNLOCK_TIMER_SECOND = 0
-
 -- Levels of speed
 CRUDE_CHECKS_PER_SECOND = 0.25
 GOOD_CHECKS_PER_SECOND = 1

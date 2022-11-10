@@ -1,10 +1,17 @@
+--- Serialize table.
+---@param val table
+---@param name? any
+---@param skipnewlines? any
+---@param depth? any
 function serializeTable(val, name, skipnewlines, depth)
     skipnewlines = skipnewlines or false
     depth = depth or 0
 
     local tmp = string.rep(" ", depth)
 
-    if name then tmp = tmp .. name .. " = " end
+    if name then
+        tmp = tmp .. name .. " = "
+    end
 
     if type(val) == "table" then
         tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
@@ -29,41 +36,40 @@ function serializeTable(val, name, skipnewlines, depth)
     return tmp
 end
 
--- http://lua-users.org/wiki/TableSerialization
---function table_print (tt, indent, done)
---    done = done or {}
---    indent = indent or 0
---    if type(tt) == "table" then
---      local sb = {}
---      for key, value in pairs (tt) do
---        table.insert(sb, string.rep (" ", indent)) -- indent it
---        if type (value) == "table" and not done [value] then
---          done [value] = true
---          table.insert(sb, key .. " = {\n");
---          table.insert(sb, table_print (value, indent + 2, done))
---          table.insert(sb, string.rep (" ", indent)) -- indent it
---          table.insert(sb, "}\n");
---        elseif "number" == type(key) then
---          table.insert(sb, string.format("\"%s\"\n", tostring(value)))
---        else
---          table.insert(sb, string.format(
---              "%s = \"%s\"\n", tostring (key), tostring(value)))
---         end
---      end
---      return table.concat(sb)
---    else
---      return tt .. "\n"
---    end
---  end
---
---  function to_string( tbl )
---      if  "nil"       == type( tbl ) then
---          return tostring(nil)
---      elseif  "table" == type( tbl ) then
---          return table_print(tbl)
---      elseif  "string" == type( tbl ) then
---          return tbl
---      else
---          return tostring(tbl)
---      end
---  end
+--- Get count elements.
+---@param tableValue table|any[]
+function GetTableLength(tableValue)
+    local count = 0
+    if (tableValue == nil) then
+        return count
+    end
+    for _ in pairs(tableValue) do
+        count = count + 1
+    end
+    return count
+end
+
+--- Switch type exist object.
+---@param oldName string # Old type.
+---@param newName string # New type.
+local function swapOldNameToNew(oldName, newName)
+    local oldB = ModTiles.GetObjectsOfTypeInAreaUIDs(oldName, 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    if oldB == nil or oldB == -1 or oldB[1] == nil or oldB[1] == -1 then
+        return false
+    end
+    local props, newUID, rot
+    for _, uid in ipairs(oldB) do
+        props = ModObject.GetObjectProperties(uid) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
+        rot = ModBuilding.GetRotation(uid)
+        if ModObject.DestroyObject(uid)	then
+            newUID = ModBase.SpawnItem(newName, props[2], props[3], false, true, false)
+            if newUID == -1 or newUID == nil then
+                ModDebug.Log('Could not re-create the ', props[1], ' @ ', props[2], ':', props[3])
+            else
+                ModBuilding.SetRotation(newUID, rot)
+                ModBuilding.SetBuildingNam(newUID, props[5])
+            end
+
+        end -- of if object destroyed
+    end -- of oldB loop
+end
