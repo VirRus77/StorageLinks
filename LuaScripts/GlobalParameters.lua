@@ -14,15 +14,33 @@ LINK_UIDS = {}
 STORAGE_UIDS = {}
 
 -- Multiple Types
-BALANCER_TYPES = {'Balancer (SL)', 'Balancer Long (SL)'}
-PUMP_TYPES = {'Pump (SL)', 'Pump Long (SL)'}
-OVERFLOW_TYPES = {'Overflow Pump (SL)', 'Overflow Pump Long (SL)'}
-RECEIVER_TYPES = {'Receiver (SL)'}
-TRANSMITTER_TYPES = {'Transmitter (SL)'}
+BALANCER_TYPES = {
+    'Balancer (SL)',
+    'Balancer Long (SL)'
+}
+PUMP_TYPES = {
+    'Pump (SL)',
+    'Pump Long (SL)'
+}
+OVERFLOW_TYPES = {
+    'Overflow Pump (SL)',
+    'Overflow Pump Long (SL)'
+}
+RECEIVER_TYPES = {
+    'Receiver (SL)'
+}
+TRANSMITTER_TYPES = {
+    'Transmitter (SL)'
+}
 
 -- Unlock a level when this is built
-GOOD_UNLOCK_BUILDINGS = {'MortarMixerCrude', 'MortarMixerGood'}
-SUPER_UNLOCK_BUILDINGS = {'MetalWorkbench'}
+GOOD_UNLOCK_BUILDINGS = {
+    'MortarMixerCrude',
+    'MortarMixerGood'
+}
+SUPER_UNLOCK_BUILDINGS = {
+    'MetalWorkbench'
+}
 SECONDS_BETWEEN_UNLOCK_CHECKS = 5
 UNLOCK_TIMER_SECOND = 0
 

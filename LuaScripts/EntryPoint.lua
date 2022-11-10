@@ -74,52 +74,6 @@ end
 function Creation()
     Buildings.CreateAll()
 
-	-- Pump
-	ModBuilding.CreateBuilding("Crude Pump (SL)"	  	, {"Log","Pole"}							   	, {1, 2}	, "PumpCrude" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Good Pump (SL)"	  		, {"Mortar","Pole"}					   		   	, {4, 8}   	, "PumpGood" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Pump (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Pump Long (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
-
-	-- Overflow Pump
-	ModBuilding.CreateBuilding("Crude Overflow Pump (SL)"	, {"Log","Pole"}							   	, {1, 2}	, "OverflowCrude" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Good Overflow Pump (SL)"	, {"Mortar","Pole"}					   		   	, {4, 8}   	, "OverflowGood" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Overflow Pump (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "OverflowSuper"		, {0,0} , {0,0}, nil, true )
-
-	-- Balancer
-	ModBuilding.CreateBuilding("Crude Balancer (SL)"	, {"Log","Pole"}							   	, {1, 2}	, "BalCrude" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Good Balancer (SL)"	  	, {"Mortar","Pole"}					   		   	, {4, 8}   	, "BalGood" 		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Balancer (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Balancer Long (SL)",{"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
-
-	-- Transmitter
-	ModBuilding.CreateBuilding("Crude Transmitter (SL)"	, {"Log","Pole","TreeSeed"}					  	, {2, 3, 1}	, "TransmitterCrude", {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Good Transmitter (SL)"	, {"Mortar","Pole","TreeSeed"}				  	, {4, 10, 1}, "TransmitterGood"	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
-
-	-- Receiver
-	ModBuilding.CreateBuilding("Crude Receiver (SL)"	, {"Log","Pole","TreeSeed"}						, {2, 3, 1}	, "ReceiverCrude" 	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Good Receiver (SL)"		, {"Mortar","Pole","TreeSeed"}				  	, {4, 10, 1}, "ReceiverGood" 	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Super Receiver (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
-
-	-- Switch
-	ModBuilding.CreateBuilding("Super Switch (SL)"		, {"MetalPlateCrude","Plank"}					, {1, 3}, "Switch"  	  , {0,0} , {0,0}, nil, true )
-	ModDecorative.CreateDecorative("Switch On Symbol (SL)", {"TreeSeed",}								, {1}, "SwitchOn"  	  , true )
-
-	-- Misc Symbols
-	ModDecorative.CreateDecorative("Broken Symbol (SL)"	  , {"TreeSeed"}								, {1}, "BrokenSymbol", true )
-
-	-- Buildings that can be walked through
-	ModBuilding.SetBuildingWalkable("Super Switch (SL)", true)
-
-	-- Discontinuing these names -- here so they show up in existing games
-	ModBuilding.CreateBuilding("Storage Pump (SL)"	  		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Pump XL (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Receiver (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Magnet (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {2, 2, 4, 1}, "MagnetSuper"  	, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Balancer (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
-	ModBuilding.CreateBuilding("Storage Balancer XL (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
-
 	-- Set some overall globals that determine if we want to use a TIMER, or callbacks.
 	if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
 		if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRenamedCallback') then
@@ -172,13 +126,13 @@ function BeforeLoad()
 	-- ModBuilding.ShowBuildingAccessPoint("Good Receiver (SL)"		, true)
 
 	-- Hide old names
-	ModVariable.SetVariableForObjectAsInt("Storage Pump (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Pump XL (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Transmitter (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Receiver (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Magnet (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Balancer (SL)","Unlocked",0 )
-	ModVariable.SetVariableForObjectAsInt("Storage Balancer XL (SL)","Unlocked",0 )
+	ModVariable.SetVariableForObjectAsInt ("Storage Pump (SL)"       , "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Pump XL (SL)"    , "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Transmitter (SL)", "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Receiver (SL)"   , "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Magnet (SL)"     , "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Balancer (SL)"   , "Unlocked", 0)
+	ModVariable.SetVariableForObjectAsInt ("Storage Balancer XL (SL)", "Unlocked", 0)
 
 	-- Hide symbols
 	ModVariable.SetVariableForObjectAsInt("Switch On Symbol (SL)","Unlocked", 0)

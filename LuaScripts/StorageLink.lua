@@ -245,7 +245,9 @@ function determineSwitchTargetState(switchUID, playerXY)
 
 	-- Ignore this switch if it's name does not start with ">"
 	local ms, me = string.find(switchProps[5],'>.+')
-	if ms == nil then return end
+	if ms == nil then
+		return
+	end
 
 	-- Do we have multiple with the same name?
 	local switchXY = {switchProps[2], switchProps[3]}
