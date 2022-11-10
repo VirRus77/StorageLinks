@@ -255,6 +255,43 @@ Buildings = {
     },
 }
 
+Buildings.AllTypes = {
+        -- Magnet
+        Buildings.MagnetCrude,
+        Buildings.MagnetGood,
+        Buildings.MagnetSuper,
+
+        -- Pump
+        Buildings.PumpCrude,
+        Buildings.PumpGood,
+        Buildings.PumpSuper,
+        Buildings.PumpSuperLong,
+
+        -- Overflow Pump
+        Buildings.OverflowPumpCrude,
+        Buildings.OverflowPumpGood,
+        Buildings.OverflowPumpSuper,
+
+        -- Balancer
+        Buildings.BalancerCrude,
+        Buildings.BalancerGood,
+        Buildings.BalancerSuper,
+        Buildings.BalancerSuperLong,
+
+        -- Transmitter    
+        Buildings.TransmitterCrude,
+        Buildings.TransmitterGood,
+        Buildings.TransmitterSuper,
+
+        -- Receiver
+        Buildings.ReceiverCrude,
+        Buildings.ReceiverGood,
+        Buildings.ReceiverSuper,
+
+        -- Switch
+        Buildings.SwitchSuper,
+}
+
 Decoratives = {
     SwitchOnSymbol = {
         Type = "SwitchOnSymbol",
@@ -275,6 +312,20 @@ Decoratives = {
         CustomModel = true,
     },
 }
+
+Decoratives.AllTypes = {
+    Decoratives.SwitchOnSymbol,
+
+    -- Misc Symbols
+    Decoratives.SymbolBroken,
+}
+
+--- UpdateType by uniq.
+function Decoratives:UpdateTypeByUniq()
+    for _, buildingValue in ipairs(self.AllTypes) do
+        buildingValue.Type = Constants.UniqueName(buildingValue.Type)
+    end
+end
 
 ---@type string[]
 Buildings.CrudeTypes = {
@@ -367,11 +418,8 @@ end
 
 --- UpdateType by uniq.
 function Buildings:UpdateTypeByUniq()
-    for name, buildingValue in pairs(self) do
-        if (type(buildingValue) == "table") then
-            buildingValue.Type = Constants.UniqueName(buildingValue.Type)
-            ModDebug.Log()
-        end
+    for _, buildingValue in ipairs(self.AllTypes) do
+        buildingValue.Type = Constants.UniqueName(buildingValue.Type)
     end
 end
 

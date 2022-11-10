@@ -47,13 +47,13 @@ end
 
 function locateLinks(levelPrefix)
     if DEBUG_ENABLED then
-        ModDebug.Log(os.date(), ": ", "locateLinks: ", serializeTable({levelPrefix = levelPrefix}))
+        Logging.Log("locateLinks: ", serializeTable({levelPrefix = levelPrefix}))
     end
 
     local gameState = ModBase.GetGameState()
-    if ModBase.GetGameState() ~= 'Normal' then
+    if gameState ~= 'Normal' then
         if DEBUG_ENABLED then
-            ModDebug.Log(os.date(), ": ", "locateLinks exit: ", serializeTable({gameState = gameState}))
+            Logging.Log("locateLinks exit: ", serializeTable({gameState = gameState}))
         end
         return
     end

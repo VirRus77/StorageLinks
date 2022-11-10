@@ -76,6 +76,11 @@ end
 function Creation()
     Logging.Log("Creation")
     Buildings.CreateAll()
+    Buildings:UpdateTypeByUniq()
+    Logging.Log(serializeTable(Buildings, "Buildings"))
+    Decoratives:UpdateTypeByUniq()
+    Logging.Log(serializeTable(Decoratives, "Buildings"))
+    
 
     -- Set some overall globals that determine if we want to use a TIMER, or callbacks.
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
