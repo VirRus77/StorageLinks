@@ -3,9 +3,9 @@ function ExposedKeyCallback(name)
         return
     end
     if (name == 'Debug: Move') then
-        locateLinks('Crude')
-        locateLinks('Good')
-        locateLinks('Super')
+        locateLinks(BuildingLevels.Crude)
+        locateLinks(BuildingLevels.Good)
+        locateLinks(BuildingLevels.Super)
     end
 end
 
@@ -45,9 +45,11 @@ function lockLevels()
     -- ModVariable.SetVariableForObjectAsInt("Super Switch (SL)","Unlocked", 0)
 end
 
-function locateLinks(levelPrefix)
+--- func desc
+---@param buildingLevel string # Building level
+function locateLinks(buildingLevel)
     if DEBUG_ENABLED then
-        Logging.Log("locateLinks: ", serializeTable({levelPrefix = levelPrefix}))
+        Logging.Log("locateLinks: ", serializeTable({buildingLevel = buildingLevel}))
     end
 
     local gameState = ModBase.GetGameState()
@@ -58,126 +60,203 @@ function locateLinks(levelPrefix)
         return
     end
 
-    setTimeout(locateSwitches,					{levelPrefix},	0	)
-    setTimeout(locatePumps,						{levelPrefix},	150	)
-    setTimeout(locateOverflowPumps,				{levelPrefix},	300	)
-    setTimeout(locateBalancers,					{levelPrefix},	450	)
-    setTimeout(locateReceiversAndTransmitters,	{levelPrefix},	600	)
-    -- setTimeout(locateMagnets,					{levelPrefix},	750	)
+    setTimeout(locateSwitches,					{buildingLevel},	0	)
+    setTimeout(locatePumps,						{buildingLevel},	150	)
+    setTimeout(locateOverflowPumps,				{buildingLevel},	300	)
+    setTimeout(locateBalancers,					{buildingLevel},	450	)
+    setTimeout(locateReceiversAndTransmitters,	{buildingLevel},	600	)
+    -- setTimeout(locateMagnets,					{buildingLevel},	750	)
 
     -- new style - this should only look for types that fit in attached storage, in area
-    setTimeout(fireAllMagnets,					{levelPrefix},	750	)
+    setTimeout(fireAllMagnets,					{buildingLevel},	750	)
 end
 
-function locateBalancers(levelPrefix)
+function locateBalancers(buildingLevel)
     -- Find all Balancers
     local tmpUIDs = {}
     local balancerUIDs = {}
-    for _, bType in ipairs(BALANCER_TYPES) do
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' ' .. bType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            balancerUIDs[#balancerUIDs+1] = tUID
-        end
+
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = { Buildings.BalancerCrude.Name, }
     end
-    --Legacy
-    if levelPrefix == 'Super' then
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Balancer (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            balancerUIDs[#balancerUIDs+1] = tUID
-        end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = { Buildings.BalancerGood.Name, }
     end
-    -- END Legacy
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = {
+            Buildings.BalancerSuper.Name,
+            Buildings.BalancerSuperLong.Name,
+        }
+    end
+
+    balancerUIDs = GetUidsByTypes(buildingTypes)
+    -- --Legacy
+    -- if levelPrefix == 'Super' then
+    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Balancer (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --     for _2, tUID in ipairs(tmpUIDs) do
+    --         balancerUIDs[#balancerUIDs+1] = tUID
+    --     end
+    -- end
+    -- -- END Legacy
     -- quit if none
-    if balancerUIDs == nil or balancerUIDs[1] == nil or balancerUIDs[1] == -1 then return end
+    if balancerUIDs == nil or balancerUIDs[1] == nil or balancerUIDs[1] == -1 then
+        return
+    end
+
     -- List the balancer's found
-    for _, uid in ipairs(balancerUIDs) do
-        if DEBUG_ENABLED then ModDebug.Log(' locateBalancers: ', uid ) end
+    if (DEBUG_ENABLED) then
+        ModDebug.Log(' locateBalancers: ', serializeTable({
+            balancerUIDs = balancerUIDs
+        }) )
     end
     -- Handle Each Balancer
     for _, uid in ipairs(balancerUIDs)
     do
-        locateStoragesForLink(uid,'both', levelPrefix)
+        locateStoragesForLink(uid, 'both', buildingLevel)
     end
 end
 
-function locatePumps(levelPrefix)
+--- func desc
+---@param buildingLevel string
+function locatePumps(buildingLevel)
     -- Find all Pumps
     local tmpUIDs = {}
     local pumpUIDs = {}
-    for _, pType in ipairs(PUMP_TYPES) do
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' ' .. pType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            pumpUIDs[#pumpUIDs+1] = tUID
+
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = { Buildings.PumpCrude.Name, }
+    end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = { Buildings.PumpGood.Name, }
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = {
+            Buildings.PumpSuper.Name,
+            Buildings.PumpSuperLong.Name,
+        }
+    end
+
+    for _, buildingType in ipairs(buildingTypes) do
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        for _, tUID in ipairs(tmpUIDs) do
+            pumpUIDs[#pumpUIDs + 1] = tUID
         end
     end
-    -- LEGACY
-    if levelPrefix == 'Super' then
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Pump (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            pumpUIDs[#pumpUIDs+1] = tUID
-        end
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Pump XL (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            pumpUIDs[#pumpUIDs+1] = tUID
-        end
-    end
-    -- END LEGACY
+
+    -- -- LEGACY
+    -- if levelPrefix == 'Super' then
+    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Pump (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --     for _2, tUID in ipairs(tmpUIDs) do
+    --         pumpUIDs[#pumpUIDs+1] = tUID
+    --     end
+    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Pump XL (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --     for _2, tUID in ipairs(tmpUIDs) do
+    --         pumpUIDs[#pumpUIDs+1] = tUID
+    --     end
+    -- end
+    -- -- END LEGACY
     -- quit if none
-    if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then return end
-    -- List the pumps's found
-    for _, uid in ipairs(pumpUIDs) do
-        if DEBUG_ENABLED then ModDebug.Log(' locatePumps: ', uid ) end
+    if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then
+        return
     end
+    -- List the pumps's found
+    if DEBUG_ENABLED then
+        Logging.Log('locatePumps: ', serializeTable(pumpUIDs, "pumpUIDs"))
+    end
+
+    -- handle each pump
+    for _, uid in ipairs(pumpUIDs) do
+        if uid ~= -1 then
+            locateStoragesForLink(uid, 'one', buildingLevel)
+        end
+    end
+end
+
+function locateOverflowPumps(buildingLevel)
+    -- Find all Pumps
+    local tmpUIDs = {}
+    local pumpUIDs = {}
+
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = { Buildings.OverflowPumpCrude.Name, }
+    end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = { Buildings.OverflowPumpGood.Name, }
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = { Buildings.OverflowPumpSuper.Name, }
+    end
+
+    pumpUIDs = GetUidsByTypes(buildingTypes)
+
+    -- quit if none
+    if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then
+        return
+    end
+
+    -- List the pumps's found
+    if DEBUG_ENABLED then
+        Logging.Log(' locatePumps: ', serializeTable({
+            pumpUIDs = pumpUIDs
+        }) )
+    end
+
     -- handle each pump
     for _, uid in ipairs(pumpUIDs)
     do
         if uid ~= -1 then
-            locateStoragesForLink(uid,'one', levelPrefix)
-        end
-    end
-end
-
-function locateOverflowPumps(levelPrefix)
-    -- Find all Pumps
-    local tmpUIDs = {}
-    local pumpUIDs = {}
-    for _, pType in ipairs(OVERFLOW_TYPES) do
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' ' .. pType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            pumpUIDs[#pumpUIDs+1] = tUID
-        end
-    end
-    -- quit if none
-    if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then return end
-    -- List the pumps's found
-    for _, uid in ipairs(pumpUIDs) do
-        if DEBUG_ENABLED then ModDebug.Log(' locatePumps: ', uid ) end
-    end
-    -- handle each pump
-    for _, uid in ipairs(pumpUIDs)
-    do
-        if uid ~= -1 then
-            locateStoragesForLink(uid, 'one', levelPrefix, true)
+            locateStoragesForLink(uid, 'one', buildingLevel, true)
         end
     end
 end
 
 -- Switches
-function locateSwitches(levelPrefix)
+--- func desc
+---@param buildingLevel string # Building level
+function locateSwitches(buildingLevel)
     -- Find all Pumps
     local tmpUIDs = {}
     local switchUIDs = {}
 
-    tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' Switch (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    for _2, tUID in ipairs(tmpUIDs) do
-        switchUIDs[#switchUIDs+1] = tUID
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        return
     end
+    if (buildingLevel == BuildingLevels.Good) then
+        return
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = { Buildings.SwitchSuper.Name }
+    end
+
+    for _, buildingType in ipairs(buildingTypes) do
+        local foundUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        table.insert(tmpUIDs, foundUIDs)
+    end
+
+    --tmpUIDs = ModBuilding.GetBuildingUIDsOfType(buildingLevel .. ' Switch (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    for _, uidsByType in ipairs(tmpUIDs) do
+        for _, tUID in ipairs(uidsByType) do
+            switchUIDs[#switchUIDs + 1] = tUID
+        end
+    end
+
     -- quit if none
-    if switchUIDs == nil or switchUIDs[1] == nil or switchUIDs[1] == -1 then return end
+    if switchUIDs == nil or switchUIDs[1] == nil or switchUIDs[1] == -1 then
+        return
+    end
     -- List the switches's found
-    if DEBUG_ENABLED then
+    if (DEBUG_ENABLED) then
         for _, uid in ipairs(switchUIDs) do ModDebug.Log(' localSwitches: ', uid ) end
     end
+
     -- handle each of switchUIDs
     for _, switchUID in ipairs(switchUIDs)
     do
@@ -382,7 +461,7 @@ function addStorageToLinksWatchingTile(BuildingUID, TileXY)
     for uid, linkOb in pairs(LINK_UIDS) do
         if linkOb.connectToXY[1] == TileXY[1] and linkOb.connectToXY[2] == TileXY[2] then
             -- Update if magnet
-            if string.find(linkOb.bType, "Magnet") ~= nil then
+            if Buildings.IsMagnet(linkOb.bType) then
                 addStorageToMagnet(uid, BuildingUID)
             end
         end
@@ -390,17 +469,28 @@ function addStorageToLinksWatchingTile(BuildingUID, TileXY)
 end
 
 function resetCachedLink(uid)
-    if DEBUG_ENABLED then ModDebug.Log(' resetCachedLink: (a) ', uid) end
-    if LINK_UIDS[uid] == nil then return false end
-    local levelPrefix = LINK_UIDS[uid].bType:match("(%w+)(.+)")
-    if DEBUG_ENABLED then ModDebug.Log(' resetCachedLink: (b) levelPrefix: ', levelPrefix) end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' resetCachedLink: (a) ', uid)
+    end
+    if LINK_UIDS[uid] == nil then
+        return false
+    end
+
+    if (not Buildings.IsMagnet(LINK_UIDS[uid].bType)) then
+        return
+    end
 
     -- Update if magnet
-    if string.find(LINK_UIDS[uid].bType, "Magnet") ~= nil then
-        removeLinkUIDFromStoragesCache(uid)
-        if DEBUG_ENABLED then ModDebug.Log(' resetCachedLink: (c) ', uid) end
-        locateStorageForMagnet(uid, levelPrefix)
+    -- local buildingLevel = Buildings.GetMagnetLevel(LINK_UIDS[uid].bType)
+    -- if DEBUG_ENABLED then
+    --     ModDebug.Log(' resetCachedLink: (b) buildingLevel: ', buildingLevel)
+    -- end
+
+    removeLinkUIDFromStoragesCache(uid)
+    if DEBUG_ENABLED then
+        Logging.Log(' resetCachedLink: (c) ', uid)
     end
+    locateStorageForMagnet(uid)
 end
 
 function removeStorageUIDFromLinksCache(storageUID)
@@ -504,60 +594,90 @@ function addToTableIfDoesNotExist(tab, val)
 end
 
 -- Receivers and transmitters
-function locateReceiversAndTransmitters(levelPrefix)
+function locateReceiversAndTransmitters(buildingLevel)
     -- Find all receivers
     local tmpUIDs = {}
 
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = {
+            Receivers = { Buildings.ReceiverCrude.Name },
+            Transmitters = { Buildings.TransmitterCrude.Name }
+        }
+    end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = {
+            Receivers = { Buildings.ReceiverGood.Name },
+            Transmitters = { Buildings.TransmitterGood.Name }
+        }
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = {
+            Receivers = { Buildings.ReceiverSuper.Name },
+            Transmitters = { Buildings.TransmitterSuper.Name }
+        }
+    end
+
     -- Locate Receivers
     local rUIDs = {}
-    for _, rType in ipairs(RECEIVER_TYPES) do
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' ' .. rType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            rUIDs[#rUIDs+1] = tUID
+    for _, receiverType in ipairs(buildingTypes.Receivers) do
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(receiverType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        for _, tUID in ipairs(tmpUIDs) do
+            rUIDs[#rUIDs + 1] = tUID
         end
     end
-    -- Legacy
-    if levelPrefix == 'Super' then
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Receiver (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            rUIDs[#rUIDs+1] = tUID
-        end
-    end
-    -- END Legacy
+    -- -- Legacy
+    -- if levelPrefix == 'Super' then
+    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Receiver (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --     for _2, tUID in ipairs(tmpUIDs) do
+    --         rUIDs[#rUIDs+1] = tUID
+    --     end
+    -- end
+    -- -- END Legacy
     -- quit if no receivers
-    if rUIDs == nil or rUIDs[1] == nil then return end
+    if rUIDs == nil or rUIDs[1] == nil then
+        return
+    end
 
     -- Locate Transmitters
-    local tUIDs = {}
-    for _, tType in ipairs(TRANSMITTER_TYPES) do
-        tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' ' .. tType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        for _2, tUID in ipairs(tmpUIDs) do
-            tUIDs[#tUIDs+1] = tUID
+    local tUIDs = { }
+    for _, transmitterType in ipairs(buildingTypes.Transmitters) do
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(transmitterType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        for _, tUID in ipairs(tmpUIDs) do
+            tUIDs[#tUIDs + 1] = tUID
         end
     end
-    -- legacy
-    tmpUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Transmitter (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    for _2, tUID in ipairs(tmpUIDs) do
-        tUIDs[#tUIDs+1] = tUID
-    end
+    -- -- legacy
+    -- tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Transmitter (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    -- for _2, tUID in ipairs(tmpUIDs) do
+    --     tUIDs[#tUIDs+1] = tUID
+    -- end
     -- END Legacy
     -- quit if no transmitters
-    if tUIDs == nil or tUIDs[1] == nil or tUIDs[1] == -1 then return end
-
+    if tUIDs == nil or tUIDs[1] == nil or tUIDs[1] == -1 then
+        return
+    end
 
     -- List the receivers found
     if DEBUG_ENABLED then
-        for _, uid in ipairs(rUIDs) do ModDebug.Log(levelPrefix, ' locateReceivers: ', uid ) end
+        Logging.Log(' locateReceivers: ', serializeTable({
+            buildingLevel = buildingLevel,
+            rUIDs = rUIDs
+        }) )
     end
     -- List the transmitters found
     if DEBUG_ENABLED then
-        for _, uid in ipairs(tUIDs) do ModDebug.Log(levelPrefix, ' locateTransmitters: ', uid ) end
+        Logging.Log(' locateTransmitters: ', serializeTable({
+            buildingLevel = buildingLevel,
+            tUIDs = tUIDs
+        }) )
     end
 
-    locateStoragesForReceiversAndTransmitters(rUIDs, tUIDs, levelPrefix)
+    locateStoragesForReceiversAndTransmitters(rUIDs, tUIDs, buildingLevel)
 end
 
-function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, levelPrefix)
+function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingLevel)
 
     local linkProps, linkXY, linkRotation, storageUID, storageProps, dir, props, bOnTile
     local recStorages = {}
@@ -565,7 +685,9 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, levelPref
     -- ModObject.GetObjectProperties(uid) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Nam
     -- ModStorage.GetStorageProperties(uid) -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage (Returns [1] as -1 if unassigned storage)
 
-    if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForReceiversAndTransmitters (a) ' ) end
+    if (DEBUG_ENABLED) then
+        Logging.Log(' locateStoragesForReceiversAndTransmitters (a) ' )
+    end
 
     -- Find ALL STORAGES for receivers
     for _, uid in ipairs(recUIDs)
@@ -575,7 +697,9 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, levelPref
         linkRotation = math.floor(linkProps[4] + 0.5)
 
         if linkIsSwitchedOff(linkProps[5]) == false then
-            if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] ) end
+            if DEBUG_ENABLED then
+                ModDebug.Log(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] )
+            end
 
             if linkRotation == 180 then dir = 'n' end -- twisted 180 from the transmitters
             if linkRotation == 270 then dir = 'e' end
@@ -598,10 +722,21 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, levelPref
     do
         linkProps = ModObject.GetObjectProperties(uid)
         linkXY = ModObject.GetObjectTileCoord(uid)
+
+        if (DEBUG_ENABLED) then
+            Logging.Log(' locateStoragesForReceiversAndTransmitters (-- Find ALL STORAGES for transmitters): ', serializeTable({
+                uid = uid,
+                linkProps = linkProps,
+                linkXY = linkXY
+            }) )
+        end
+
         linkRotation = math.floor(linkProps[4] + 0.5)
 
         if linkIsSwitchedOff(linkProps[5]) == false then
-            if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForReceiversAndTransmitters Transmitter @ ', linkXY[1], ':', linkXY[2] ) end
+            if DEBUG_ENABLED then
+                ModDebug.Log(' locateStoragesForReceiversAndTransmitters Transmitter @ ', linkXY[1], ':', linkXY[2] )
+            end
 
             if linkRotation == 0   then dir = 'n' end
             if linkRotation == 90  then dir = 'e' end
@@ -617,13 +752,15 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, levelPref
         end
     end
 
-    if DEBUG_ENABLED then ModDebug.Log(' #recStorages: ', #recStorages ) end
-    if DEBUG_ENABLED then ModDebug.Log(' #transStorages: ', #transStorages ) end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' #recStorages: ', #recStorages )
+        ModDebug.Log(' #transStorages: ', #transStorages )
+    end
 
-    groupReceiversAndTransmitters(recStorages, transStorages, levelPrefix)
+    groupReceiversAndTransmitters(recStorages, transStorages, buildingLevel)
 end
 
-function groupReceiversAndTransmitters(receivers, transmitters, levelPrefix)
+function groupReceiversAndTransmitters(receivers, transmitters, buildingLevel)
     -- [ { linkUID = uid, storageUID = storageUID, typeStored = storageProps[1], storageProps  } ]
     -- Group by the TYPE of object being stored.
     local recGroups = {}
@@ -645,27 +782,31 @@ function groupReceiversAndTransmitters(receivers, transmitters, levelPrefix)
         transGroups[trans.typeStored][#transGroups[trans.typeStored] + 1] = trans
     end
 
-    if DEBUG_ENABLED then ModDebug.Log(' groupReceiversAndTransmitters: recGroups: ', table.show(recGroups) ) end
-    if DEBUG_ENABLED then ModDebug.Log(' groupReceiversAndTransmitters: transGroups: ', table.show(transGroups) ) end
+    if DEBUG_ENABLED then
+        Logging.Log(' groupReceiversAndTransmitters: recGroups: ', table.show(recGroups) )
+        Logging.Log(' groupReceiversAndTransmitters: transGroups: ', table.show(transGroups) )
+    end
 
     -- Are there no receiving groups?
-    if next(recGroups) == nil then return false end
+    if next(recGroups) == nil then
+        return false
+    end
 
     -- For each receiving group (Clay, Sticks, TreeSeeds...etc)
     for _, recGroup in pairs(recGroups)
     do
-        handleReceiverGroup(recGroup, transGroups, levelPrefix)
+        handleReceiverGroup(recGroup, transGroups, buildingLevel)
     end
 end
 
-function handleReceiverGroup(recGroup, transGroups, levelPrefix)
+function handleReceiverGroup(recGroup, transGroups, buildingLevel)
     -- recGroup = [ { linkUID = uid, storageUID = storageUID, typeStored = storageProps[1], storageProps, kind  } ]
 
     if recGroup[1].typeStored == '*' then
         for _, rec in ipairs(recGroup)
         do
             -- For each receiver in the group
-            transGroup = handleOneConverterReceiver(rec, transGroups, levelPrefix)
+            transGroup = handleOneConverterReceiver(rec, transGroups, buildingLevel)
         end
     else
         -- For this recGroup type, are there any transmitting groups that match?
@@ -683,18 +824,18 @@ function handleReceiverGroup(recGroup, transGroups, levelPrefix)
         for _, rec in ipairs(recGroup)
         do
             -- For each receiver in the group
-            transGroup = handleOneReceiver(rec, transGroup, levelPrefix)
+            transGroup = handleOneReceiver(rec, transGroup, buildingLevel)
         end
     end -- if this is a normal storage
 end
 
-function handleOneConverterReceiver(rec, trxGroups, levelPrefix)
+function handleOneConverterReceiver(rec, trxGroups, buildingLevel)
 
     -- If this is "Crude" or "Good" level
     local levelCap = 10000
-    if levelPrefix == 'Crude' then
+    if buildingLevel == BuildingLevels.Crude then
         levelCap = 1
-    elseif levelPrefix == 'Good' then
+    elseif buildingLevel == BuildingLevels.Good then
         levelCap = 5
     end
 
@@ -703,18 +844,18 @@ function handleOneConverterReceiver(rec, trxGroups, levelPrefix)
     if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(a): trxGroups ', type(trxGroups) ) end
 
     -- Add as many as we can as Ingredients
-    trxGroups = addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+    trxGroups = addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(b): trxGroups ', type(trxGroups) ) end
     -- Add as many as we can as Water
-    trxGroups = addWaterFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+    trxGroups = addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(c): trxGroups ',type(trxGroups) ) end
     -- Add as many as we can as Fuel (sort by fuelAmount first)
-    trxGroups = addFuelFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+    trxGroups = addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(d): trxGroups ', type(trxGroups) ) end
     return trxGroups
 end
 
-function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if trxGroups == nil then return nil end
     -- Loop over ingredients within 'Transmitters' and see if any of them can be added via the 'AddIngredient' method.
     local added, ing
@@ -773,7 +914,7 @@ function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, le
     return trxGroups
 end
 
-function addWaterFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+function addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if trxGroups == nil then return trxGroups end
     -- Can this building take water?
     local buildingProps = ModObject.GetObjectProperties(rec.converterUID)
@@ -805,7 +946,7 @@ function addWaterFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelC
     return trxGroups
 end
 
-function addFuelFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCap)
+function addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
     if trxGroups == nil then return trxGroups end
     -- Is this building set up for fuel?
     -- ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(rec.converterUID), )
@@ -858,7 +999,7 @@ function addFuelFromTransmittersToConverter(rec, trxGroups, levelPrefix, levelCa
     return trxGroups
 end
 
-function addAnythingPossibleToColonistHouse(rec, trxGroups, levelPrefix, levelCap)
+function addAnythingPossibleToColonistHouse(rec, trxGroups, buildingLevel, levelCap)
     if trxGroups == nil then return trxGroups end
     -- Is this a house?
     local typeOfTarget = ModObject.GetObjectType(rec.converterUID)
@@ -868,13 +1009,15 @@ function addAnythingPossibleToColonistHouse(rec, trxGroups, levelPrefix, levelCa
         and typeOfTarget ~= 'Mansion'
         and typeOfTarget ~= 'StoneCottage'
         and typeOfTarget ~= 'Castle'
-    then return trxGroups end
+    then
+        return trxGroups
+    end
 
     -- ModObject.AddObjectToColonistHouse
 
 end
 
-function handleOneReceiver(rec, tGrp, levelPrefix)
+function handleOneReceiver(rec, tGrp, buildingLevel)
     -- rec = { linkUID = 444, storageUID = 111, typeStored = 'Clay', storageProps}
     if tGrp == nil or tGrp[1] == nil then return {} end
 
@@ -886,7 +1029,7 @@ function handleOneReceiver(rec, tGrp, levelPrefix)
     if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: rec: ', table.show(rec) ) end
 
     -- Transfer as many as possible from fullest (first) transmitter.
-    calculateQtyToTransfer(tGrp[1].linkUID, tGrp[1].storageProps, rec.storageProps, tGrp[1].storageUID, rec.storageUID, 'one', levelPrefix)
+    calculateQtyToTransfer(tGrp[1].linkUID, tGrp[1].storageProps, rec.storageProps, tGrp[1].storageUID, rec.storageUID, 'one', buildingLevel)
 
     -- Regrab the transmitter storage properties (should have less on-hand now!)
     tGrp[1].storageProps = ModStorage.GetStorageProperties(tGrp[1].storageUID)
@@ -915,11 +1058,11 @@ function handleOneReceiver(rec, tGrp, levelPrefix)
     newTransmitterGroup = table.sort(newTransmitterGroup, compareLargerOnHandQty)
 
     -- If receiver is not full, transfer again from fullest (first) transmitter.
-    if levelPrefix == 'Super' and rec.storageProps[2] + qtyTransferred < rec.storageProps[3] then
+    if buildingLevel == 'Super' and rec.storageProps[2] + qtyTransferred < rec.storageProps[3] then
         rec.storageProps = ModStorage.GetStorageProperties(rec.storageUID)
         if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {rec} ', table.show(rec) ) end
         if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {grp} ', table.show(newTransmitterGroup) ) end
-        return handleOneReceiver(rec, newTransmitterGroup, levelPrefix)
+        return handleOneReceiver(rec, newTransmitterGroup, buildingLevel)
     end
 
     if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.2) ' ) end
@@ -928,7 +1071,10 @@ function handleOneReceiver(rec, tGrp, levelPrefix)
 end
 
 -- Everything else
-function locateStoragesForLink(linkUID,direction, levelPrefix, onlyIfSourceFull)
+---@alias DirectionType "one"|"both" #
+---@param direction DirectionType
+---@param onlyIfSourceFull boolean?
+function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFull)
     if linkUID == -1 then return end
     if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForLink: ', linkUID, ',', direction ) end
     -- direction = 'one' or 'both'.
@@ -938,9 +1084,13 @@ function locateStoragesForLink(linkUID,direction, levelPrefix, onlyIfSourceFull)
     local side1Storage, side2Storage
     local inv
 
-    if linkIsSwitchedOff(linkProp[5]) then return false end
+    if linkIsSwitchedOff(linkProp[5]) then
+        return false
+    end
 
-    if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForLink: checking rotations ', linkUID, ',', direction ) end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' locateStoragesForLink: checking rotations ', linkUID, ',', direction )
+    end
 
     if rotation == 90 or rotation == 270 then
         side1Storage = findStorageInDirection(linkXY, 'e')
@@ -961,26 +1111,35 @@ function locateStoragesForLink(linkUID,direction, levelPrefix, onlyIfSourceFull)
         side3Storage = nil
     end
 
-    checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, levelPrefix, onlyIfSourceFull)
+    checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
 end
 
-function checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, levelPrefix, onlyIfSourceFull)
+---@param direction DirectionType
+---@param onlyIfSourceFull boolean?
+function checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
     if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: ', linkUID, ', ', direction ) end
     -- direction = 'one' or 'both'.
     local side1Prop = ModStorage.GetStorageProperties(side1Storage)
     local side2Prop = ModStorage.GetStorageProperties(side2Storage)
     -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
 
-    if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: side1: ', side1Prop[4], '(', side1Prop[1], '), side2: ', side2Prop[4], '(', side2Prop[1], ') ' ) end
-    if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: side2: uid(type) ', side2Storage, '(', ModObject.GetObjectType(side2Storage), ')') end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' checkStorageCompatability: side1: ', side1Prop[4], '(', side1Prop[1], '), side2: ', side2Prop[4], '(', side2Prop[1], ') ' )
+        ModDebug.Log(' checkStorageCompatability: side2: uid(type) ', side2Storage, '(', ModObject.GetObjectType(side2Storage), ')')
+    end
 
     if side1Prop[1] ~= side2Prop[1] then return false end
 
-    calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, levelPrefix, onlyIfSourceFull)
+    calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
 end
 
-function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, levelPrefix, onlyIfSourceFull)
-    if DEBUG_ENABLED then ModDebug.Log(levelPrefix, ' calculateQtyToTransfer: ', linkUID, ',', direction ) end
+
+---@param direction DirectionType
+---@param onlyIfSourceFull boolean?
+function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
+    if DEBUG_ENABLED then
+        ModDebug.Log(buildingLevel, ' calculateQtyToTransfer: ', linkUID, ',', direction )
+    end
     -- direction = 'one' or 'both'.
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     -- If direction == 'one', we go from side1 to side2. Otherwise we can go either way.
@@ -1002,14 +1161,16 @@ function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, sid
 
     local levelCap = 5000
     -- If this is "Crude" or "Good" level
-    if levelPrefix == 'Crude' then
+    if buildingLevel == BuildingLevels.Crude then
         levelCap = 1
-    elseif levelPrefix == 'Good' then
+    elseif buildingLevel == BuildingLevels.Good then
         levelCap = 5
     end
 
     if onlyIfSourceFull ~= nil and onlyIfSourceFull then
-        if qty1 < max1 then return false end
+        if qty1 < max1 then
+            return false
+        end
         levelCap = math.ceil(max1 / 10)
     end
 
@@ -1567,11 +1728,15 @@ function everyFrame(timeDelta)
     end
 end
 
-function setTimeout(cb, args, ms)
+--- func desc
+---@param callback function
+---@param callbackArguments table
+---@param ms number
+function setTimeout(callback, callbackArguments, ms)
     local key = tostring(math.random(150))
     local ob = { whenDoneCallback = function()
         TIMEOUT_DB[key] = nil
-        cb(unpack(args))
+        callback(unpack(callbackArguments))
     end, ms = ms }
     TIMEOUT_DB[key] = ob
 end

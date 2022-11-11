@@ -1,3 +1,20 @@
+--- Get UIDs by array types
+---@param buildingTypes string[]
+---@return integer[]
+function GetUidsByTypes(buildingTypes)
+    local uids = { }
+    local worldWidth = WORLD_LIMITS[1] - 1
+    local worldHeight = WORLD_LIMITS[2] - 1
+    for _, buildingType in ipairs(buildingTypes) do
+        local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, worldWidth, worldHeight)
+        for _, uid in ipairs(tempUids) do
+            table.insert(uids, uid)
+            --uids[#uids + 1] = uid
+        end
+    end
+    return uids
+end
+
 --- Serialize table.
 ---@param val table
 ---@param name? any

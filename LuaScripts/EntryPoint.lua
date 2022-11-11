@@ -137,18 +137,18 @@ function BeforeLoad()
     -- ModBuilding.ShowBuildingAccessPoint("Crude Receiver (SL)"		, true)
     -- ModBuilding.ShowBuildingAccessPoint("Good Receiver (SL)"		, true)
 
-    -- Hide old names
-    ModVariable.SetVariableForObjectAsInt ("Storage Pump (SL)"       , "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Pump XL (SL)"    , "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Transmitter (SL)", "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Receiver (SL)"   , "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Magnet (SL)"     , "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Balancer (SL)"   , "Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt ("Storage Balancer XL (SL)", "Unlocked", 0)
-
-    -- Hide symbols
-    ModVariable.SetVariableForObjectAsInt("Switch On Symbol (SL)","Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt("Broken Symbol (SL)"   ,"Unlocked", 0)
+    -- -- Hide old names
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Pump (SL)"       , "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Pump XL (SL)"    , "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Transmitter (SL)", "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Receiver (SL)"   , "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Magnet (SL)"     , "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Balancer (SL)"   , "Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt ("Storage Balancer XL (SL)", "Unlocked", 0)
+-- 
+    -- -- Hide symbols
+    -- ModVariable.SetVariableForObjectAsInt("Switch On Symbol (SL)","Unlocked", 0)
+    -- ModVariable.SetVariableForObjectAsInt("Broken Symbol (SL)"   ,"Unlocked", 0)
 
     --lockLevels()
     --checkUnlockLevels()
@@ -201,7 +201,7 @@ function OnUpdate(timeDelta)
     --	ONE_SECOND_TIMER = 0
     --	checkUnlockLevels()
     --end
-    ModQuest.IsObjectTypeUnlocked("MetalCog")
+    --ModQuest.IsObjectTypeUnlocked("MetalCog")
 
     if (DEBUG_ENABLED == false) then
         UNLOCK_LEVEL_TIMER:AppendDelta(timeDelta)
@@ -214,22 +214,21 @@ function OnUpdate(timeDelta)
         GOOD_TIMER_SECOND = GOOD_TIMER_SECOND + timeDelta
         SUPER_TIMER_SECOND = SUPER_TIMER_SECOND + timeDelta
 
-
         -- Crude Level
         if CRUDE_TIMER_SECOND >= (1 / CRUDE_CHECKS_PER_SECOND) then
-            locateLinks('Crude')
+            locateLinks(BuildingLevels.Crude)
             CRUDE_TIMER_SECOND = 0
         end
 
         -- Good Level
         if GOOD_TIMER_SECOND >= (1 / GOOD_CHECKS_PER_SECOND) then
-            locateLinks('Good')
+            locateLinks(BuildingLevels.Good)
             GOOD_TIMER_SECOND = 0
         end
 
         -- Super Level
         if SUPER_TIMER_SECOND >= (1 / SUPER_CHECKS_PER_SECOND) then
-            locateLinks('Super')
+            locateLinks(BuildingLevels.Super)
             SUPER_TIMER_SECOND = 0
         end
     end

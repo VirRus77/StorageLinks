@@ -360,6 +360,34 @@ Buildings.SuperTypes = {
     Buildings.SwitchSuper.Name,
 }
 
+--- Check type is magnet
+---@param type string
+---@return boolean
+function Buildings.IsMagnet(type)
+    return (
+        type == Buildings.MagnetCrude.Name
+        or type == Buildings.MagnetGood.Name
+        or type == Buildings.MagnetSuper.Name
+    )
+end
+
+--- Retrun BuildingLevels by magnet type
+---@param type string #
+---@alias BuildingLevels "Crude"|"Good"|"Super" #
+---@return BuildingLevels #
+function Buildings.GetMagnetLevel(type)
+    if(type == Buildings.MagnetCrude.Name)then
+        return BuildingLevels.Crude
+    end
+    if(type == Buildings.MagnetGood.Name)then
+        return BuildingLevels.Good
+    end
+    if(type == Buildings.MagnetSuper.Name)then
+        return BuildingLevels.Super
+    end
+    error("Unknown magnet type: "..type, 200)
+end
+
 --- Add all buildings.
 function Buildings.CreateAll ()
     -- Magnet

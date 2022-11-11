@@ -1,52 +1,67 @@
 -- Magnets
 function discoverUnknownMagnets()
-    locateMagnets('Crude')
-    locateMagnets('Good')
-    locateMagnets('Super')
+    locateMagnets(BuildingLevels.Crude)
+    locateMagnets(BuildingLevels.Good)
+    locateMagnets(BuildingLevels.Super)
 end
 
-function locateMagnets(levelPrefix)
+function locateMagnets(buildingLevel)
     if (DEBUG_ENABLED) then
         Logging.Log("locateMagnets ", serializeTable({
-            levelPrefix = levelPrefix
+            buildingLevel = buildingLevel
             })
         )
     end
 
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = { Buildings.MagnetCrude.Name }
+    end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = { Buildings.MagnetGood.Name }
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = { Buildings.MagnetSuper.Name }
+    end
+
     -- Create EVENT to catch when new ones are added
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingTypeSpawnedCallback') then
-            ModBuilding.RegisterForBuildingTypeSpawnedCallback(levelPrefix .. ' Magnet (SL)', onMagnetSpawn)
+        if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingTypeSpawnedCallback') then
+            ModBuilding.RegisterForBuildingTypeSpawnedCallback(buildingLevel .. ' Magnet (SL)', onMagnetSpawn)
         end
     end
 
     -- Find all Magnets
-    local magnetUIDs = ModBuilding.GetAllBuildingsUIDsOfType(levelPrefix .. ' Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --local magnetUIDs = ModBuilding.GetBuildingUIDsOfType(buildingLevel .. ' Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    local magnetUIDs = GetUidsByTypes(buildingTypes)
 
-    -- Legacy
-    if levelPrefix == 'Super' then
-        local oldMagnetUIDs = ModBuilding.GetAllBuildingsUIDsOfType('Storage Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-        if oldMagnetUIDs ~= nil and oldMagnetUIDs[1] ~= -1 and oldMagnetUIDs[1] ~= nil then
-            for _, uid in ipairs(oldMagnetUIDs) do
-                magnetUIDs[#magnetUIDs + 1] = uid
-            end
-        end
-    end
-    -- END Legacy
+    -- -- Legacy
+    -- if buildingLevel == 'Super' then
+    --     local oldMagnetUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --     if oldMagnetUIDs ~= nil and oldMagnetUIDs[1] ~= -1 and oldMagnetUIDs[1] ~= nil then
+    --         for _, uid in ipairs(oldMagnetUIDs) do
+    --             magnetUIDs[#magnetUIDs + 1] = uid
+    --         end
+    --     end
+    -- end
+    -- -- END Legacy
 
     -- quit if none
-    if magnetUIDs == nil or magnetUIDs[1] == nil then return end
+    if magnetUIDs == nil or magnetUIDs[1] == nil then
+        return
+    end
 
     -- List the magnets if in debug mode
     if DEBUG_ENABLED then
-        for _, uid in ipairs(magnetUIDs) do
-            ModDebug.Log(os.date, ": ", 'locateMagnets: ', uid)
-        end
+        Logging.Log("locateMagnets:", serializeTable({
+            magnetUIDs = magnetUIDs
+        }))
     end
 
-    if reset == nil then
-        reset = false
-    end
+    -- if reset == nil then
+    --     reset = false
+    -- end
 
     -- handle each magnet
     for _, uid in ipairs(magnetUIDs)
@@ -59,7 +74,7 @@ function locateMagnets(levelPrefix)
 end
 
 function onMagnetSpawn(BuildingUID, BuildingType, IsBlueprint, IsDragging)
-    if DEBUG_ENABLED then
+    if (DEBUG_ENABLED) then
         ModDebug.Log( os.date(),": ", "onMagnetSpawn ", serializeTable({
             BuildingUID = BuildingUID,
             BuildingType = BuildingType,
@@ -95,7 +110,7 @@ function locateStorageForMagnet(magUID)
 
     -- Cache the Link
     local bType, tileX, tileY, rotation, name = unpack( properties ) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name
-    local levelPrefix = name:match("(%w+)(.+)")
+    local buildingLevel = Buildings.GetMagnetLevel(bType)
     rotation = math.floor(rotation + 0.5) -- round the rotation to a whole number
     local dir
     if rotation == 270 	then dir = 'n' end -- the only place for detecting rotation of magnet.
@@ -104,7 +119,7 @@ function locateStorageForMagnet(magUID)
     if rotation == 180 	then dir = 'w' end
 
     local x, y = tileXYFromDir({tileX, tileY}, dir)
-    LINK_UIDS[magUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, levelPrefix=levelPrefix, connectToXY={x,y}}
+    LINK_UIDS[magUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, buildingLevel=buildingLevel, connectToXY={x,y}}
     if DEBUG_ENABLED then
         ModDebug.Log(os.date(), ": ", "locateStorageForMagnet LINK_UIDS", " ", serializeTable( LINK_UIDS[magUID] ))
     end
@@ -225,22 +240,38 @@ function magnetRepositioned(MagnetUID, BuildingType, Rotation, TileX, TileY, IsB
     resetCachedLink(MagnetUID)
 end
 
-function fireAllMagnets(levelPrefix)
+function fireAllMagnets(buildingLevel)
     if DEBUG_ENABLED then
-        ModDebug.Log(' fireAllMagnets: levelPrefix: ', levelPrefix)
+        Logging.Log('fireAllMagnets: buildingLevel: ', buildingLevel)
     end
+
+    ---@type string[]
+    local buildingTypes = {}
+    if (buildingLevel == BuildingLevels.Crude) then
+        buildingTypes = { Buildings.MagnetCrude.Name }
+    end
+    if (buildingLevel == BuildingLevels.Good) then
+        buildingTypes = { Buildings.MagnetGood.Name }
+    end
+    if (buildingLevel == BuildingLevels.Super) then
+        buildingTypes = { Buildings.MagnetSuper.Name }
+    end
+
+
     -- loop over cached magnets
     for uid, props in pairs(LINK_UIDS) do
-        if props.bType == (levelPrefix .. ' Magnet (SL)') then
-            if props.storageUID ~= nil then
-                -- Is there now a storage there?
+        for index, value in ipairs(buildingTypes) do
+            if (props.bType == value) then
+                if props.storageUID ~= nil then
+                    -- Is there now a storage there?
+                end
+                fireMagnetByUID(uid, buildingLevel)
             end
-            fireMagnetByUID(uid, levelPrefix)
         end
     end
 end
 
-function fireMagnetByUID(magnetUID, levelPrefix)
+function fireMagnetByUID(magnetUID, buildingLevel)
     if DEBUG_ENABLED then
         ModDebug.Log(' fireMagnetByUID: (a) ', magnetUID)
     end
@@ -283,23 +314,33 @@ function getQtyToGrabForMagnet(magnetUID)
     -- query storage for min/max
     local sProps = ModStorage.GetStorageProperties(LINK_UIDS[magnetUID].storageUID)	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
 
-    if sProps == nil or sProps == -1 then return 0 end
-    if sProps[2] == nil then return 0 end
-    if sProps[3] == nil then return 0 end
+    if sProps == nil or sProps == -1 then
+        return 0
+    end
+    if sProps[2] == nil then
+        return 0
+    end
+    if sProps[3] == nil then
+        return 0
+    end
 
     -- if crate is full, return 0
-    if sProps[2] >= sProps[3] then return 0 end
+    if sProps[2] >= sProps[3] then
+        return 0
+    end
 
     -- Adjust max to be "how many could actually fit into crate"
     local maxQtyToCollect = sProps[3] - sProps[2] - alreadyFlyingQty
 
     -- if qty flying will fill up crate, return 0
-    if maxQtyToCollect <= 0 then return 0 end
+    if maxQtyToCollect <= 0 then
+        return 0
+    end
 
     -- Adjust based on level prefix
-    if LINK_UIDS[magnetUID].levelPrefix == 'Crude' then
+    if LINK_UIDS[magnetUID].buildingLevel == BuildingLevels.Crude then
         maxQtyToCollect = 1
-    elseif LINK_UIDS[magnetUID].levelPrefix == 'Good' then
+    elseif LINK_UIDS[magnetUID].buildingLevel == BuildingLevels.Good then
         maxQtyToCollect = 5
     end
 
@@ -413,7 +454,7 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
 
 end
 
-function calcQtyToGrabForMagneticStorage(magStorage, levelPrefix)
+function calcQtyToGrabForMagneticStorage(magStorage, buildingLevel)
     -- {storageUID = storageUID, magUID = magUID, linkProps = linkProps, storageProps = storageProps}
     -- storageProps [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
     local alreadyFlyingForStorage = listInFlightWithProp('storageUID', magStorage.storageUID, true)
@@ -426,13 +467,15 @@ function calcQtyToGrabForMagneticStorage(magStorage, levelPrefix)
     local maxQtyToCollect = magStorage.storageProps[3] - magStorage.storageProps[2] - alreadyFlyingQty
 
     -- If this is "Crude" or "Good" level
-    if levelPrefix == 'Crude' then
+    if (buildingLevel == BuildingLevels.Crude) then
         maxQtyToCollect = 1
-    elseif levelPrefix == 'Good' then
+    elseif (buildingLevel == BuildingLevels.Good) then
         maxQtyToCollect = 5
     end
 
-    if maxQtyToCollect == 0 then return false end
+    if maxQtyToCollect == 0 then return
+        false
+    end
 
     calcAreaForMagneticStorage(magStorage, maxQtyToCollect, alreadyFlyingForStorage)
 end

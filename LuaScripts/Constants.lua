@@ -4,7 +4,7 @@ Constants = {
         MagnetCrude = "MagnetCrude",
         MagnetGood = "MagnetGood",
         MagnetSuper = "MagnetSuper",
-    },
+    },    
 }
 
 --- Add unique ID to name.
@@ -17,3 +17,9 @@ function Constants.UniqueName(name)
     )
     return name.."_"..Constants.UniqueId
 end
+
+BuildingLevels = {
+    Crude = "Crude",
+    Good = "Good",
+    Super = "Super"
+}

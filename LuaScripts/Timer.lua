@@ -1,6 +1,6 @@
----@class Timer #
----@field Period number
----@field Callback fun()
+---@class Timer # 
+---@field Period number # Period of callback
+---@field Callback fun() # Callback function
 Timer = { }
 
 --- func desc
@@ -9,9 +9,9 @@ function Timer:AppendDelta (periodDelta)
 end
 
 --- Constructor
----@param period number #In seconds.
----@param callback fun() #Callback function.
----@return Timer #
+---@param period number # In seconds.
+---@param callback fun() # Callback function.
+---@return Timer # New instance of Timer
 function Timer.new (period, callback)
     ---@type Timer
     local newInstance = { }
@@ -33,4 +33,11 @@ function Timer.new (period, callback)
     setmetatable(newInstance, Timer)
     newInstance.__index = Timer
     return newInstance
+end
+
+function Timer.MillisecondsToSeconds(milliseconds)
+    if (milliseconds == 0) then
+        error ("Timer.MilisecondsToSeconds. milliseconds eq 0.", 100)
+    end
+    return 1 / milliseconds;
 end
