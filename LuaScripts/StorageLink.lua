@@ -272,18 +272,19 @@ function determineSwitchTargetState(switchUID, playerXY)
     end
 
     -- Do we have multiple with the same name?
+    local buildingType = Decoratives.SymbolBroken.Type
     local switchXY = {switchProps[2], switchProps[3]}
-    local numBrokenSymbols = ModTiles.GetAmountObjectsOfTypeInArea('Broken Symbol (SL)', switchXY[1], switchXY[2], switchXY[1], switchXY[2])
+    local numBrokenSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, switchXY[1], switchXY[2], switchXY[1], switchXY[2])
     local switchesByName = ModBuilding.GetAllBuildingsUIDsFromName(switchProps[5])
     if switchesByName ~= nil and switchesByName[1] ~= nil and switchesByName[1] ~= -1 and #switchesByName > 1 then
         if numBrokenSymbols == 0 then
-            ModBase.SpawnItem('Broken Symbol (SL)', switchXY[1], switchXY[2], false, true, false)
+            ModBase.SpawnItem(buildingType, switchXY[1], switchXY[2], false, true, false)
             ModUI.ShowPopup('Oops','Each switch must have a unique name! This switch will be disabled until you rename it.')
         end
         return false
     else
         if numBrokenSymbols > 0 then
-            clearTypesInArea('Broken Symbol (SL)', switchXY, switchXY)
+            clearTypesInArea(buildingType, switchXY, switchXY)
         end
     end
 
@@ -298,15 +299,18 @@ end
 
 function setSwitchState(switchUID, switchProps, turnOn)
     local xy = {switchProps[2], switchProps[3]}
-    local onSymbols = ModTiles.GetAmountObjectsOfTypeInArea('Switch On Symbol (SL)', xy[1], xy[2], xy[1], xy[2])
+    local buildingType = Decoratives.SwitchOnSymbol.Type
+    local onSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, xy[1], xy[2], xy[1], xy[2])
 
     if turnOn then
         if DEBUG_ENABLED then ModDebug.Log(' switch @ ' .. xy[1]  .. ':' .. xy[2] .. ' is ON.') end
-        if onSymbols == 0 then ModBase.SpawnItem('Switch On Symbol (SL)', xy[1], xy[2], false, true, false) end
-        if SWITCHES_TURNED_OFF[switchProps[5]] then SWITCHES_TURNED_OFF[switchProps[5]] = nil end
+        if onSymbols == 0 then ModBase.SpawnItem(buildingType, xy[1], xy[2], false, true, false) end
+        if SWITCHES_TURNED_OFF[switchProps[5]] then
+            SWITCHES_TURNED_OFF[switchProps[5]] = nil
+        end
     else
         if DEBUG_ENABLED then ModDebug.Log(' switch @ ' .. xy[1]  .. ':' .. xy[2] .. ' is OFF.') end
-        if onSymbols > 0 then clearTypesInArea('Switch On Symbol (SL)', xy, xy) end
+        if onSymbols > 0 then clearTypesInArea(buildingType, xy, xy) end
         if SWITCHES_TURNED_OFF[switchProps[5]] == nil then SWITCHES_TURNED_OFF[switchProps[5]] = true end
     end
 end
