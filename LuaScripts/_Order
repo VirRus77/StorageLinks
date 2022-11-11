@@ -3,6 +3,7 @@ Timer.lua
 TimeoutStack.lua
 Tools.lua
 Logging.lua
+Settings.lua
 Constants.lua
 GlobalParameters.lua
 Buildings.lua

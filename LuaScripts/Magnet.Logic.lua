@@ -16,19 +16,21 @@ function locateMagnets(buildingLevel)
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
-        buildingTypes = { Buildings.MagnetCrude.Name }
+        buildingTypes = { Buildings.MagnetCrude.Type }
     end
     if (buildingLevel == BuildingLevels.Good) then
-        buildingTypes = { Buildings.MagnetGood.Name }
+        buildingTypes = { Buildings.MagnetGood.Type }
     end
     if (buildingLevel == BuildingLevels.Super) then
-        buildingTypes = { Buildings.MagnetSuper.Name }
+        buildingTypes = { Buildings.MagnetSuper.Type }
     end
 
     -- Create EVENT to catch when new ones are added
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
         if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingTypeSpawnedCallback') then
-            ModBuilding.RegisterForBuildingTypeSpawnedCallback(buildingLevel .. ' Magnet (SL)', onMagnetSpawn)
+            for _, value in ipairs(buildingTypes) do
+                ModBuilding.RegisterForBuildingTypeSpawnedCallback(value, onMagnetSpawn)
+            end
         end
     end
 
@@ -248,13 +250,13 @@ function fireAllMagnets(buildingLevel)
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
-        buildingTypes = { Buildings.MagnetCrude.Name }
+        buildingTypes = { Buildings.MagnetCrude.Type }
     end
     if (buildingLevel == BuildingLevels.Good) then
-        buildingTypes = { Buildings.MagnetGood.Name }
+        buildingTypes = { Buildings.MagnetGood.Type }
     end
     if (buildingLevel == BuildingLevels.Super) then
-        buildingTypes = { Buildings.MagnetSuper.Name }
+        buildingTypes = { Buildings.MagnetSuper.Type }
     end
 
 
@@ -535,5 +537,7 @@ function onFlightCompleteForMagnets(flyingUID, ob)
         end
     end
     -- still valid?
-    if ModObject.IsValidObjectUID(flyingUID) then ModObject.DestroyObject(flyingUID) end -- make sure!
+    if ModObject.IsValidObjectUID(flyingUID) then
+        ModObject.DestroyObject(flyingUID)
+    end -- make sure!
 end

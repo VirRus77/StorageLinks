@@ -3,7 +3,7 @@ SECONDS_BETWEEN_UNLOCK_CHECKS = 5
 ---@type Timer
 UNLOCK_LEVEL_TIMER = nil
 
----@alias ItemType { Dependency :string[], Buildings :string[] } #
+---@alias ItemType { Dependency :string[], Buildings :BuildingItem[] } #
 ---@type ItemType[] #
 Buildings.LevelDependency = {
     {
@@ -21,6 +21,9 @@ Buildings.LevelDependency = {
     },
 }
 
+--- func desc
+---@param unlockBuildings string[]
+---@param buildings BuildingItem[]
 function SwitchLockBySelectedLevel(unlockBuildings, buildings)
     local stateUnlock = isBuildingUnlocked(unlockBuildings)
     local invertBuildings = GetBuildingsUnlockedState(buildings, not stateUnlock)
@@ -29,18 +32,18 @@ function SwitchLockBySelectedLevel(unlockBuildings, buildings)
         stateValue = 1;
     end
 
-    if (GetTableLength(invertBuildings) > 0) then
-        Logging.Log(
-            serializeTable({
-                stateUnlock = stateUnlock,
-                invertBuildings = invertBuildings,
-                stateValue = stateValue
-            })
-        )
-    end
+    -- if (GetTableLength(invertBuildings) > 0) then
+    --     Logging.Log(
+    --         serializeTable({
+    --             stateUnlock = stateUnlock,
+    --             invertBuildings = invertBuildings,
+    --             stateValue = stateValue
+    --         })
+    --     )
+    -- end
 
     for _, value in ipairs(invertBuildings) do
-        ModVariable.SetVariableForObjectAsInt(value, "Unlocked", stateValue)
+        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", stateValue)
     end
 end
 
@@ -51,11 +54,15 @@ function SwitchLockByLevel()
     end
 end
 
+--- func desc
+---@param buildings BuildingItem[]
+---@param state boolean
+---@return BuildingItem[]
 function GetBuildingsUnlockedState(buildings, state)
     local result = { }
     for _, value in ipairs(buildings) do
         --local flag = ModQuest.IsObjectTypeUnlocked(value) == state
-        local flag = (ModVariable.GetVariableForObjectAsInt(value, "Unlocked") > 0) == state
+        local flag = (ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked") > 0) == state
         if (flag) then
             table.insert( result, value )
         end

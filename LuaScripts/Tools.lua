@@ -66,14 +66,27 @@ function GetTableLength(tableValue)
     return count
 end
 
+--- func desc
+---@alias ReplaceItem { OldType :string, NewType :string } #
+---@param replaceList ReplaceItem[] #
+function ReplaceOldTypesToNewTypes(replaceList)
+    for _, value in ipairs(replaceList) do
+        ReplaceOldTypeToNewType(value.OldType, value.NewType)
+    end
+end
+
 --- Switch type exist object.
 ---@param oldName string # Old type.
 ---@param newName string # New type.
-local function swapOldNameToNew(oldName, newName)
-    local oldB = ModTiles.GetObjectsOfTypeInAreaUIDs(oldName, 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+function ReplaceOldTypeToNewType(oldName, newName)
+    Logging.Log("Replace: OldType:", oldName, " NewType: ", newName)
+    local oldB = ModTiles.GetObjectUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    --local oldB = ModBuilding.GetBuildingUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1] - 1, WORLD_LIMITS[2] - 1)
+    Logging.Log("Found OldType:", GetTableLength(oldB))
     if oldB == nil or oldB == -1 or oldB[1] == nil or oldB[1] == -1 then
         return false
     end
+    Logging.Log("Replace OldType...")
     local props, newUID, rot
     for _, uid in ipairs(oldB) do
         props = ModObject.GetObjectProperties(uid) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
@@ -81,10 +94,16 @@ local function swapOldNameToNew(oldName, newName)
         if ModObject.DestroyObject(uid)	then
             newUID = ModBase.SpawnItem(newName, props[2], props[3], false, true, false)
             if newUID == -1 or newUID == nil then
-                ModDebug.Log('Could not re-create the ', props[1], ' @ ', props[2], ':', props[3])
+                Logging.Log('Could not re-create ', serializeTable({
+                    props = props
+                }))
             else
                 ModBuilding.SetRotation(newUID, rot)
                 ModBuilding.SetBuildingNam(newUID, props[5])
+                Logging.Log("Replace item: ", serializeTable({
+                    props = props,
+                    newUID = newUID
+                }))
             end
 
         end -- of if object destroyed

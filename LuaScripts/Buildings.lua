@@ -1,5 +1,8 @@
 Buildings = {
     -- Magnet
+    ---@alias Point integer[]
+    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point, BottomRigth :Point, AccessPoint :Point | nil, CustomModel :boolean }
+    ---@type BuildingItem #
     MagnetCrude = {
         Type = "MagnetCrude",
         Name = "Crude Magnet (SL)",
@@ -255,6 +258,7 @@ Buildings = {
     },
 }
 
+---@type BuildingItem[]
 Buildings.AllTypes = {
         -- Magnet
         Buildings.MagnetCrude,
@@ -293,6 +297,8 @@ Buildings.AllTypes = {
 }
 
 Decoratives = {
+    ---@alias DecorativeItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, CustomModel :boolean }
+    ---@type DecorativeItem #
     SwitchOnSymbol = {
         Type = "SwitchOnSymbol",
         Name = "Switch On Symbol (SL)",
@@ -303,6 +309,7 @@ Decoratives = {
     },
 
     -- Misc Symbols
+    ---@type DecorativeItem #
     SymbolBroken = {
         Type = "SymbolBroken",
         Name = "Broken Symbol (SL)",
@@ -320,6 +327,12 @@ Decoratives.AllTypes = {
     Decoratives.SymbolBroken,
 }
 
+---@type { OldType :string, NewItem :DecorativeItem }[]
+Decoratives.MappingOldTypes = {
+    { OldType = "Switch On Symbol (SL)", NewItem = Decoratives.SwitchOnSymbol },
+    { OldType = "Broken Symbol (SL)", NewItem = Decoratives.SymbolBroken },
+}
+
 --- UpdateType by uniq.
 function Decoratives:UpdateTypeByUniq()
     for _, buildingValue in ipairs(self.AllTypes) do
@@ -327,37 +340,94 @@ function Decoratives:UpdateTypeByUniq()
     end
 end
 
----@type string[]
+---@type BuildingItem[]
 Buildings.CrudeTypes = {
-    Buildings.PumpCrude.Name,
-    Buildings.OverflowPumpCrude.Name,
-    Buildings.BalancerCrude.Name,
-    Buildings.TransmitterCrude.Name,
-    Buildings.ReceiverCrude.Name,
-    Buildings.MagnetCrude.Name,
+    Buildings.PumpCrude,
+    Buildings.OverflowPumpCrude,
+    Buildings.BalancerCrude,
+    Buildings.TransmitterCrude,
+    Buildings.ReceiverCrude,
+    Buildings.MagnetCrude,
 }
 
----@type string[]
+---@type BuildingItem[] #
 Buildings.GoodTypes = {
-    Buildings.PumpGood.Name,
-    Buildings.OverflowPumpGood.Name,
-    Buildings.BalancerGood.Name,
-    Buildings.TransmitterGood.Name,
-    Buildings.ReceiverGood.Name,
-    Buildings.MagnetGood.Name,
+    Buildings.PumpGood,
+    Buildings.OverflowPumpGood,
+    Buildings.BalancerGood,
+    Buildings.TransmitterGood,
+    Buildings.ReceiverGood,
+    Buildings.MagnetGood,
 }
 
----@type string[]
+---@type BuildingItem[] #
 Buildings.SuperTypes = {
-    Buildings.PumpSuper.Name,
-    Buildings.PumpSuperLong.Name,
-    Buildings.OverflowPumpSuper.Name,
-    Buildings.BalancerSuper.Name,
-    Buildings.BalancerSuperLong.Name,
-    Buildings.TransmitterSuper.Name,
-    Buildings.ReceiverSuper.Name,
-    Buildings.MagnetSuper.Name,
-    Buildings.SwitchSuper.Name,
+    Buildings.PumpSuper,
+    Buildings.PumpSuperLong,
+    Buildings.OverflowPumpSuper,
+    Buildings.BalancerSuper,
+    Buildings.BalancerSuperLong,
+    Buildings.TransmitterSuper,
+    Buildings.ReceiverSuper,
+    Buildings.MagnetSuper,
+    Buildings.SwitchSuper,
+}
+
+---@type { OldType :string, NewItem :BuildingItem }[]
+Buildings.MappingOldTypes = {
+
+	-- Discontinuing these names -- here so they show up in existing games
+	--ModBuilding.CreateBuilding("Storage Pump (SL)"	  		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Pump XL (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Receiver (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Magnet (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {2, 2, 4, 1}, "MagnetSuper"  	, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Balancer (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
+	--ModBuilding.CreateBuilding("Storage Balancer XL (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
+
+    -- Legacy
+    { OldType = "Storage Pump (SL)",        NewItem = Buildings.PumpSuper },
+    { OldType = "Storage Pump XL (SL)",     NewItem = Buildings.PumpSuperLong },
+    { OldType = "Storage Transmitter (SL)", NewItem = Buildings.TransmitterSuper },
+    { OldType = "Storage Receiver (SL)",    NewItem = Buildings.ReceiverSuper },
+    { OldType = "Storage Magnet (SL)",      NewItem = Buildings.MagnetSuper },
+    { OldType = "Storage Balancer (SL)",    NewItem = Buildings.BalancerSuper },
+    { OldType = "Storage Balancer XL (SL)", NewItem = Buildings.BalancerSuperLong },
+
+    -- Magnet
+    { OldType = "Crude Magnet (SL)", NewItem = Buildings.MagnetCrude },
+    { OldType = "Good Magnet (SL)",  NewItem = Buildings.MagnetGood },
+    { OldType = "Super Magnet (SL)", NewItem = Buildings.MagnetSuper },
+
+    -- Pump
+    { OldType = "Crude Pump (SL)",       NewItem = Buildings.PumpCrude },
+    { OldType = "Good Pump (SL)",        NewItem = Buildings.PumpGood },
+    { OldType = "Super Pump (SL)",       NewItem = Buildings.PumpSuper },
+    { OldType = "Super Pump Long (SL)",  NewItem = Buildings.PumpSuperLong },
+
+    -- Overflow Pump
+    { OldType = "Crude Overflow Pump (SL)", NewItem = Buildings.OverflowPumpCrude },
+    { OldType = "Good Overflow Pump (SL)",  NewItem = Buildings.OverflowPumpGood },
+    { OldType = "Super Overflow Pump (SL)", NewItem = Buildings.OverflowPumpSuper },
+
+    -- Balancer
+    { OldType = "Crude Balancer (SL)",      NewItem = Buildings.BalancerCrude },
+    { OldType = "Good Balancer (SL)",       NewItem = Buildings.BalancerGood },
+    { OldType = "Super Balancer (SL)",      NewItem = Buildings.BalancerSuper },
+    { OldType = "Super Balancer Long (SL)", NewItem = Buildings.BalancerSuperLong },
+
+    -- Transmitter    
+    { OldType = "Crude Transmitter (SL)", NewItem = Buildings.TransmitterCrude },
+    { OldType = "Good Transmitter (SL)",  NewItem = Buildings.TransmitterGood },
+    { OldType = "Super Transmitter (SL)", NewItem = Buildings.TransmitterSuper },
+
+    -- Receiver
+    { OldType = "Crude Receiver (SL)", NewItem = Buildings.ReceiverCrude },
+    { OldType = "Good Receiver (SL)",  NewItem = Buildings.ReceiverGood },
+    { OldType = "Super Receiver (SL)", NewItem = Buildings.ReceiverSuper },
+
+    -- Switch
+    { OldType = "Super Switch (SL)", NewItem = Buildings.SwitchSuper },
 }
 
 --- Check type is magnet
@@ -365,9 +435,9 @@ Buildings.SuperTypes = {
 ---@return boolean
 function Buildings.IsMagnet(type)
     return (
-        type == Buildings.MagnetCrude.Name
-        or type == Buildings.MagnetGood.Name
-        or type == Buildings.MagnetSuper.Name
+        type == Buildings.MagnetCrude.Type
+        or type == Buildings.MagnetGood.Type
+        or type == Buildings.MagnetSuper.Type
     )
 end
 
@@ -376,13 +446,13 @@ end
 ---@alias BuildingLevels "Crude"|"Good"|"Super" #
 ---@return BuildingLevels #
 function Buildings.GetMagnetLevel(type)
-    if(type == Buildings.MagnetCrude.Name)then
+    if(type == Buildings.MagnetCrude.Type)then
         return BuildingLevels.Crude
     end
-    if(type == Buildings.MagnetGood.Name)then
+    if(type == Buildings.MagnetGood.Type)then
         return BuildingLevels.Good
     end
-    if(type == Buildings.MagnetSuper.Name)then
+    if(type == Buildings.MagnetSuper.Type)then
         return BuildingLevels.Super
     end
     error("Unknown magnet type: "..type, 200)
@@ -433,15 +503,14 @@ function Buildings.CreateAll ()
     --Buildings.CreateOld ()
 end
 
-function Buildings.CreateOld ()
-	-- Discontinuing these names -- here so they show up in existing games
-	--ModBuilding.CreateBuilding("Storage Pump (SL)"	  		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuper"  		, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Pump XL (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "PumpSuperLong"  	, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Transmitter (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "TransmitterSuper" 	, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Receiver (SL)"	  	, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {4, 6, 6, 1}, "ReceiverSuper"  		, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Magnet (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets", "UpgradeWorkerCarrySuper"}, {2, 2, 4, 1}, "MagnetSuper"  	, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Balancer (SL)"		, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuper"		, {0,0} , {0,0}, nil, true )
-	--ModBuilding.CreateBuilding("Storage Balancer XL (SL)"	, {"MetalPlateCrude","MetalPoleCrude","Rivets"}	, {4, 8, 8}	, "BalSuperLong"	, {0,0} , {0,0}, nil, true )
+function Buildings.CreateOldTypes()
+    for _, value in ipairs(Buildings.MappingOldTypes) do
+        Buildings.Create (value.NewItem, value.OldType)
+    end
+
+    for _, value in ipairs(Decoratives.MappingOldTypes) do
+        Buildings.CreateDecorative (value.NewItem, value.OldType)
+    end
 end
 
 --- UpdateType by uniq.
@@ -452,10 +521,15 @@ function Buildings:UpdateTypeByUniq()
 end
 
 --- Extension ModBuilding.CreateBuilding
----@param building table
-function Buildings.Create (building)
+---@param building BuildingItem
+---@param replaceType string?
+function Buildings.Create (building, replaceType)
+    local type = building.Type
+    if (replaceType ~= nil) then
+        type = replaceType
+    end
     ModBuilding.CreateBuilding (
-        building.Name,
+        type,
         building.Ingridients,
         building.IngridientsAmount,
         building.ModelName,
@@ -466,23 +540,31 @@ function Buildings.Create (building)
     )
 
     if (building.Scale) then
-        ModBuilding.UpdateModelScale (building.Name, building.Scale)
+        ModBuilding.UpdateModelScale (type, building.Scale)
     end
     if (building.Rotation) then
         local rotation = building.Rotation
         rotation.X = rotation.X or 0.0
         rotation.Y = rotation.Y or 0.0
         rotation.Z = rotation.Z or 0.0
-        ModBuilding.UpdateModelRotation (building.Name, rotation.X, rotation.Y, rotation.Z)
+        ModBuilding.UpdateModelRotation (type, rotation.X, rotation.Y, rotation.Z)
     end
     if (building.Walkable) then
-        ModBuilding.SetBuildingWalkable (building.Name, true)
+        ModBuilding.SetBuildingWalkable (type, true)
     end
 end
 
-function Buildings.CreateDecorative (building)
+--- func desc
+---@param building DecorativeItem
+---@param replaceType string?
+function Buildings.CreateDecorative (building, replaceType)
+    local type = building.Type
+    if (replaceType ~= nil) then
+        type = replaceType
+    end
+
     ModDecorative.CreateDecorative (
-        building.Name,
+        type,
         building.Ingridients,
         building.IngridientsAmount,
         building.ModelName,
@@ -490,13 +572,13 @@ function Buildings.CreateDecorative (building)
     )
 
     if (building.Scale) then
-        ModDecorative.UpdateModelScale (building.Name, building.Scale)
+        ModDecorative.UpdateModelScale (type, building.Scale)
     end
     if (building.Rotation) then
         local rotation = building.Rotation
         rotation.X = rotation.X or 0.0
         rotation.Y = rotation.Y or 0.0
         rotation.Z = rotation.Z or 0.0
-        ModDecorative.UpdateModelRotation (building.Name, rotation.X, rotation.Y, rotation.Z)
+        ModDecorative.UpdateModelRotation (type, rotation.X, rotation.Y, rotation.Z)
     end
 end

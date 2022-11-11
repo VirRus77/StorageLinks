@@ -68,19 +68,27 @@ function Expose()
         return
     end
 
-    ModBase.ExposeVariable("Enable Debug Mode", false, ExposedVariableCallback)
-    ModBase.ExposeKeybinding("Debug: Move", 8, ExposedKeyCallback)
+    ModBase.ExposeVariable(Settings.EnableDebugMode.Name, Settings.EnableDebugMode.Value, Settings.ExposedVariableCallback)
+    -- ModBase.ExposeVariable(Settings.ReplaceOldBuildings.Name, Settings.ReplaceOldBuildings.Value, Settings.ExposedVariableCallback)
+    ModBase.ExposeKeybinding(Settings.DebugMove.Name, Settings.DebugMove.Value, Settings.ExposedKeyCallback)
 end
 
 --- Used to create any custom converters or buildings
 function Creation()
     Logging.Log("Creation")
-    Buildings.CreateAll()
+    -- Logging.Log(serializeTable({
+    --     Settings = Settings
+    -- }))
+
     Buildings:UpdateTypeByUniq()
-    Logging.Log(serializeTable(Buildings, "Buildings"))
+    -- Logging.Log(serializeTable(Buildings, "Buildings"))
     Decoratives:UpdateTypeByUniq()
-    Logging.Log(serializeTable(Decoratives, "Buildings"))
-    
+    -- Logging.Log(serializeTable(Decoratives, "Buildings"))
+    Buildings.CreateAll()
+
+    if ( Settings.ReplaceOldBuildings.Value ) then
+        Buildings.CreateOldTypes()
+    end
 
     -- Set some overall globals that determine if we want to use a TIMER, or callbacks.
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
@@ -98,6 +106,14 @@ function BeforeLoad()
     SwitchLockByLevel()
     UNLOCK_LEVEL_TIMER = Timer.new(SECONDS_BETWEEN_UNLOCK_CHECKS, SwitchLockByLevel)
 
+    if (Settings.ReplaceOldBuildings.Value) then
+        -- for _, value in ipairs(Buildings.MappingOldTypes) do
+        --     ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        -- end
+        -- for _, value in ipairs(Decoratives.MappingOldTypes) do
+        --     ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        -- end
+    end
     -- -- Pump
     -- ModVariable.SetVariableForBuildingUpgrade("Crude Pump (SL)", "Good Pump (SL)" )
     -- ModVariable.SetVariableForBuildingUpgrade("Good Pump (SL)" , "Super Pump (SL)")
@@ -137,19 +153,6 @@ function BeforeLoad()
     -- ModBuilding.ShowBuildingAccessPoint("Crude Receiver (SL)"		, true)
     -- ModBuilding.ShowBuildingAccessPoint("Good Receiver (SL)"		, true)
 
-    -- -- Hide old names
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Pump (SL)"       , "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Pump XL (SL)"    , "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Transmitter (SL)", "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Receiver (SL)"   , "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Magnet (SL)"     , "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Balancer (SL)"   , "Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt ("Storage Balancer XL (SL)", "Unlocked", 0)
--- 
-    -- -- Hide symbols
-    -- ModVariable.SetVariableForObjectAsInt("Switch On Symbol (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Broken Symbol (SL)"   ,"Unlocked", 0)
-
     --lockLevels()
     --checkUnlockLevels()
 
@@ -158,6 +161,42 @@ end
 --- Once a game has loaded key functionality, this is called.
 function AfterLoad()
     Logging.Log("AfterLoad")
+    if (Settings.ReplaceOldBuildings.Value) then
+        -- Logging.Log(serializeTable({
+        --     Buildings.MappingOldTypes,
+        --     "Buildings.MappingOldTypes"
+        -- }),serializeTable({
+        --     Decoratives.MappingOldTypes,
+        --     "Decoratives.MappingOldTypes"
+        -- }))
+
+        for _, value in ipairs(Buildings.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
+        end
+        for _, value in ipairs(Decoratives.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
+        end
+
+        ---@type ReplaceItem[]
+        local swapTypes = { }
+        for index, value in ipairs(Buildings.MappingOldTypes) do
+            table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
+        end
+        for index, value in ipairs(Decoratives.MappingOldTypes) do
+            table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
+        end
+        Logging.Log("Replace old...")
+        ReplaceOldTypesToNewTypes(swapTypes)
+        
+        Logging.Log("Disable old...")
+        for _, value in ipairs(Buildings.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
+        for _, value in ipairs(Decoratives.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
+    end
+
     --swapOldNamesToNew()
 end
 

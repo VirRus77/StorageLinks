@@ -9,20 +9,14 @@ function ExposedKeyCallback(name)
     end
 end
 
-function ExposedVariableCallback(value, name)
-    if (name == 'Enable Debug Mode') then
-        DEBUG_ENABLED = value
-    end
-end
-
 function lockLevels()
     Logging.Log("lockLevels")
 
     for index, value in ipairs(Buildings.GoodTypes) do
-        ModVariable.SetVariableForObjectAsInt(value, "Unlocked", 0)
+        ModVariable.SetVariableForObjectAsInt(value.Tyoe, "Unlocked", 0)
     end
     for index, value in ipairs(Buildings.SuperTypes) do
-        ModVariable.SetVariableForObjectAsInt(value, "Unlocked", 0)
+        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", 0)
     end
     --[[
     ModVariable.SetVariableForObjectAsInt(Buildings.PumpGood.Name,"Unlocked", 0)
@@ -79,15 +73,15 @@ function locateBalancers(buildingLevel)
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
-        buildingTypes = { Buildings.BalancerCrude.Name, }
+        buildingTypes = { Buildings.BalancerCrude.Type, }
     end
     if (buildingLevel == BuildingLevels.Good) then
-        buildingTypes = { Buildings.BalancerGood.Name, }
+        buildingTypes = { Buildings.BalancerGood.Type, }
     end
     if (buildingLevel == BuildingLevels.Super) then
         buildingTypes = {
-            Buildings.BalancerSuper.Name,
-            Buildings.BalancerSuperLong.Name,
+            Buildings.BalancerSuper.Type,
+            Buildings.BalancerSuperLong.Type,
         }
     end
 
@@ -128,15 +122,15 @@ function locatePumps(buildingLevel)
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
-        buildingTypes = { Buildings.PumpCrude.Name, }
+        buildingTypes = { Buildings.PumpCrude.Type, }
     end
     if (buildingLevel == BuildingLevels.Good) then
-        buildingTypes = { Buildings.PumpGood.Name, }
+        buildingTypes = { Buildings.PumpGood.Type, }
     end
     if (buildingLevel == BuildingLevels.Super) then
         buildingTypes = {
-            Buildings.PumpSuper.Name,
-            Buildings.PumpSuperLong.Name,
+            Buildings.PumpSuper.Type,
+            Buildings.PumpSuperLong.Type,
         }
     end
 
@@ -184,13 +178,13 @@ function locateOverflowPumps(buildingLevel)
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
-        buildingTypes = { Buildings.OverflowPumpCrude.Name, }
+        buildingTypes = { Buildings.OverflowPumpCrude.Type, }
     end
     if (buildingLevel == BuildingLevels.Good) then
-        buildingTypes = { Buildings.OverflowPumpGood.Name, }
+        buildingTypes = { Buildings.OverflowPumpGood.Type, }
     end
     if (buildingLevel == BuildingLevels.Super) then
-        buildingTypes = { Buildings.OverflowPumpSuper.Name, }
+        buildingTypes = { Buildings.OverflowPumpSuper.Type, }
     end
 
     pumpUIDs = GetUidsByTypes(buildingTypes)
@@ -233,7 +227,7 @@ function locateSwitches(buildingLevel)
         return
     end
     if (buildingLevel == BuildingLevels.Super) then
-        buildingTypes = { Buildings.SwitchSuper.Name }
+        buildingTypes = { Buildings.SwitchSuper.Type }
     end
 
     for _, buildingType in ipairs(buildingTypes) do
@@ -602,20 +596,20 @@ function locateReceiversAndTransmitters(buildingLevel)
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
         buildingTypes = {
-            Receivers = { Buildings.ReceiverCrude.Name },
-            Transmitters = { Buildings.TransmitterCrude.Name }
+            Receivers = { Buildings.ReceiverCrude.Type },
+            Transmitters = { Buildings.TransmitterCrude.Type }
         }
     end
     if (buildingLevel == BuildingLevels.Good) then
         buildingTypes = {
-            Receivers = { Buildings.ReceiverGood.Name },
-            Transmitters = { Buildings.TransmitterGood.Name }
+            Receivers = { Buildings.ReceiverGood.Type },
+            Transmitters = { Buildings.TransmitterGood.Type }
         }
     end
     if (buildingLevel == BuildingLevels.Super) then
         buildingTypes = {
-            Receivers = { Buildings.ReceiverSuper.Name },
-            Transmitters = { Buildings.TransmitterSuper.Name }
+            Receivers = { Buildings.ReceiverSuper.Type },
+            Transmitters = { Buildings.TransmitterSuper.Type }
         }
     end
 
@@ -1259,9 +1253,11 @@ function transferBySpawning(linkUID, qty, sourceProp, targetProp, sourceUID, tar
 
     for _, freshUID in ipairs(freshUIDs)
     do
-      -- put in target storage
-      ModStorage.AddToStorage(targetUID, freshUID)
-      if ModObject.IsValidObjectUID(freshUID) then ModObject.DestroyObject(freshUID) end
+        -- put in target storage
+        ModStorage.AddToStorage(targetUID, freshUID)
+        if ModObject.IsValidObjectUID(freshUID) then
+            ModObject.DestroyObject(freshUID)
+        end
     end
 end
 
@@ -1271,7 +1267,9 @@ function clearTypesInArea(typeName, xy1, xy2)
     local uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typeName, xy1[1], xy1[2], xy2[1], xy2[2])
     if uids ~= nil and uids[1] ~= nil then
         for _, uid in ipairs(uids) do
-            if uid ~= -1 and ModObject.IsValidObjectUID(uid) then ModObject.DestroyObject(uid) end
+            if uid ~= -1 and ModObject.IsValidObjectUID(uid) then
+                ModObject.DestroyObject(uid)
+            end
         end
     end
 end
