@@ -51,13 +51,18 @@ A set of links that can hook storages together. This is a great minimal mod.
  - Name the SWITCH like ">GROUP NAME". (always start with ">")
  - You can only have one switch per group name. (use anything you want for group name)
 
-~~ Future ~~
- - Be able to transfer to/from train carriages. As of 136.24, the Modding API does not support interacting with train carriages.
-
-
 ~= Enjoy =~
 
-    ]], {"transport", "storage"}, "logo.jpg")
+Fork: https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
+Source mod: https://github.com/VirRus77/StorageLinks
+
+    ]],
+    { "transport", "storage", "move", "transmitter", "receiver", "magnet" },
+    "logo2.jpg"
+)
+
+--~~ Future ~~
+-- - Be able to transfer to/from train carriages. As of 136.24, the Modding API does not support interacting with train carriages.
 
 end
 
