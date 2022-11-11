@@ -13,7 +13,7 @@ function lockLevels()
     Logging.Log("lockLevels")
 
     for index, value in ipairs(Buildings.GoodTypes) do
-        ModVariable.SetVariableForObjectAsInt(value.Tyoe, "Unlocked", 0)
+        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", 0)
     end
     for index, value in ipairs(Buildings.SuperTypes) do
         ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", 0)
@@ -101,7 +101,7 @@ function locateBalancers(buildingLevel)
 
     -- List the balancer's found
     if (DEBUG_ENABLED) then
-        ModDebug.Log(' locateBalancers: ', serializeTable({
+        Logging.Log(' locateBalancers: ', serializeTable({
             balancerUIDs = balancerUIDs
         }) )
     end
@@ -135,7 +135,7 @@ function locatePumps(buildingLevel)
     end
 
     for _, buildingType in ipairs(buildingTypes) do
-        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, tUID in ipairs(tmpUIDs) do
             pumpUIDs[#pumpUIDs + 1] = tUID
         end
@@ -231,7 +231,7 @@ function locateSwitches(buildingLevel)
     end
 
     for _, buildingType in ipairs(buildingTypes) do
-        local foundUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        local foundUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         table.insert(tmpUIDs, foundUIDs)
     end
 
@@ -278,7 +278,8 @@ function determineSwitchTargetState(switchUID, playerXY)
     local buildingType = Decoratives.SymbolBroken.Type
     local switchXY = {switchProps[2], switchProps[3]}
     local numBrokenSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, switchXY[1], switchXY[2], switchXY[1], switchXY[2])
-    local switchesByName = ModBuilding.GetAllBuildingsUIDsFromName(switchProps[5])
+    --local switchesByName = ModBuilding.GetAllBuildingsUIDsFromName(switchProps[5])
+    local switchesByName = ModBuilding.GetBuildingUIDsByName(switchProps[5])
     if switchesByName ~= nil and switchesByName[1] ~= nil and switchesByName[1] ~= -1 and #switchesByName > 1 then
         if numBrokenSymbols == 0 then
             ModBase.SpawnItem(buildingType, switchXY[1], switchXY[2], false, true, false)
@@ -625,7 +626,7 @@ function locateReceiversAndTransmitters(buildingLevel)
     -- Locate Receivers
     local rUIDs = {}
     for _, receiverType in ipairs(buildingTypes.Receivers) do
-        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(receiverType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(receiverType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, tUID in ipairs(tmpUIDs) do
             rUIDs[#rUIDs + 1] = tUID
         end
@@ -646,7 +647,7 @@ function locateReceiversAndTransmitters(buildingLevel)
     -- Locate Transmitters
     local tUIDs = { }
     for _, transmitterType in ipairs(buildingTypes.Transmitters) do
-        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(transmitterType, 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(transmitterType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, tUID in ipairs(tmpUIDs) do
             tUIDs[#tUIDs + 1] = tUID
         end
@@ -1259,10 +1260,13 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
 end
 
 function transferBySpawning(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
-    if DEBUG_ENABLED then ModDebug.Log(' transferBySpawning: ', linkUID, ', ', qty ) end
+    if (DEBUG_ENABLED) then
+        ModDebug.Log(' transferBySpawning: ', linkUID, ', ', qty )
+    end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
 
-    freshUIDs = ModStorage.TakeFromStorage(sourceUID, qty, 1, 1)
+    ---@type integer[]
+    local freshUIDs = ModStorage.RemoveFromStorage(sourceUID, qty, 0, 0)
 
     for _, freshUID in ipairs(freshUIDs)
     do
@@ -1277,7 +1281,7 @@ end
 
 -- Non flow functions (used multiple times)
 function clearTypesInArea(typeName, xy1, xy2)
-    local uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typeName, xy1[1], xy1[2], xy2[1], xy2[2])
+    local uids = ModTiles.GetObjectUIDsOfType(typeName, xy1[1], xy1[2], xy2[1], xy2[2])
     if uids ~= nil and uids[1] ~= nil then
         for _, uid in ipairs(uids) do
             if uid ~= -1 and ModObject.IsValidObjectUID(uid) then
@@ -1508,16 +1512,16 @@ function newBuildingInArea(BuildingUID, IsBlueprint, IsDragging) -- BuildingUID,
 
 end
 
-function removeAllSymbolObjects() -- not used yet
-    local blockerSymbols = ModTiles.GetObjectsOfTypeInAreaUIDs("Wooden Blocker On Symbol (BB)", 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1 )
-    if (blockerSymbols ~= nil and blockerSymbols[1] ~= nil and blockerSymbols[1] ~= -1) then
-        for _, uid in ipairs(blockerSymbols) do
-            if uid ~= -1 and ModObject.IsValidObjectUID(buildingUID) then
-                ModObject.DestroyObject(uid)
-            end
-        end
-    end
-end
+-- function removeAllSymbolObjects() -- not used yet
+--     local blockerSymbols = ModTiles.GetObjectsOfTypeInAreaUIDs("Wooden Blocker On Symbol (BB)", 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
+--     if (blockerSymbols ~= nil and blockerSymbols[1] ~= nil and blockerSymbols[1] ~= -1) then
+--         for _, uid in ipairs(blockerSymbols) do
+--             if uid ~= -1 and ModObject.IsValidObjectUID(buildingUID) then
+--                 ModObject.DestroyObject(uid)
+--             end
+--         end
+--     end
+-- end
 
 function compareLargerOnHandQty(a,b)
   return a.storageProps[2] > b.storageProps[2]
@@ -1641,7 +1645,7 @@ function isABuildingInTableOnMap(buildingTable)
     end
 
     for _, rType in ipairs(buildingTable) do
-        if (ModTiles.GetAmountObjectsOfTypeInArea(rType, 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1) > 0) then
+        if (ModTiles.GetAmountObjectsOfTypeInArea(rType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height) > 0) then
             return true
         end
     end

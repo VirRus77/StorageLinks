@@ -3,10 +3,8 @@
 ---@return integer[]
 function GetUidsByTypes(buildingTypes)
     local uids = { }
-    local worldWidth = WORLD_LIMITS[1] - 1
-    local worldHeight = WORLD_LIMITS[2] - 1
     for _, buildingType in ipairs(buildingTypes) do
-        local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 1, 1, worldWidth, worldHeight)
+        local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, uid in ipairs(tempUids) do
             table.insert(uids, uid)
             --uids[#uids + 1] = uid
@@ -80,7 +78,7 @@ end
 ---@param newName string # New type.
 function ReplaceOldTypeToNewType(oldName, newName)
     Logging.Log("Replace: OldType:", oldName, " NewType: ", newName)
-    local oldB = ModTiles.GetObjectUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
+    local oldB = ModTiles.GetObjectUIDsOfType(oldName, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
     --local oldB = ModBuilding.GetBuildingUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1] - 1, WORLD_LIMITS[2] - 1)
     Logging.Log("Found OldType:", GetTableLength(oldB))
     if oldB == nil or oldB == -1 or oldB[1] == nil or oldB[1] == -1 then
@@ -99,7 +97,7 @@ function ReplaceOldTypeToNewType(oldName, newName)
                 }))
             else
                 ModBuilding.SetRotation(newUID, rot)
-                ModBuilding.SetBuildingNam(newUID, props[5])
+                ModBuilding.SetBuildingName(newUID, props[5])
                 Logging.Log("Replace item: ", serializeTable({
                     props = props,
                     newUID = newUID

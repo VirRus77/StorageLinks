@@ -77,12 +77,12 @@ end
 
 function onMagnetSpawn(BuildingUID, BuildingType, IsBlueprint, IsDragging)
     if (DEBUG_ENABLED) then
-        ModDebug.Log( os.date(),": ", "onMagnetSpawn ", serializeTable({
+        Logging.Log ("onMagnetSpawn ", serializeTable({
             BuildingUID = BuildingUID,
             BuildingType = BuildingType,
             IsBlueprint = IsBlueprint,
             IsDragging = IsDragging
-        }) )
+        }))
     end
 
     if IsDragging then
@@ -99,15 +99,15 @@ end
 function locateStorageForMagnet(magUID)
     local storageUID, dir
     local magStorage = {}
-    
+
     if DEBUG_ENABLED then
-        ModDebug.Log(os.date(), ": " , "locateStorageForMagnet", " ", serializeTable({MagUID = magUID}) )
+        Logging.Log("locateStorageForMagnet", " ", serializeTable({MagUID = magUID}) )
     end
 
     local properties = ModObject.GetObjectProperties(magUID)
 
     if DEBUG_ENABLED then
-        ModDebug.Log(os.date(), ": ", "locateStorageForMagnet", " ", serializeTable(properties))
+        Logging.Log("locateStorageForMagnet", " ", serializeTable(properties))
     end
 
     -- Cache the Link
@@ -123,7 +123,7 @@ function locateStorageForMagnet(magUID)
     local x, y = tileXYFromDir({tileX, tileY}, dir)
     LINK_UIDS[magUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, buildingLevel=buildingLevel, connectToXY={x,y}}
     if DEBUG_ENABLED then
-        ModDebug.Log(os.date(), ": ", "locateStorageForMagnet LINK_UIDS", " ", serializeTable( LINK_UIDS[magUID] ))
+        Logging.Log("locateStorageForMagnet LINK_UIDS", " ", serializeTable( LINK_UIDS[magUID] ))
     end
 
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
@@ -149,7 +149,7 @@ end
 
 function addStorageForMagnet(magUID, rotation)
     if DEBUG_ENABLED then
-        ModDebug.Log('addStorageForMagnet: ', serializeTable({magUID = magUID, rotation = rotation}))
+        Logging.Log('addStorageForMagnet: ', serializeTable({magUID = magUID, rotation = rotation}))
     end
     local storageUID = storageUidOnTileWithCallbacks(LINK_UIDS[magUID].connectToXY[1], LINK_UIDS[magUID].connectToXY[2])
 
@@ -160,7 +160,7 @@ end
 
 function addStorageToMagnet(magUID, storageUID)
     if DEBUG_ENABLED then
-        ModDebug.Log('addStorageToMagnet: ', serializeTable({magUID = magUID, storageUID = storageUID}))
+        Logging.Log('addStorageToMagnet: ', serializeTable({magUID = magUID, storageUID = storageUID}))
     end
 
     local sProps = ModStorage.GetStorageInfo(storageUID)
@@ -199,13 +199,13 @@ function addStorageToMagnet(magUID, storageUID)
     end
 
     if DEBUG_ENABLED then
-        ModDebug.Log(' locateStorageForMagnet: sProps[1] ', sProps[1], ' of ', storageUID)
+        Logging.Log(' locateStorageForMagnet: sProps[1] ', sProps[1], ' of ', storageUID)
     end
 end
 
 function magnetNameUpdated(magUID, objName)
     if DEBUG_ENABLED then
-        ModDebug.Log('magnetNameUpdated: ', serializeTable({magUID = magUID, objName = objName}))
+        Logging.Log('magnetNameUpdated: ', serializeTable({magUID = magUID, objName = objName}))
     end
     -- Does the magnet exist in the tracker?
     if LINK_UIDS[magUID] == nil then return false end
@@ -221,13 +221,13 @@ function magnetNameUpdated(magUID, objName)
     LINK_UIDS[magUID].area = getAreaForMagnetStorage(LINK_UIDS[magUID], STORAGE_UIDS[LINK_UIDS[magUID].storageUID])
     
     if DEBUG_ENABLED then
-        ModDebug.Log('magnetNameUpdated end: ', serializeTable( LINK_UIDS[magUID] ))
+        Logging.Log('magnetNameUpdated end: ', serializeTable( LINK_UIDS[magUID] ))
     end
 end
 
 function magnetRepositioned(MagnetUID, BuildingType, Rotation, TileX, TileY, IsBlueprint, IsDragging)
     if DEBUG_ENABLED then
-        ModDebug.Log('magnetRepositioned: ', serializeTable({MagnetUID = MagnetUID, BuildingType= BuildingType, Rotation = Rotation, TileX = TileX, TileY = TileY, IsBlueprint = IsBlueprint, IsDragging = IsDragging}))
+        Logging.Log('magnetRepositioned: ', serializeTable({MagnetUID = MagnetUID, BuildingType= BuildingType, Rotation = Rotation, TileX = TileX, TileY = TileY, IsBlueprint = IsBlueprint, IsDragging = IsDragging}))
     end
 
     if IsDragging then
@@ -237,7 +237,7 @@ function magnetRepositioned(MagnetUID, BuildingType, Rotation, TileX, TileY, IsB
         return false
     end
     if DEBUG_ENABLED then
-        ModDebug.Log(' magnetRepositioned: MagnetUID ', MagnetUID)
+        Logging.Log(' magnetRepositioned: MagnetUID ', MagnetUID)
     end
     resetCachedLink(MagnetUID)
 end
@@ -367,7 +367,7 @@ function getMagnetArea(magnetName, posX, posY)
     ---@type number?
     local height = 10 -- default width
 
-    if DEBUG_ENABLED then
+    if (DEBUG_ENABLED) then
         ModDebug.Log(' getMagnetArea: w1 w2: ', w1, ' ', w2 )
         ModDebug.Log(' getMagnetArea: h1 h2: ', h1, ' ', h2 )
     end
@@ -391,8 +391,8 @@ function getMagnetArea(magnetName, posX, posY)
     -- Limit to map limits!!
     left = math.max(left, 0)
     top = math.max(top, 0)
-    right = math.min(right, WORLD_LIMITS[1] - 1)
-    bottom = math.min(bottom, WORLD_LIMITS[2] - 1)
+    right = math.min(right, WORLD_LIMITS.Width)
+    bottom = math.min(bottom, WORLD_LIMITS.Height)
 
     local result = { left = left, top = top, right = right, bottom = bottom }
     if DEBUG_ENABLED then
@@ -421,7 +421,8 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
     if STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil then return end
 
     -- Get all items of sType in area
-    local holdables = ModTiles.GetObjectsOfTypeInAreaUIDs(
+    --local holdables = ModTiles.GetObjectsOfTypeInAreaUIDs(
+    local holdables = ModTiles.GetObjectUIDsOfType(
         STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID].sType,
         LINK_UIDS[magnetUID].area.left,
         LINK_UIDS[magnetUID].area.top,
@@ -503,7 +504,7 @@ function collectGoodsIntoMagneticStorage(magStorage, maxQtyToCollect, stXY, area
     end
 
     -- Clip to max area on map
-    local pickables = ModTiles.GetObjectsOfTypeInAreaUIDs(magStorage.storageProps[1], area.left, area.top, area.right, area.bottom)
+    local pickables = ModTiles.GetObjectUIDsOfType(magStorage.storageProps[1], area.left, area.top, area.right, area.bottom)
     if pickables == nil or pickables[1] == -1 or #pickables == 0 then return false end
     if DEBUG_ENABLED then ModDebug.Log(' collectGoodsIntoMagneticStorage: #pickables ', #pickables ) end
 

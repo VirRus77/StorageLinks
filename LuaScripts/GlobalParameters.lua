@@ -1,7 +1,7 @@
 -- Static
 FRAMES_BETWEEN_CHECK = 10
 LAST_TIME_DELTA = 0
-WORLD_LIMITS = {1, 1}
+
 VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before uploading to steam!!
 
 -- Internal Databases
