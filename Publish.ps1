@@ -24,6 +24,7 @@ if ( [System.IO.Directory]::Exists($publishPath) ) {
 }
 
 # models (*.mtl, *.obj)
+Write-Host "Copy models"
 [string] $destDirectory = "models"
 [string] $destination = [System.IO.Path]::Combine($publishPath, $destDirectory)
 [string[]] $files = [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.mtl") + [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.obj")
@@ -36,6 +37,7 @@ $files | ForEach-Object {
 }
 
 # textures (*.png, *.jpg)
+Write-Host "Copy textures"
 [string] $destDirectory = "textures"
 [string] $destination = [System.IO.Path]::Combine($publishPath, $destDirectory)
 [string[]] $files = [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.png") + [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.jpg")
@@ -48,6 +50,7 @@ $files | ForEach-Object {
 }
 
 # ExampleGame
+Write-Host "Copy ExampleGame"
 [string] $destDirectory = "ExampleGame"
 [string] $destination = [System.IO.Path]::Combine($publishPath, $destDirectory)
 Copy-Item -Path "$RootPath/$destDirectory" -Destination $destination -Recurse
@@ -62,3 +65,8 @@ $fileNames | Where-Object { -not [string]::IsNullOrEmpty($_) } | ForEach-Object 
   $fileContent = "----- $([System.IO.Path]::GetFileName($_)) -----`n`n" + $fileContent + "`n"
   Add-Content -Path $destination -Value $fileContent -Encoding "utf8"
 }
+
+# Copy steamModID
+Write-Host "Copy steamModID"
+[string] $fileName = "steamModID"
+Copy-Item -Path ([System.IO.Path]::Combine($RootPath, $fileName)) -Destination ([System.IO.Path]::Combine($publishPath, $fileName))
