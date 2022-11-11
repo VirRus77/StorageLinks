@@ -218,7 +218,7 @@ function AfterLoad_LoadedWorld()
     --checkUnlockLevels()
     SwitchLockByLevel()
 
-    WORLD_LIMITS = ModTiles.GetMapLimits()
+    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
 
     -- Reset caches
     LINK_UIDS = {}

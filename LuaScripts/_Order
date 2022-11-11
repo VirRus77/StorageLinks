@@ -5,6 +5,7 @@ Tools.lua
 Logging.lua
 Settings.lua
 Constants.lua
+WorldLimits.lua
 GlobalParameters.lua
 Buildings.lua
 Translates.lua
