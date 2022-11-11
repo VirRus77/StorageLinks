@@ -1,7 +1,5 @@
 ---@type number
 SECONDS_BETWEEN_UNLOCK_CHECKS = 5
----@type Timer
-UNLOCK_LEVEL_TIMER = nil
 
 ---@alias ItemType { Dependency :string[], Buildings :BuildingItem[] } #
 ---@type ItemType[] #
