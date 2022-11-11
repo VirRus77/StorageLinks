@@ -113,7 +113,7 @@ function locateStorageForMagnet(magUID)
         Logging.Log("locateStorageForMagnet", " ", serializeTable({MagUID = magUID}) )
     end
 
-    local properties = UnpukObjectProperties( ModObject.GetObjectProperties(magUID) )
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(magUID) )
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magUID))
         return
@@ -195,9 +195,9 @@ function addStorageToMagnet(magUID, storageUID)
     -- if sProps[2] == nil then return false end -- Was not actually a storage.
 
     -- Cache the storageUID
-    local properties = UnpukObjectProperties (ModObject.GetObjectProperties(storageUID))
+    local properties = UnpackObjectProperties (ModObject.GetObjectProperties(storageUID))
     if (not properties.Successfully) then
-        Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magUID))
+        Logging.LogWarning(string.format("addStorageToMagnet(magUID = %d, storageUID = %d). Properties not readed.", magUID, storageUID))
         return
     end
 
@@ -219,18 +219,18 @@ function addStorageToMagnet(magUID, storageUID)
     LINK_UIDS[magUID].storageUID = storageUID
     magnetNameUpdated(magUID, LINK_UIDS[magUID].name) -- this sets up the area
 
-    -- Make sure we have a callback for when the storage is moved/rotated/destroyed
-    if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRepositionedCallback') then
-            ModBuilding.RegisterForBuildingRepositionedCallback(storageUID, storageRepositioned)
-        end
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingDestroyedCallback') then
-            ModBuilding.RegisterForBuildingDestroyedCallback(storageUID, storageDestroyed)
-        end
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForStorageItemChangedCallback') then
-            ModBuilding.RegisterForStorageItemChangedCallback(storageUID, storageItemChanged)
-        end
-    end
+    -- -- Make sure we have a callback for when the storage is moved/rotated/destroyed
+    -- if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
+    --     if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRepositionedCallback') then
+    --         ModBuilding.RegisterForBuildingRepositionedCallback(storageUID, storageRepositioned)
+    --     end
+    --     if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingDestroyedCallback') then
+    --         ModBuilding.RegisterForBuildingDestroyedCallback(storageUID, storageDestroyed)
+    --     end
+    --     if ModBase.ClassAndMethodExist('ModBuilding','RegisterForStorageItemChangedCallback') then
+    --         ModBuilding.RegisterForStorageItemChangedCallback(storageUID, storageItemChanged)
+    --     end
+    -- end
 
     if (Settings.DebugMode.Value) then
         Logging.LogDebug(' locateStorageForMagnet: sProps[1] ', sProps[1], ' of ', storageUID)

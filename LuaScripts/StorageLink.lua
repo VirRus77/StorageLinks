@@ -199,20 +199,26 @@ end
 function determineSwitchTargetState(switchUID, playerXY)
     -- If "farmerPlayer" or "Worker" is on tile, state should be OnUpdate
     -- otherwise OFF.
-    local switchProps = ModObject.GetObjectProperties(switchUID) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
+
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(switchUID) )
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("determineSwitchTargetState(switchUID = %d, playerXY = ($d, $d)). Properties not readed.", switchUID, playerXY[1], playerXY[2]))
+        return
+    end
+    --local switchProps = ModObject.GetObjectProperties(switchUID) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
 
     -- Ignore this switch if it's name does not start with ">"
-    local ms, me = string.find(switchProps[5],'>.+')
+    local ms, me = string.find(properties.Name,'>.+')
     if ms == nil then
         return
     end
 
     -- Do we have multiple with the same name?
     local buildingType = Decoratives.SymbolBroken.Type
-    local switchXY = {switchProps[2], switchProps[3]}
+    local switchXY = { properties.TileX, properties.TileY }
     local numBrokenSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, switchXY[1], switchXY[2], switchXY[1], switchXY[2])
     --local switchesByName = ModBuilding.GetAllBuildingsUIDsFromName(switchProps[5])
-    local switchesByName = ModBuilding.GetBuildingUIDsByName(switchProps[5])
+    local switchesByName = ModBuilding.GetBuildingUIDsByName(properties.Name)
     if switchesByName ~= nil and switchesByName[1] ~= nil and switchesByName[1] ~= -1 and #switchesByName > 1 then
         if numBrokenSymbols == 0 then
             ModBase.SpawnItem(buildingType, switchXY[1], switchXY[2], false, true, false)
@@ -228,27 +234,41 @@ function determineSwitchTargetState(switchUID, playerXY)
     -- Are bots or player on tile?
     local numBotsOnTile = ModTiles.GetAmountObjectsOfTypeInArea('Worker', switchXY[1], switchXY[2], switchXY[1], switchXY[2])
     if numBotsOnTile > 0 or (switchXY[1] == playerXY[1] and switchXY[2] == playerXY[2]) then
-        setSwitchState(switchUID, switchProps, true)
+        setSwitchState(switchUID, properties, true)
     else
-        setSwitchState(switchUID, switchProps, false)
+        setSwitchState(switchUID, properties, false)
     end
 end
 
+--- func desc
+---@param switchUID integer
+---@param switchProps UnpackObjectProperties
+---@param turnOn boolean
 function setSwitchState(switchUID, switchProps, turnOn)
-    local xy = {switchProps[2], switchProps[3]}
+    local xy = { switchProps.TileX, switchProps.TileY }
     local buildingType = Decoratives.SwitchOnSymbol.Type
     local onSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, xy[1], xy[2], xy[1], xy[2])
 
     if turnOn then
-        if DEBUG_ENABLED then ModDebug.Log(' switch @ ' .. xy[1]  .. ':' .. xy[2] .. ' is ON.') end
-        if onSymbols == 0 then ModBase.SpawnItem(buildingType, xy[1], xy[2], false, true, false) end
-        if SWITCHES_TURNED_OFF[switchProps[5]] then
-            SWITCHES_TURNED_OFF[switchProps[5]] = nil
+        if DEBUG_ENABLED then
+            Logging.LogDebug(string.format(' switch @ %d:$d is ON.', xy[1], xy[2]))
+        end
+        if onSymbols == 0 then
+            ModBase.SpawnItem(buildingType, xy[1], xy[2], false, true, false)
+        end
+        if SWITCHES_TURNED_OFF[switchProps.Name] then
+            SWITCHES_TURNED_OFF[switchProps.Name] = nil
         end
     else
-        if DEBUG_ENABLED then ModDebug.Log(' switch @ ' .. xy[1]  .. ':' .. xy[2] .. ' is OFF.') end
-        if onSymbols > 0 then clearTypesInArea(buildingType, xy, xy) end
-        if SWITCHES_TURNED_OFF[switchProps[5]] == nil then SWITCHES_TURNED_OFF[switchProps[5]] = true end
+        if DEBUG_ENABLED then
+            Logging.LogDebug(string.format(' switch @ %d:$d is OFF.', xy[1], xy[2]))
+        end
+        if onSymbols > 0 then
+            clearTypesInArea(buildingType, xy, xy)
+        end
+        if SWITCHES_TURNED_OFF[switchProps.Name] == nil then
+            SWITCHES_TURNED_OFF[switchProps.Name] = true
+        end
     end
 end
 
@@ -317,19 +337,19 @@ function linkDestroyed(LinkUID)
     end
 end
 
-function storageItemChanged(StorageUID, NewStoringType)
-    if IsDragging then
-        return false
-    end
-    if IsBlueprint then
-        return false
-    end
-    if DEBUG_ENABLED then ModDebug.Log(' storageItemChanged: StorageUID: ', StorageUID, ' into ', NewStoringType ) end
+-- function storageItemChanged(StorageUID, NewStoringType)
+--     if IsDragging then
+--         return false
+--     end
+--     if IsBlueprint then
+--         return false
+--     end
+--     if DEBUG_ENABLED then ModDebug.Log(' storageItemChanged: StorageUID: ', StorageUID, ' into ', NewStoringType ) end
 
-    if STORAGE_UIDS[storageUID] ~= nil then
-        STORAGE_UIDS[storageUID].sType = NewStoringType
-    end
-end
+--     if STORAGE_UIDS[storageUID] ~= nil then
+--         STORAGE_UIDS[storageUID].sType = NewStoringType
+--     end
+-- end
 
 function updateLinkPropsAsNeeded(uid)
     if ModObject.IsValidObjectUID(uid) == false then
@@ -338,14 +358,27 @@ function updateLinkPropsAsNeeded(uid)
         return
     end
 
-    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(uid))
-    local newProps = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name}
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("updateLinkPropsAsNeeded(uid = %d). Properties not readed.", uid))
+        return
+    end
+    --local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(uid))
+    local newProps = {
+        bType    = properties.Type,
+        tileX    = properties.TileX,
+        tileY    = properties.TileY,
+        rotation = properties.Rotation,
+        name     = properties.Name
+    }
 
     if standardPropsMatch(LINK_UIDS[uid], newProps) == false then
         resetCachedLink(uid)
     end
 end
 
+--- func desc
+---@param storageUID integer
 function updateStoragePropsAsNeeded(storageUID)
     -- Is this still a valid storage?
     if ModObject.IsValidObjectUID(storageUID) == false then
@@ -355,18 +388,34 @@ function updateStoragePropsAsNeeded(storageUID)
     end
 
     -- Has the storage stayed in the same x and y?
-    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(storageUID))
-    local newProps = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name}
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(storageUID) )
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("updateStoragePropsAsNeeded(storageUID = %d). Properties not readed.", storageUID))
+        return
+    end
+    --local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(storageUID))
+    local newProps = {
+        bType    = properties.Type,
+        tileX    = properties.TileX,
+        tileY    = properties.TileY,
+        rotation = properties.Rotation,
+        name     = properties.Name
+    }
 
-    if storagePropsMatch(STORAGE_UIDS[storageUID],newProps) == false then
+    if (storagePropsMatch(STORAGE_UIDS[storageUID], newProps) == false) then
         -- storage moved?
         resetAttachedLinksCache(storageUID)
     else
         -- resetAttachedLinksCache resets this, so no reason to check both.
         -- Has it changed type? hate to do this every call!
-        local sProps = ModStorage.GetStorageInfo(storageUID)
-        if STORAGE_UIDS[storageUID].sType ~= sProps[1] then
-            STORAGE_UIDS[storageUID].sType = sProps[1]
+        ---@type UnpackStorageInfo
+        local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo (storageUID))
+        if (not storageInfo.Successfully)then
+            Logging.LogWarning(string.format("updateStoragePropsAsNeeded ModStorage.GetStorageInfo(storageUID = %d). Properties not readed.", storageUID))
+            return
+        end
+        if STORAGE_UIDS[storageUID].sType ~= storageInfo.TypeStores then
+            STORAGE_UIDS[storageUID].sType = storageInfo.TypeStores
         end
     end
 
@@ -616,7 +665,7 @@ end
 
 function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingLevel)
 
-    local linkProps, linkXY, linkRotation, storageUID, storageProps, dir, props, bOnTile
+    local linkXY, storageUID, storageProps, dir, props, bOnTile
     local recStorages = {}
     local transStorages = {} -- { linkUID = uid, sUID = storageUID, typeStored='Clay', onHand=23 }
     -- ModObject.GetObjectProperties(uid) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Nam
@@ -627,28 +676,38 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     end
 
     -- Find ALL STORAGES for receivers
-    for _, uid in ipairs(recUIDs)
-    do
-        linkProps = ModObject.GetObjectProperties(uid)
-        linkXY = ModObject.GetObjectTileCoord(uid)
-        linkRotation = math.floor(linkProps[4] + 0.5)
+    for _, uid in ipairs(recUIDs) do
 
-        if linkIsSwitchedOff(linkProps[5]) == false then
-            if DEBUG_ENABLED then
-                ModDebug.Log(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] )
-            end
+        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+        if (not properties.Successfully) then
+            Logging.LogWarning(
+                string.format(
+                    "locateStoragesForReceiversAndTransmitters(recUIDs = 'array', transUIDs = 'array', buildingLevel = %s). Properties not readed.\n", buildingLevel
+                ),
+                "ModObject.GetObjectProperties(%d)", uid)
+            return
+        else
+            --linkProps = ModObject.GetObjectProperties(uid)
+            linkXY = ModObject.GetObjectTileCoord(uid)
+            --linkRotation = math.floor(linkProps[4] + 0.5)
 
-            if linkRotation == 180 then dir = 'n' end -- twisted 180 from the transmitters
-            if linkRotation == 270 then dir = 'e' end
-            if linkRotation == 0   then dir = 's' end
-            if linkRotation == 90  then dir = 'w' end
-            bOnTile = findStorageOrConverterInDirection(linkXY, dir) -- { kind = "storage/converter", uid = uid, props = props!}
-            -- FIXME cmopare two nill values on 808???? so the .props is nill??? hmmmm
-            if bOnTile ~= nil then
-                if bOnTile.kind == 'storage' and bOnTile.props[2] < bOnTile.props[3] then -- [2] = amountStored, [3] = maxCapacity
-                    recStorages[#recStorages + 1] = { linkUID = uid, storageUID = bOnTile.uid, typeStored = bOnTile.props[1], storageProps = bOnTile.props, kind = bOnTile.kind }
-                elseif bOnTile.kind == 'converter' then
-                    recStorages[#recStorages + 1] = { linkUID = uid, converterUID = bOnTile.uid, typeStored = '*', storageProps = bOnTile.props, kind = bOnTile.kind  }
+            if linkIsSwitchedOff(properties.Name) == false then
+                if DEBUG_ENABLED then
+                    ModDebug.Log(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] )
+                end
+
+                if properties.Rotation == 180 then dir = 'n' end -- twisted 180 from the transmitters
+                if properties.Rotation == 270 then dir = 'e' end
+                if properties.Rotation == 0   then dir = 's' end
+                if properties.Rotation == 90  then dir = 'w' end
+                bOnTile = findStorageOrConverterInDirection(linkXY, dir) -- { kind = "storage/converter", uid = uid, props = props!}
+                -- FIXME cmopare two nill values on 808???? so the .props is nill??? hmmmm
+                if bOnTile ~= nil then
+                    if bOnTile.kind == 'storage' and bOnTile.props[2] < bOnTile.props[3] then -- [2] = amountStored, [3] = maxCapacity
+                        recStorages[#recStorages + 1] = { linkUID = uid, storageUID = bOnTile.uid, typeStored = bOnTile.props[1], storageProps = bOnTile.props, kind = bOnTile.kind }
+                    elseif bOnTile.kind == 'converter' then
+                        recStorages[#recStorages + 1] = { linkUID = uid, converterUID = bOnTile.uid, typeStored = '*', storageProps = bOnTile.props, kind = bOnTile.kind  }
+                    end
                 end
             end
         end
@@ -657,39 +716,47 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     -- Find ALL STORAGES for transmitters
     for _, uid in ipairs(transUIDs)
     do
-        linkProps = ModObject.GetObjectProperties(uid)
+        --linkProps = ModObject.GetObjectProperties(uid)
+        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
         linkXY = ModObject.GetObjectTileCoord(uid)
 
-        if (DEBUG_ENABLED) then
-            Logging.Log(' locateStoragesForReceiversAndTransmitters (-- Find ALL STORAGES for transmitters): ', serializeTable({
-                uid = uid,
-                linkProps = linkProps,
-                linkXY = linkXY
-            }) )
-        end
-
-        linkRotation = math.floor(linkProps[4] + 0.5)
-
-        if linkIsSwitchedOff(linkProps[5]) == false then
-            if DEBUG_ENABLED then
-                ModDebug.Log(' locateStoragesForReceiversAndTransmitters Transmitter @ ', linkXY[1], ':', linkXY[2] )
+        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+        if (not properties.Successfully) then
+            Logging.LogWarning(
+                string.format(
+                    "locateStoragesForReceiversAndTransmitters(recUIDs = 'array', transUIDs = 'array', buildingLevel = %s). Properties not readed.\n", buildingLevel
+                ),
+                "ModObject.GetObjectProperties(%d)", uid)
+        else
+            if (Settings.DebugMode.Value) then
+                Logging.LogDebug(' locateStoragesForReceiversAndTransmitters (-- Find ALL STORAGES for transmitters): ', serializeTable({
+                    uid = uid,
+                    properties = properties,
+                    linkXY = linkXY
+                }) )
             end
 
-            if linkRotation == 0   then dir = 'n' end
-            if linkRotation == 90  then dir = 'e' end
-            if linkRotation == 180 then dir = 's' end
-            if linkRotation == 270 then dir = 'w' end
-            storageUID = findStorageInDirection(linkXY, dir) -- should be north?
-            if storageUID ~= nil then
-                storageProps = ModStorage.GetStorageInfo(storageUID)
-                if storageProps ~= nil and storageProps[1] ~= -1 and storageProps[2] > 0 then -- [2] = amountStored, [3] = maxCapacity
-                    transStorages[#transStorages + 1] = { linkUID = uid, storageUID = storageUID, typeStored = storageProps[1], storageProps = storageProps  }
+            if linkIsSwitchedOff(properties.Name) == false then
+                if (Settings.DebugMode.Value) then
+                    Logging.LogDebug( string.format('locateStoragesForReceiversAndTransmitters Transmitter @ %d:%d', linkXY[1], linkXY[2]) )
+                end
+
+                if properties.Rotation == 0   then dir = 'n' end
+                if properties.Rotation == 90  then dir = 'e' end
+                if properties.Rotation == 180 then dir = 's' end
+                if properties.Rotation == 270 then dir = 'w' end
+                storageUID = findStorageInDirection(linkXY, dir) -- should be north?
+                if storageUID ~= nil then
+                    storageProps = ModStorage.GetStorageInfo(storageUID)
+                    if storageProps ~= nil and storageProps[1] ~= -1 and storageProps[2] > 0 then -- [2] = amountStored, [3] = maxCapacity
+                        transStorages[#transStorages + 1] = { linkUID = uid, storageUID = storageUID, typeStored = storageProps[1], storageProps = storageProps  }
+                    end
                 end
             end
         end
     end
 
-    if DEBUG_ENABLED then
+    if (Settings.DebugMode.Value) then
         ModDebug.Log(' #recStorages: ', #recStorages )
         ModDebug.Log(' #transStorages: ', #transStorages )
     end
@@ -776,7 +843,9 @@ function handleOneConverterReceiver(rec, trxGroups, buildingLevel)
         levelCap = 5
     end
 
-    if linkIsSwitchedOff(rec.storageProps[5]) then return trxGroups end
+    if linkIsSwitchedOff(rec.storageProps[5]) then
+        return trxGroups
+    end
 
     if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(a): trxGroups ', type(trxGroups) ) end
 
@@ -852,11 +921,26 @@ function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, bu
 end
 
 function addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
-    if trxGroups == nil then return trxGroups end
+    if trxGroups == nil then
+        return trxGroups
+    end
     -- Can this building take water?
-    local buildingProps = ModObject.GetObjectProperties(rec.converterUID)
-    local waterAmount = ModVariable.GetVariableForObjectAsInt(buildingProps[1], 'WaterCapacity')
-    if waterAmount == nil or waterAmount == 0 then return trxGroups end
+    --local buildingProps = ModObject.GetObjectProperties(rec.converterUID)
+
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(rec.converterUID) )
+    if (not properties.Successfully) then
+        Logging.LogWarning(
+            string.format(
+                "addWaterFromTransmittersToConverter(recUIDs = 'array', transUIDs = 'array', buildingLevel = %s, levelCap). Properties not readed.\n", buildingLevel
+            ),
+            "ModObject.GetObjectProperties(%d)", rec.converterUID)
+        return trxGroups
+    end
+
+    local waterAmount = ModVariable.GetVariableForObjectAsInt(properties.Type, 'WaterCapacity')
+    if waterAmount == nil or waterAmount == 0 then
+        return trxGroups
+    end
 
     -- Are any of the transmitters hooked into water?
     local added
@@ -884,25 +968,31 @@ function addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, leve
 end
 
 function addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
-    if trxGroups == nil then return trxGroups end
+    if trxGroups == nil then
+        return trxGroups
+    end
     -- Is this building set up for fuel?
     -- ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(rec.converterUID), )
 
     -- Create mapping of the 'FuelValue' for each of the transmitter storages. (so we can sort)
+    ---@type { storedType :string, fuelAmount :integer }
     local fuelMap = {}
     local fuelAmount
     for storedType, trxGrp in pairs(trxGroups) do
         fuelAmount = ModVariable.GetVariableForObjectAsInt(storedType, "Fuel")
         if fuelAmount ~= nil and fuelAmount > 0 then
-            fuelMap[#fuelMap+1] = {storedType = storedType, fuelAmount = fuelAmount}
+            table.insert(fuelMap, {storedType = storedType, fuelAmount = fuelAmount})
+            -- fuelMap[#fuelMap+1] = {storedType = storedType, fuelAmount = fuelAmount}
         end
     end
 
     -- Can any be used as fuel?
-    if #fuelMap == 0 then return trxGroups end
+    if #fuelMap == 0 then
+        return trxGroups
+    end
 
     -- Sort the map of possible fuels, biggest first
-    fuelMap = table.sort(fuelMap, function(a,b)
+    fuelMap = table.sort(fuelMap, function(a, b)
         return a.fuelAmount > b.fuelAmount
     end)
 
@@ -914,7 +1004,11 @@ function addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, level
     local fuelAmountPerItem
     local qtyTakenFromStorages = 0
     for fkey, fuelOb in ipairs(fuelMap) do
-        if fkey > 3 then break end -- use top three fuels only
+         -- use top three fuels only
+        if fkey > 3 then
+            break
+        end
+
         fuelType = fuelOb.storedType
         fuelAmountPerItem = fuelOb.fuelAmount
         for gkey, trx in ipairs(trxGroups[fuelType]) do -- each transmitter with that fuelType
@@ -1020,11 +1114,18 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
     if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForLink: ', linkUID, ',', direction ) end
     -- direction = 'one' or 'both'.
     local linkXY = ModObject.GetObjectTileCoord(linkUID)
-    local linkProp = ModObject.GetObjectProperties(linkUID)	--  [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
-    local rotation = math.floor(linkProp[4] + 0.5) -- 0, 90, 180, 270
+
+    --local linkProp = ModObject.GetObjectProperties(linkUID)	--  [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
+    --local rotation = math.floor(linkProp[4] + 0.5) -- 0, 90, 180, 270
+    local properties = UnpackObjectProperties (ModObject.GetObjectProperties(linkUID))
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("locateStoragesForLink(linkUID = %d, direction = %s, buildingLevel = %s, onlyIfSourceFull = %s). Properties not readed.", linkUID, direction, buildingLevel, onlyIfSourceFull))
+        return
+    end
+
     local side1Storage, side2Storage
 
-    if linkIsSwitchedOff(linkProp[5]) then
+    if linkIsSwitchedOff(properties.Name) then
         return false
     end
 
@@ -1032,7 +1133,7 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
         ModDebug.Log(' locateStoragesForLink: checking rotations ', linkUID, ',', direction )
     end
 
-    if rotation == 90 or rotation == 270 then
+    if properties.Rotation == 90 or properties.Rotation == 270 then
         side1Storage = findStorageInDirection(linkXY, 'e')
         side2Storage = findStorageInDirection(linkXY, 'w')
     else
@@ -1043,7 +1144,7 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
     if side1Storage == nil or side2Storage == nil then return end
 
     -- 'one' = pump.
-    if direction == 'one' and (rotation == 270 or rotation == 180) then -- with 270 and 0, east/west work, north/south fail
+    if direction == 'one' and (properties.Rotation == 270 or properties.Rotation == 180) then -- with 270 and 0, east/west work, north/south fail
         -- Swap sides
         local side3Storage = side1Storage
         side1Storage = side2Storage
@@ -1059,7 +1160,9 @@ end
 function checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
     if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: ', linkUID, ', ', direction ) end
     -- direction = 'one' or 'both'.
+    ---@type StorageInfo
     local side1Prop = ModStorage.GetStorageInfo(side1Storage)
+    ---@type StorageInfo
     local side2Prop = ModStorage.GetStorageInfo(side2Storage)
     -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
 
@@ -1073,9 +1176,14 @@ function checkStorageCompatability(linkUID, side1Storage, side2Storage, directio
     calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
 end
 
----@param linkUID number
----@param side1Prop number
+
+---@param linkUID integer
+---@param side1Prop StorageInfo
+---@param side2Prop StorageInfo
+---@param side1Storage integer
+---@param side2Storage integer
 ---@param direction DirectionType
+---@param buildingLevel BuildingLevels
 ---@param onlyIfSourceFull? boolean
 function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
     if DEBUG_ENABLED then
@@ -1118,15 +1226,26 @@ function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, sid
     if qtyTo2 < 0 then
         -- Moving stuff from side2 to side1
         local qtyToMove = math.abs(qtyTo2)
-        if qtyToMove > levelCap then qtyToMove = levelCap end
+        if qtyToMove > levelCap then
+            qtyToMove = levelCap
+        end
         calculateStyleOfTransfer(linkUID, qtyToMove, side2Prop, side1Prop, side2Storage, side1Storage)
     else
         -- Moving stuff from side1 to side2
-        if qtyTo2 > levelCap then qtyTo2 = levelCap end
+        if qtyTo2 > levelCap then
+            qtyTo2 = levelCap
+        end
         calculateStyleOfTransfer(linkUID, qtyTo2, side1Prop, side2Prop, side1Storage, side2Storage)
     end
 end
 
+
+---@param linkUID integer
+---@param qty integer
+---@param sourceProp StorageInfo
+---@param targetProp StorageInfo
+---@param sourceUID integer
+---@param targetUID integer
 function calculateStyleOfTransfer(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
     if DEBUG_ENABLED then ModDebug.Log(' calculateStyleOfTransfer: ', linkUID, ', ', qty ) end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
@@ -1150,9 +1269,18 @@ function calculateStyleOfTransfer(linkUID, qty, sourceProp, targetProp, sourceUI
     end
 end
 
+---@param linkUID integer
+---@param qty integer
+---@param sourceProp StorageInfo
+---@param targetProp StorageInfo
+---@param sourceUID integer
+---@param targetUID integer
+---@return boolean
 -- Here we split. One or the other!
 function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
-    if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: link:', linkUID, ', qty:', qty, ', src:', sourceUID, ', dst:', targetUID ) end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' transferByAdjusting: link:', linkUID, ', qty:', qty, ', src:', sourceUID, ', dst:', targetUID )
+    end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     local newTargetProp, newSourceProp
 
@@ -1170,22 +1298,40 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
     local newTotalInTgt = targetProp[2] + qty
 
     -- Check for new below 0 and above max
-    if newTotalInSrc < 0 then return false end -- don't go below 0!!
-    if newTotalInTgt > targetProp[3] then return false end -- don't go over max!!
+    if newTotalInSrc < 0 then
+        return false
+    end -- don't go below 0!!
+    if newTotalInTgt > targetProp[3] then
+        return false
+    end -- don't go over max!!
 
     -- Put in target
     if ModStorage.SetStorageQuantityStored(targetUID, newTotalInTgt) then
-        if DEBUG_ENABLED then newTargetProp = ModStorage.GetStorageInfo(targetUID) end
-        if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: dst:', targetUID, ', increased from:', targetProp[2],' to:', targetProp[2] + qty) end
-        if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp[2]) end
+        if (Settings.DebugMode.Value) then
+            newTargetProp = ModStorage.GetStorageInfo(targetUID)
+        end
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' transferByAdjusting: dst:', targetUID, ', increased from:', targetProp[2],' to:', targetProp[2] + qty)
+        end
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp[2])
+        end
 
         -- Remove from source
         ModStorage.SetStorageQuantityStored(sourceUID, newTotalInSrc)
-        if DEBUG_ENABLED then newSourceProp = ModStorage.GetStorageInfo(sourceUID) end
-        if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: src:', sourceUID, ', lowered from:', sourceProp[2],' to:', sourceProp[2] - qty) end
-        if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp[2]) end
+        if (Settings.DebugMode.Value) then
+            newSourceProp = ModStorage.GetStorageInfo(sourceUID)
+        end
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' transferByAdjusting: src:', sourceUID, ', lowered from:', sourceProp[2],' to:', sourceProp[2] - qty)
+        end
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp[2])
+        end
     else
-        if DEBUG_ENABLED then ModDebug.Log(' Error transferByAdjusting! SetStorageQty in target faled!') end
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' Error transferByAdjusting! SetStorageQty in target faled!')
+        end
         return false
     end
 
@@ -1330,9 +1476,14 @@ function storageUidOnTile(x,y)
     return nil
 end
 
+---@param srcXY Point
+---@param dir "n"|"e"|"s"|"w"
+---@return { kind :"storage"|"converter", uid :integer, props: StorageInfo | ConverterProperties }|nil
 function findStorageOrConverterInDirection(srcXY, dir)
 
-    if DEBUG_ENABLED then ModDebug.Log(' findStorageOrConverterInDirection - checking ', dir, srcXY[1], ':', srcXY[2]) end
+    if DEBUG_ENABLED then
+        ModDebug.Log(' findStorageOrConverterInDirection - checking ', dir, srcXY[1], ':', srcXY[2])
+    end
 
     local building
 
@@ -1341,14 +1492,19 @@ function findStorageOrConverterInDirection(srcXY, dir)
     if dir == 'w' then building = storageOrConverterUidOnTile(srcXY[1] - 1, srcXY[2]	) end
     if dir == 'e' then building = storageOrConverterUidOnTile(srcXY[1] + 1, srcXY[2]	) end
 
-    if building ~= nil then return building end
+    if building ~= nil then
+        return building
+    end
 
     return nil
 
 end
 
+--- func desc
+---@param x integer
+---@param y integer
+---@return { kind :"storage"|"converter", uid :integer, props: StorageInfo | ConverterProperties }|nil
 function storageOrConverterUidOnTile(x,y)
-
     local types
     local uids
     local buildingUID, buildingXY
