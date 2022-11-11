@@ -111,7 +111,7 @@ function locateStorageForMagnet(magUID)
     end
 
     -- Cache the Link
-    local bType, tileX, tileY, rotation, name = unpack( properties ) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name
+    local bType, tileX, tileY, rotation, name = table.unpack ( properties ) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name
     local buildingLevel = Buildings.GetMagnetLevel(bType)
     rotation = math.floor(rotation + 0.5) -- round the rotation to a whole number
     local dir
@@ -163,12 +163,12 @@ function addStorageToMagnet(magUID, storageUID)
         ModDebug.Log('addStorageToMagnet: ', serializeTable({magUID = magUID, storageUID = storageUID}))
     end
 
-    local sProps = ModStorage.GetStorageProperties(storageUID)
+    local sProps = ModStorage.GetStorageInfo(storageUID)
 
     -- if sProps[2] == nil then return false end -- Was not actually a storage.
 
     -- Cache the storageUID
-    local bType, tileX, tileY, rotation, name = unpack(ModObject.GetObjectProperties(storageUID))
+    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(storageUID))
     rotation = math.floor(rotation + 0.5) -- round the rotation to a whole number
     -- Create if needed
     if STORAGE_UIDS[storageUID] == nil then STORAGE_UIDS[storageUID] = { linkUIDs = {} } end
@@ -314,7 +314,7 @@ function getQtyToGrabForMagnet(magnetUID)
     end
 
     -- query storage for min/max
-    local sProps = ModStorage.GetStorageProperties(LINK_UIDS[magnetUID].storageUID)	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
+    local sProps = ModStorage.GetStorageInfo(LINK_UIDS[magnetUID].storageUID)	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
 
     if sProps == nil or sProps == -1 then
         return 0
@@ -524,7 +524,7 @@ function onFlightCompleteForMagnets(flyingUID, ob)
         -- Use 'AddToStorage' only if it has durability.
         local maxUsage = ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(flyingUID), 'MaxUsage')
         if maxUsage == nil or maxUsage == 0 then -- No durability, just up storage qty
-            local sProps = ModStorage.GetStorageProperties(ob.storageUID) -- [2] = current amount, [3] = max
+            local sProps = ModStorage.GetStorageInfo(ob.storageUID) -- [2] = current amount, [3] = max
             if sProps ~= nil and sProps[1] ~= -1 and sProps[2] ~= nil then
                 if sProps[2] < 0 then
                     sProps[2] = 0

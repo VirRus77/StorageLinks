@@ -1,4 +1,4 @@
---- @type 
+--- @type { Name :string, Value :any, Callback :function }[]
 Settings = {
     ---@type { Name :string, Value :any, Callback :function }
     EnableDebugMode = {

@@ -260,6 +260,9 @@ function locateSwitches(buildingLevel)
     end
 end
 
+--- 
+---@param switchUID number
+---@param playerXY Point
 function determineSwitchTargetState(switchUID, playerXY)
     -- If "farmerPlayer" or "Worker" is on tile, state should be OnUpdate
     -- otherwise OFF.
@@ -315,6 +318,8 @@ function setSwitchState(switchUID, switchProps, turnOn)
     end
 end
 
+--- func desc
+---@param linkName string
 function linkIsSwitchedOff(linkName)
     -- Find switches
     if linkName == nil then return false end
@@ -399,7 +404,7 @@ function updateLinkPropsAsNeeded(uid)
         return
     end
 
-    local bType, tileX, tileY, rotation, name = unpack(ModObject.GetObjectProperties(uid))
+    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(uid))
     local newProps = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name}
 
     if standardPropsMatch(LINK_UIDS[uid], newProps) == false then
@@ -416,7 +421,7 @@ function updateStoragePropsAsNeeded(storageUID)
     end
 
     -- Has the storage stayed in the same x and y?
-    local bType, tileX, tileY, rotation, name = unpack(ModObject.GetObjectProperties(storageUID))
+    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(storageUID))
     local newProps = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name}
 
     if storagePropsMatch(STORAGE_UIDS[storageUID],newProps) == false then
@@ -425,7 +430,7 @@ function updateStoragePropsAsNeeded(storageUID)
     else
         -- resetAttachedLinksCache resets this, so no reason to check both.
         -- Has it changed type? hate to do this every call!
-        local sProps = ModStorage.GetStorageProperties(storageUID)
+        local sProps = ModStorage.GetStorageInfo(storageUID)
         if STORAGE_UIDS[storageUID].sType ~= sProps[1] then
             STORAGE_UIDS[storageUID].sType = sProps[1]
         end
@@ -742,7 +747,7 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
             if linkRotation == 270 then dir = 'w' end
             storageUID = findStorageInDirection(linkXY, dir) -- should be north?
             if storageUID ~= nil then
-                storageProps = ModStorage.GetStorageProperties(storageUID)
+                storageProps = ModStorage.GetStorageInfo(storageUID)
                 if storageProps ~= nil and storageProps[1] ~= -1 and storageProps[2] > 0 then -- [2] = amountStored, [3] = maxCapacity
                     transStorages[#transStorages + 1] = { linkUID = uid, storageUID = storageUID, typeStored = storageProps[1], storageProps = storageProps  }
                 end
@@ -879,7 +884,7 @@ function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, bu
         end
         ModStorage.SetStorageQuantityStored(trxGroups[ing][1].storageUID, trxGroups[ing][1].storageProps[2] - 1)
         -- Reset the props
-        trxGroups[ing][1].storageProps = ModStorage.GetStorageProperties(trxGroups[ing][1].storageUID)
+        trxGroups[ing][1].storageProps = ModStorage.GetStorageInfo(trxGroups[ing][1].storageUID)
         -- resort the trxGroup
         trxGroups[ing] = table.sort(trxGroups[ing], compareLargerOnHandQty)
         -- Now loop and add as many as we can until
@@ -902,7 +907,7 @@ function addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, bu
             end
             if qtyAdded >= levelCap then break end
             -- reset props for storage we just used up
-            trxGroups[ing][_].storageProps = ModStorage.GetStorageProperties(trxGroups[ing][_].storageUID)
+            trxGroups[ing][_].storageProps = ModStorage.GetStorageInfo(trxGroups[ing][_].storageUID)
         end
         -- resort the trxGroup
         trxGroups[ing] = table.sort(trxGroups[ing], compareLargerOnHandQty)
@@ -984,7 +989,9 @@ function addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, level
                 if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter: loop qtyTakenFromStorages:',qtyTakenFromStorages, ', levelCap:', levelCap) end
                 if qtyTakenFromStorages >= levelCap then break end
                 if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter adding ',fuelAmountPerItem, ' to #', rec.converterUID) end
-                if ModBuilding.AddFuel(rec.converterUID, fuelAmountPerItem) == false and ModConverter.AddFuelToSpecifiedConverter(rec.converterUID, fuelAmountPerItem) == false then break end
+                if ModBuilding.AddFuel(rec.converterUID, fuelAmountPerItem) == false and ModConverter.AddFuelToSpecifiedConverter(rec.converterUID, fuelAmountPerItem) == false then
+                    break
+                end
                 trxGroups[fuelType][gkey].storageProps[2] = trx.storageProps[2] - 1
                 qtyTakenFromStorages = qtyTakenFromStorages + 1
                 if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter: total taken ', qtyTakenFromStorages, ', left in trx storage: ', trxGroups[fuelType][gkey].storageProps[2] ) end
@@ -1030,7 +1037,7 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
     calculateQtyToTransfer(tGrp[1].linkUID, tGrp[1].storageProps, rec.storageProps, tGrp[1].storageUID, rec.storageUID, 'one', buildingLevel)
 
     -- Regrab the transmitter storage properties (should have less on-hand now!)
-    tGrp[1].storageProps = ModStorage.GetStorageProperties(tGrp[1].storageUID)
+    tGrp[1].storageProps = ModStorage.GetStorageInfo(tGrp[1].storageUID)
 
     if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (a) ' ) end
 
@@ -1057,7 +1064,7 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
 
     -- If receiver is not full, transfer again from fullest (first) transmitter.
     if buildingLevel == 'Super' and rec.storageProps[2] + qtyTransferred < rec.storageProps[3] then
-        rec.storageProps = ModStorage.GetStorageProperties(rec.storageUID)
+        rec.storageProps = ModStorage.GetStorageInfo(rec.storageUID)
         if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {rec} ', table.show(rec) ) end
         if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {grp} ', table.show(newTransmitterGroup) ) end
         return handleOneReceiver(rec, newTransmitterGroup, buildingLevel)
@@ -1070,8 +1077,10 @@ end
 
 -- Everything else
 ---@alias DirectionType "one"|"both" #
+---@param linkUID number
 ---@param direction DirectionType
----@param onlyIfSourceFull boolean?
+---@param buildingLevel string
+---@param onlyIfSourceFull? boolean
 function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFull)
     if linkUID == -1 then return end
     if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForLink: ', linkUID, ',', direction ) end
@@ -1080,7 +1089,6 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
     local linkProp = ModObject.GetObjectProperties(linkUID)	--  [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
     local rotation = math.floor(linkProp[4] + 0.5) -- 0, 90, 180, 270
     local side1Storage, side2Storage
-    local inv
 
     if linkIsSwitchedOff(linkProp[5]) then
         return false
@@ -1117,8 +1125,8 @@ end
 function checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
     if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: ', linkUID, ', ', direction ) end
     -- direction = 'one' or 'both'.
-    local side1Prop = ModStorage.GetStorageProperties(side1Storage)
-    local side2Prop = ModStorage.GetStorageProperties(side2Storage)
+    local side1Prop = ModStorage.GetStorageInfo(side1Storage)
+    local side2Prop = ModStorage.GetStorageInfo(side2Storage)
     -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
 
     if DEBUG_ENABLED then
@@ -1131,9 +1139,10 @@ function checkStorageCompatability(linkUID, side1Storage, side2Storage, directio
     calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
 end
 
-
+---@param linkUID number
+---@param side1Prop number
 ---@param direction DirectionType
----@param onlyIfSourceFull boolean?
+---@param onlyIfSourceFull? boolean
 function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
     if DEBUG_ENABLED then
         ModDebug.Log(buildingLevel, ' calculateQtyToTransfer: ', linkUID, ',', direction )
@@ -1232,13 +1241,13 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
 
     -- Put in target
     if ModStorage.SetStorageQuantityStored(targetUID, newTotalInTgt) then
-        if DEBUG_ENABLED then newTargetProp = ModStorage.GetStorageProperties(targetUID) end
+        if DEBUG_ENABLED then newTargetProp = ModStorage.GetStorageInfo(targetUID) end
         if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: dst:', targetUID, ', increased from:', targetProp[2],' to:', targetProp[2] + qty) end
         if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp[2]) end
 
         -- Remove from source
         ModStorage.SetStorageQuantityStored(sourceUID, newTotalInSrc)
-        if DEBUG_ENABLED then newSourceProp = ModStorage.GetStorageProperties(sourceUID) end
+        if DEBUG_ENABLED then newSourceProp = ModStorage.GetStorageInfo(sourceUID) end
         if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: src:', sourceUID, ', lowered from:', sourceProp[2],' to:', sourceProp[2] - qty) end
         if DEBUG_ENABLED then ModDebug.Log(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp[2]) end
     else
@@ -1417,7 +1426,7 @@ function storageOrConverterUidOnTile(x,y)
         local uidsOnTile = ModTiles.GetObjectUIDsOnTile(buildingXY[1], buildingXY[2])
         for _, uid in ipairs(uidsOnTile) do
             if uid == -1 then break end
-            local props = ModStorage.GetStorageProperties(uid)
+            local props = ModStorage.GetStorageInfo(uid)
             if props ~= nil and props[1] ~= -1 then
                 return { kind = 'storage', uid = uid,  props = props }
             end
@@ -1453,10 +1462,10 @@ end
 ---@param srcXY any[]
 ---@param dir any
 function tileXYFromDir(srcXY, dir)
-    if dir == 'n' then return srcXY[1]	, srcXY[2] - 1	end
-    if dir == 's' then return srcXY[1]	, srcXY[2] + 1	end
-    if dir == 'w' then return srcXY[1] - 1, srcXY[2]	end
-    if dir == 'e' then return srcXY[1] + 1, srcXY[2]	end
+    if dir == 'n' then return srcXY[1]    , srcXY[2] - 1 end
+    if dir == 's' then return srcXY[1]    , srcXY[2] + 1 end
+    if dir == 'w' then return srcXY[1] - 1, srcXY[2]     end
+    if dir == 'e' then return srcXY[1] + 1, srcXY[2]     end
 end
 
 function newBuildingInArea(BuildingUID, IsBlueprint, IsDragging) -- BuildingUID, IsBlueprint, IsDragging
@@ -1738,7 +1747,7 @@ function setTimeout(callback, callbackArguments, ms)
     local key = tostring(math.random(150))
     local ob = { whenDoneCallback = function()
         TIMEOUT_DB[key] = nil
-        callback(unpack(callbackArguments))
+        callback(table.unpack(callbackArguments))
     end, ms = ms }
     TIMEOUT_DB[key] = ob
 end
