@@ -7,10 +7,10 @@ Settings.lua
 Constants.lua
 WorldLimits.lua
 GlobalParameters.lua
-Buildings.lua
-BuildingsDependencyTree.lua
-Buildings.LegacyBuildings.lua
-Building.Logic.lua
+Buildings\Buildings.lua
+Buildings\BuildingsDependencyTree.lua
+Buildings\Buildings.LegacyBuildings.lua
+Buildings\Building.Logic.lua
 Translates.lua
 Magnet.Logic.lua
 StorageLink.lua
