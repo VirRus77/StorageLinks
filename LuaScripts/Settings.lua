@@ -47,8 +47,9 @@ function Settings:ExposedKeyCallbackSelf(name)
         return
     end
     if (name == self.DebugMove.Name) then
-        locateLinks(BuildingLevels.Crude)
-        locateLinks(BuildingLevels.Good)
-        locateLinks(BuildingLevels.Super)
+        TimersStack.Immediately()
+        --locateLinks(BuildingLevels.Crude)
+        --locateLinks(BuildingLevels.Good)
+        --locateLinks(BuildingLevels.Super)
     end
 end

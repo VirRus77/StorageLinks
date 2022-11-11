@@ -268,7 +268,6 @@ function fireAllMagnets(buildingLevel)
         buildingTypes = { Buildings.MagnetSuper.Type }
     end
 
-
     -- loop over cached magnets
     for uid, props in pairs(LINK_UIDS) do
         for index, value in ipairs(buildingTypes) do

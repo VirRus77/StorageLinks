@@ -1,44 +1,3 @@
-function ExposedKeyCallback(name)
-    if ModBase.GetGameState() ~= 'Normal' then
-        return
-    end
-    if (name == 'Debug: Move') then
-        locateLinks(BuildingLevels.Crude)
-        locateLinks(BuildingLevels.Good)
-        locateLinks(BuildingLevels.Super)
-    end
-end
-
-function lockLevels()
-    Logging.Log("lockLevels")
-
-    for index, value in ipairs(Buildings.GoodTypes) do
-        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", 0)
-    end
-    for index, value in ipairs(Buildings.SuperTypes) do
-        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", 0)
-    end
-    --[[
-    ModVariable.SetVariableForObjectAsInt(Buildings.PumpGood.Name,"Unlocked", 0)
-    -- Unknown building.
-    -- ModVariable.SetVariableForObjectAsInt("Good Pump Long (SL)","Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt(Buildings.BalancerGood.Name,"Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt(Buildings.TransmitterGood.Name,"Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt(Buildings.ReceiverGood.Name,"Unlocked", 0)
-    ModVariable.SetVariableForObjectAsInt(Buildings.MagnetGood.Name,"Unlocked", 0)
-    --]]
-
-    -- ModVariable.SetVariableForObjectAsInt("Super Pump (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Pump Long (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Overflow Pump (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Balancer (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Balancer Long (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Transmitter (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Receiver (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Magnet (SL)","Unlocked", 0)
-    -- ModVariable.SetVariableForObjectAsInt("Super Switch (SL)","Unlocked", 0)
-end
-
 --- func desc
 ---@param buildingLevel string # Building level
 function locateLinks(buildingLevel)
@@ -1463,13 +1422,15 @@ function storageOrConverterUidOnTile(x,y)
 end
 
 --- func desc
----@param srcXY any[]
----@param dir any
-function tileXYFromDir(srcXY, dir)
-    if dir == 'n' then return srcXY[1]    , srcXY[2] - 1 end
-    if dir == 's' then return srcXY[1]    , srcXY[2] + 1 end
-    if dir == 'w' then return srcXY[1] - 1, srcXY[2]     end
-    if dir == 'e' then return srcXY[1] + 1, srcXY[2]     end
+---@param srcXY Point #
+---@param direction string|"n"|"e"|"s"|"w" #
+---@return integer, integer #
+function tileXYFromDir(srcXY, direction)
+    if direction == 'n' then return srcXY[1]    , srcXY[2] - 1 end
+    if direction == 's' then return srcXY[1]    , srcXY[2] + 1 end
+    if direction == 'w' then return srcXY[1] - 1, srcXY[2]     end
+    if direction == 'e' then return srcXY[1] + 1, srcXY[2]     end
+    error("Unknown direction: "..direction)
 end
 
 function newBuildingInArea(BuildingUID, IsBlueprint, IsDragging) -- BuildingUID, IsBlueprint, IsDragging

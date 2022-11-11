@@ -13,17 +13,25 @@ TIMEOUT_DB = {}
 LINK_UIDS = {}
 STORAGE_UIDS = {}
 
--- Levels of speed
-CRUDE_CHECKS_PER_SECOND = 0.25
-GOOD_CHECKS_PER_SECOND = 1
-SUPER_CHECKS_PER_SECOND = 1 -- but we transfer way more per check!
+--- func desc
+---@param buildingLevel BuildingLevels #
+---@return Timer[] # 
+function MakeTimers (buildingLevel)
+    local checkPeriod = 1
+    if(buildingLevel == BuildingLevels.Crude) then
+        checkPeriod = 1 / 4
+    end
 
--- Tracking timers (these change with each OnUpdate() call)
-CRUDE_TIMER_SECOND = 0
-GOOD_TIMER_SECOND = 0
-SUPER_TIMER_SECOND = 0
-FIVE_SECOND_TIMER = 0
-
+    return {
+        -- Crude
+        Timer.new(checkPeriod, function () locateSwitches (buildingLevel) end),
+        Timer.new(checkPeriod, function () locatePumps (buildingLevel) end,                    Timer.MillisecondsToSeconds(150)),
+        Timer.new(checkPeriod, function () locateOverflowPumps (buildingLevel) end,            Timer.MillisecondsToSeconds(300)),
+        Timer.new(checkPeriod, function () locateBalancers (buildingLevel) end,                Timer.MillisecondsToSeconds(450)),
+        Timer.new(checkPeriod, function () locateReceiversAndTransmitters (buildingLevel) end, Timer.MillisecondsToSeconds(600)),
+        Timer.new(checkPeriod, function () fireAllMagnets (buildingLevel) end,                 Timer.MillisecondsToSeconds(750)),
+    }
+end
 
 -- Variables that can change
 FRAME_COUNTER = 0

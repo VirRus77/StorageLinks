@@ -110,7 +110,11 @@ function BeforeLoad()
 
     SwitchLockByLevel()
     Translates.SetNames()
-    UNLOCK_LEVEL_TIMER = Timer.new(SECONDS_BETWEEN_UNLOCK_CHECKS, SwitchLockByLevel)
+
+    TimersStack.AddTimer  (Timer.new(5, SwitchLockByLevel))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
 
     if (Settings.ReplaceOldBuildings.Value) then
         -- for _, value in ipairs(Buildings.MappingOldTypes) do
@@ -233,14 +237,20 @@ end
 function OnUpdate(timeDelta)
     -- Called on every cycle!
     updateFlightPositions()
-    everyFrame(timeDelta)
+    -- everyFrame(timeDelta)
 
-    -- Every Five SECONDS_BETWEEN_UNLOCK_CHECKS
-    FIVE_SECOND_TIMER = FIVE_SECOND_TIMER + timeDelta
-    if FIVE_SECOND_TIMER >= 5 then
-        -- discoverUnknownMagnets()
-        FIVE_SECOND_TIMER = 0
+    if (not DEBUG_ENABLED) then
+        if(ModBase.GetGameState() == "Normal") then
+            TimersStack:AppendDelta(timeDelta)
+        end
     end
+
+    -- -- Every Five SECONDS_BETWEEN_UNLOCK_CHECKS
+    -- FIVE_SECOND_TIMER = FIVE_SECOND_TIMER + timeDelta
+    -- if FIVE_SECOND_TIMER >= 5 then
+    --     -- discoverUnknownMagnets()
+    --     FIVE_SECOND_TIMER = 0
+    -- end
 
     --if (ONE_SECOND_TIMER > 1) then
     --	ONE_SECOND_TIMER = 0
@@ -248,35 +258,35 @@ function OnUpdate(timeDelta)
     --end
     --ModQuest.IsObjectTypeUnlocked("MetalCog")
 
-    if (DEBUG_ENABLED == false) then
-        UNLOCK_LEVEL_TIMER:AppendDelta(timeDelta)
-
-        --local secondsDiff = timeDelta + LAST_TIME_DELTA
-        --LAST_TIME_DELTA = timeDelta -- time is in decimal seconds
-
-        -- Update timing trackers
-        CRUDE_TIMER_SECOND = CRUDE_TIMER_SECOND + timeDelta
-        GOOD_TIMER_SECOND = GOOD_TIMER_SECOND + timeDelta
-        SUPER_TIMER_SECOND = SUPER_TIMER_SECOND + timeDelta
-
-        -- Crude Level
-        if CRUDE_TIMER_SECOND >= (1 / CRUDE_CHECKS_PER_SECOND) then
-            locateLinks(BuildingLevels.Crude)
-            CRUDE_TIMER_SECOND = 0
-        end
-
-        -- Good Level
-        if GOOD_TIMER_SECOND >= (1 / GOOD_CHECKS_PER_SECOND) then
-            locateLinks(BuildingLevels.Good)
-            GOOD_TIMER_SECOND = 0
-        end
-
-        -- Super Level
-        if SUPER_TIMER_SECOND >= (1 / SUPER_CHECKS_PER_SECOND) then
-            locateLinks(BuildingLevels.Super)
-            SUPER_TIMER_SECOND = 0
-        end
-    end
+    -- if (DEBUG_ENABLED == false) then
+    --     UNLOCK_LEVEL_TIMER:AppendDelta(timeDelta)
+-- 
+    --     --local secondsDiff = timeDelta + LAST_TIME_DELTA
+    --     --LAST_TIME_DELTA = timeDelta -- time is in decimal seconds
+-- 
+    --     -- Update timing trackers
+    --     CRUDE_TIMER_SECOND = CRUDE_TIMER_SECOND + timeDelta
+    --     GOOD_TIMER_SECOND = GOOD_TIMER_SECOND + timeDelta
+    --     SUPER_TIMER_SECOND = SUPER_TIMER_SECOND + timeDelta
+-- 
+    --     -- Crude Level
+    --     if CRUDE_TIMER_SECOND >= (1 / CRUDE_CHECKS_PER_SECOND) then
+    --         locateLinks(BuildingLevels.Crude)
+    --         CRUDE_TIMER_SECOND = 0
+    --     end
+-- 
+    --     -- Good Level
+    --     if GOOD_TIMER_SECOND >= (1 / GOOD_CHECKS_PER_SECOND) then
+    --         locateLinks(BuildingLevels.Good)
+    --         GOOD_TIMER_SECOND = 0
+    --     end
+-- 
+    --     -- Super Level
+    --     if SUPER_TIMER_SECOND >= (1 / SUPER_CHECKS_PER_SECOND) then
+    --         locateLinks(BuildingLevels.Super)
+    --         SUPER_TIMER_SECOND = 0
+    --     end
+    -- end
 
 end
 
