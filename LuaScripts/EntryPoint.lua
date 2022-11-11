@@ -104,6 +104,7 @@ function BeforeLoad()
     Logging.Log("BeforeLoad")
 
     SwitchLockByLevel()
+    Translates.SetNames()
     UNLOCK_LEVEL_TIMER = Timer.new(SECONDS_BETWEEN_UNLOCK_CHECKS, SwitchLockByLevel)
 
     if (Settings.ReplaceOldBuildings.Value) then

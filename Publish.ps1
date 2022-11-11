@@ -55,10 +55,10 @@ Copy-Item -Path "$RootPath/$destDirectory" -Destination $destination -Recurse
 # Join multi lua files
 Write-Host "Join lua files"
 [string] $sourcePath = "$RootPath/LuaScripts";
-[string[]] $fileNames = [System.IO.File]::ReadAllLines("$sourcePath/_Order") | Where-Object { -not $_.TrimStart().StartsWith("#") }
+[string[]] $fileNames = [System.IO.File]::ReadAllLines("$sourcePath/_Order", [System.Text.Encoding]::UTF8) | Where-Object { -not $_.TrimStart().StartsWith("#") }
 [string] $destination = [System.IO.Path]::Combine($publishPath, "StorageLink.lua")
 $fileNames | Where-Object { -not [string]::IsNullOrEmpty($_) } | ForEach-Object {
   [string] $fileContent = [System.IO.File]::ReadAllText("$sourcePath/$_")
   $fileContent = "----- $([System.IO.Path]::GetFileName($_)) -----`n`n" + $fileContent + "`n"
-  Add-Content -Path $destination -Value $fileContent
+  Add-Content -Path $destination -Value $fileContent -Encoding "utf8"
 }
