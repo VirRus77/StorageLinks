@@ -13,26 +13,6 @@ TIMEOUT_DB = {}
 LINK_UIDS = {}
 STORAGE_UIDS = {}
 
--- Multiple Types
-BALANCER_TYPES = {
-    'Balancer (SL)',
-    'Balancer Long (SL)'
-}
-PUMP_TYPES = {
-    'Pump (SL)',
-    'Pump Long (SL)'
-}
-OVERFLOW_TYPES = {
-    'Overflow Pump (SL)',
-    'Overflow Pump Long (SL)'
-}
-RECEIVER_TYPES = {
-    'Receiver (SL)'
-}
-TRANSMITTER_TYPES = {
-    'Transmitter (SL)'
-}
-
 -- Levels of speed
 CRUDE_CHECKS_PER_SECOND = 0.25
 GOOD_CHECKS_PER_SECOND = 1

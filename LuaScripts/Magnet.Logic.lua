@@ -5,6 +5,8 @@ function discoverUnknownMagnets()
     locateMagnets(BuildingLevels.Super)
 end
 
+--- func desc
+---@param buildingLevel BuildingLevels
 function locateMagnets(buildingLevel)
     if (DEBUG_ENABLED) then
         Logging.Log("locateMagnets ", serializeTable({
@@ -75,27 +77,34 @@ function locateMagnets(buildingLevel)
 
 end
 
-function onMagnetSpawn(BuildingUID, BuildingType, IsBlueprint, IsDragging)
+--- func desc
+---@param buildingUID number
+---@param buildingType string
+---@param isBlueprint boolean
+---@param isDragging boolean
+function onMagnetSpawn(buildingUID, buildingType, isBlueprint, isDragging)
     if (DEBUG_ENABLED) then
         Logging.Log ("onMagnetSpawn ", serializeTable({
-            BuildingUID = BuildingUID,
-            BuildingType = BuildingType,
-            IsBlueprint = IsBlueprint,
-            IsDragging = IsDragging
+            BuildingUID = buildingUID,
+            BuildingType = buildingType,
+            IsBlueprint = isBlueprint,
+            IsDragging = isDragging
         }))
     end
 
-    if IsDragging then
+    if isDragging then
         return
     end
 
-    if IsBlueprint then
+    if isBlueprint then
         return
     end
 
-    locateStorageForMagnet(BuildingUID)
+    locateStorageForMagnet(buildingUID)
 end
 
+--- func desc
+---@param magUID number
 function locateStorageForMagnet(magUID)
     local storageUID, dir
     local magStorage = {}

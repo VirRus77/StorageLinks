@@ -1748,12 +1748,22 @@ end
 ---@param callbackArguments table
 ---@param ms number
 function setTimeout(callback, callbackArguments, ms)
-    local key = tostring(math.random(150))
-    local ob = { whenDoneCallback = function()
-        TIMEOUT_DB[key] = nil
-        callback(table.unpack(callbackArguments))
-    end, ms = ms }
-    TIMEOUT_DB[key] = ob
+    local key = 1
+    local keyValue = tostring(key)
+    -- Find free key
+    while TIMEOUT_DB[keyValue] ~= nil do
+        key = key + 1
+        keyValue = tostring(key)
+    end
+
+    local ob = {
+        whenDoneCallback = function()
+            TIMEOUT_DB[keyValue] = nil
+            callback(table.unpack(callbackArguments))
+        end,
+        ms = ms
+    }
+    TIMEOUT_DB[keyValue] = ob
 end
 
 
