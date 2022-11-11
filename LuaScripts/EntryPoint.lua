@@ -73,7 +73,7 @@ function Expose()
         return
     end
 
-    ModBase.ExposeVariable(Settings.EnableDebugMode.Name, Settings.EnableDebugMode.Value, Settings.ExposedVariableCallback)
+    ModBase.ExposeVariable(Settings.DebugMode.Name, Settings.DebugMode.Value, Settings.ExposedVariableCallback)
     -- ModBase.ExposeVariable(Settings.ReplaceOldBuildings.Name, Settings.ReplaceOldBuildings.Value, Settings.ExposedVariableCallback)
     ModBase.ExposeKeybinding(Settings.DebugMove.Name, Settings.DebugMove.Value, Settings.ExposedKeyCallback)
 end
@@ -86,10 +86,9 @@ function Creation()
     -- }))
 
     Buildings:UpdateTypeByUniq()
-    -- Logging.Log(serializeTable(Buildings, "Buildings"))
     Decoratives:UpdateTypeByUniq()
-    -- Logging.Log(serializeTable(Decoratives, "Buildings"))
     Buildings.CreateAll()
+    Buildings.AddDependencies()
 
     if ( Settings.ReplaceOldBuildings.Value ) then
         Buildings.CreateOldTypes()
@@ -108,10 +107,10 @@ end
 function BeforeLoad()
     Logging.Log("BeforeLoad")
 
-    SwitchLockByLevel()
+    BuildingsDependencyTree.SwitchAllLock()
     Translates.SetNames()
 
-    TimersStack.AddTimer  (Timer.new(5, SwitchLockByLevel))
+    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLock))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
@@ -171,41 +170,8 @@ end
 --- Once a game has loaded key functionality, this is called.
 function AfterLoad()
     Logging.Log("AfterLoad")
-    if (Settings.ReplaceOldBuildings.Value) then
-        -- Logging.Log(serializeTable({
-        --     Buildings.MappingOldTypes,
-        --     "Buildings.MappingOldTypes"
-        -- }),serializeTable({
-        --     Decoratives.MappingOldTypes,
-        --     "Decoratives.MappingOldTypes"
-        -- }))
 
-        for _, value in ipairs(Buildings.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
-        end
-        for _, value in ipairs(Decoratives.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
-        end
-
-        ---@type ReplaceItem[]
-        local swapTypes = { }
-        for index, value in ipairs(Buildings.MappingOldTypes) do
-            table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
-        end
-        for index, value in ipairs(Decoratives.MappingOldTypes) do
-            table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
-        end
-        Logging.Log("Replace old...")
-        ReplaceOldTypesToNewTypes(swapTypes)
-        
-        Logging.Log("Disable old...")
-        for _, value in ipairs(Buildings.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-        for _, value in ipairs(Decoratives.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-    end
+    ReplaceOldBuildings()
 
     --swapOldNamesToNew()
 end
@@ -220,7 +186,7 @@ function AfterLoad_LoadedWorld()
     Logging.Log("AfterLoad_LoadedWorld")
     --lockLevels()
     --checkUnlockLevels()
-    SwitchLockByLevel()
+    BuildingsDependencyTree.SwitchAllLock()
 
     WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
 

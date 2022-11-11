@@ -7,7 +7,6 @@ VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before 
 -- Internal Databases
 OBJECTS_IN_FLIGHT = {}
 SWITCHES_TURNED_OFF = {} -- key = '>some name'. use pairs().
-TIMEOUT_DB = {}
 
 -- Internal Caching
 LINK_UIDS = {}

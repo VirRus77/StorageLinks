@@ -1,8 +1,8 @@
 --- @type { Name :string, Value :any, Callback :function }[]
 Settings = {
     ---@type { Name :string, Value :any, Callback :function }
-    EnableDebugMode = {
-        Name = "Enable Debug Mode",
+    DebugMode = {
+        Name = "Debug Mode",
         Value = false,
     },
     ---@type { Name :string, Value :any, Callback :function }
@@ -12,7 +12,7 @@ Settings = {
     },
     ---@type { Name :string, Value :any, Callback :function }
     DebugMove = {
-        Name = "Debug: Move",
+        Name = "Key Debug Move",
         Value = 8,
     },
 }
@@ -27,8 +27,8 @@ function Settings:ExposedVariableCallbackSelf(value, name)
     --     name = name,
     --     Settings = self
     -- }))
-    if(self.EnableDebugMode.Name == name) then
-        self.EnableDebugMode.Value = value
+    if(self.DebugMode.Name == name) then
+        self.DebugMode.Value = value
         DEBUG_ENABLED = value
     end
     if (self.ReplaceOldBuildings.Name == name) then

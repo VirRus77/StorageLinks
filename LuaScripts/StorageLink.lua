@@ -1,29 +1,3 @@
---- func desc
----@param buildingLevel string # Building level
-function locateLinks(buildingLevel)
-    if DEBUG_ENABLED then
-        Logging.Log("locateLinks: ", serializeTable({buildingLevel = buildingLevel}))
-    end
-
-    local gameState = ModBase.GetGameState()
-    if gameState ~= 'Normal' then
-        if DEBUG_ENABLED then
-            Logging.Log("locateLinks exit: ", serializeTable({gameState = gameState}))
-        end
-        return
-    end
-
-    setTimeout(locateSwitches,					{buildingLevel},	0	)
-    setTimeout(locatePumps,						{buildingLevel},	150	)
-    setTimeout(locateOverflowPumps,				{buildingLevel},	300	)
-    setTimeout(locateBalancers,					{buildingLevel},	450	)
-    setTimeout(locateReceiversAndTransmitters,	{buildingLevel},	600	)
-    -- setTimeout(locateMagnets,					{buildingLevel},	750	)
-
-    -- new style - this should only look for types that fit in attached storage, in area
-    setTimeout(fireAllMagnets,					{buildingLevel},	750	)
-end
-
 function locateBalancers(buildingLevel)
     -- Find all Balancers
     local tmpUIDs = {}
@@ -1424,7 +1398,7 @@ end
 --- func desc
 ---@param srcXY Point #
 ---@param direction string|"n"|"e"|"s"|"w" #
----@return integer, integer #
+---@return integer, integer # x, y
 function tileXYFromDir(srcXY, direction)
     if direction == 'n' then return srcXY[1]    , srcXY[2] - 1 end
     if direction == 's' then return srcXY[1]    , srcXY[2] + 1 end
@@ -1614,22 +1588,6 @@ function isABuildingInTableOnMap(buildingTable)
     return false
 end
 
---- Check any buildings in buildingTable unlock
----@param buildingTable string[]
-function isBuildingUnlocked(buildingTable)
-    if (buildingTable == nil or buildingTable[1] ~= nil) then
-        return false
-    end
-
-    for _, value in ipairs(buildingTable) do
-        if (ModVariable.GetVariableForObjectAsInt(value, "Unlocked") > 0) then
-            return true
-        end
-    end
-
-    return false
-end
-
 -- Moving OBJECTS_IN_FLIGHT
 function updateFlightPositions()
 
@@ -1689,42 +1647,3 @@ function hasValue (tab, val)
 
     return false
 end
-
----@param timeDelta number
-function everyFrame(timeDelta)
-    for _, ob in pairs(TIMEOUT_DB) do
-        if ob ~= nil then
-            -- reduce the counter
-            TIMEOUT_DB[_].ms = TIMEOUT_DB[_].ms - (timeDelta * 1000)
-            -- if counter <= 0,.
-            if TIMEOUT_DB[_].ms <= 0 then
-                TIMEOUT_DB[_].whenDoneCallback() -- ()
-            end
-        end
-    end
-end
-
---- func desc
----@param callback function
----@param callbackArguments table
----@param ms number
-function setTimeout(callback, callbackArguments, ms)
-    local key = 1
-    local keyValue = tostring(key)
-    -- Find free key
-    while TIMEOUT_DB[keyValue] ~= nil do
-        key = key + 1
-        keyValue = tostring(key)
-    end
-
-    local ob = {
-        whenDoneCallback = function()
-            TIMEOUT_DB[keyValue] = nil
-            callback(table.unpack(callbackArguments))
-        end,
-        ms = ms
-    }
-    TIMEOUT_DB[keyValue] = ob
-end
-
-

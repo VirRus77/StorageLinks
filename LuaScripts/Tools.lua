@@ -13,12 +13,40 @@ function GetUidsByTypes(buildingTypes)
     return uids
 end
 
+-- Unpuk @{ObjectProperties}
+---@alias UnpukObjectProperties {Successfully :boolean, Type :string, TileX :integer, TileY:integer, Rotation:number, Name :string} #
+---@param properties ObjectProperties|nil #
+---@param normalizeRotation? boolean # Dafault true
+---@return UnpukObjectProperties #
+function UnpukObjectProperties(properties, normalizeRotation)
+    local successfully = properties ~= nil
+    if (not successfully) then
+        return { Successfully = false }
+    end
+
+    local result = {
+        Successfully = true,
+        Type = properties[1],
+        TileX = properties[2],
+        TileY = properties[3],
+        Rotation = properties[4],
+        Name = properties[5],
+    }
+
+    if (normalizeRotation == nil or normalizeRotation) then
+        -- round the rotation to a whole number
+        result.Rotation = math.floor(result.Rotation + 0.5)
+    end
+
+    return result
+end
+
 --- Serialize table.
 ---@param val table
 ---@param name? any
 ---@param skipnewlines? any
 ---@param depth? any
-function serializeTable(val, name, skipnewlines, depth)
+function serializeTable (val, name, skipnewlines, depth)
     skipnewlines = skipnewlines or false
     depth = depth or 0
 
@@ -32,7 +60,7 @@ function serializeTable(val, name, skipnewlines, depth)
         tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
 
         for k, v in pairs(val) do
-            tmp =  tmp .. serializeTable(v, k, skipnewlines, depth + 1) .. "," .. (not skipnewlines and "\n" or "")
+            tmp =  tmp .. serializeTable (v, k, skipnewlines, depth + 1) .. "," .. (not skipnewlines and "\n" or "")
         end
 
         tmp = tmp .. string.rep(" ", depth) .. "}"
@@ -87,23 +115,25 @@ function ReplaceOldTypeToNewType(oldName, newName)
     Logging.Log("Replace OldType...")
     local props, newUID, rot
     for _, uid in ipairs(oldB) do
-        props = ModObject.GetObjectProperties(uid) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
-        rot = ModBuilding.GetRotation(uid)
-        if ModObject.DestroyObject(uid)	then
-            newUID = ModBase.SpawnItem(newName, props[2], props[3], false, true, false)
-            if newUID == -1 or newUID == nil then
-                Logging.Log('Could not re-create ', serializeTable({
-                    props = props
-                }))
-            else
-                ModBuilding.SetRotation(newUID, rot)
-                ModBuilding.SetBuildingName(newUID, props[5])
-                Logging.Log("Replace item: ", serializeTable({
-                    props = props,
-                    newUID = newUID
-                }))
-            end
+        props = UnpukObjectProperties( ModObject.GetObjectProperties(uid) ) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
+        if (props.Successfully) then
+            rot = ModBuilding.GetRotation(uid)
+            if (ModObject.DestroyObject(uid)) then
+                newUID = ModBase.SpawnItem(newName, props.TileX, props.TileY, false, true, false)
+                if (newUID == -1 or newUID == nil) then
+                    Logging.Log('Could not re-create ', serializeTable({
+                        props = props
+                    }))
+                else
+                    ModBuilding.SetRotation(newUID, rot)
+                    ModBuilding.SetBuildingName(newUID, props.Name)
+                    Logging.Log("Replace item: ", serializeTable({
+                        props = props,
+                        newUID = newUID
+                    }))
+                end
 
-        end -- of if object destroyed
+            end -- of if object destroyed
+        end
     end -- of oldB loop
 end

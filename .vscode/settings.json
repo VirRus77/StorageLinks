@@ -5,6 +5,10 @@
         "./lib/AutonautsLuaHeaders/Headers",
         "./LuaScripts"    
     ],
+    "Lua.workspace.ignoreDir": [
+        ".vscode",
+        "_Publish_"
+    ],
     "editor.detectIndentation": false,
     "editor.insertSpaces": true,
     "editor.tabSize" : 4

@@ -31,7 +31,7 @@ function locateMagnets(buildingLevel)
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
         if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingTypeSpawnedCallback') then
             for _, value in ipairs(buildingTypes) do
-                ModBuilding.RegisterForBuildingTypeSpawnedCallback(value, onMagnetSpawn)
+                ModBuilding.RegisterForBuildingTypeSpawnedCallback(value, OnMagnetSpawn)
             end
         end
     end
@@ -82,7 +82,7 @@ end
 ---@param buildingType string
 ---@param isBlueprint boolean
 ---@param isDragging boolean
-function onMagnetSpawn(buildingUID, buildingType, isBlueprint, isDragging)
+function OnMagnetSpawn(buildingUID, buildingType, isBlueprint, isDragging)
     if (DEBUG_ENABLED) then
         Logging.Log ("onMagnetSpawn ", serializeTable({
             BuildingUID = buildingUID,
@@ -113,26 +113,40 @@ function locateStorageForMagnet(magUID)
         Logging.Log("locateStorageForMagnet", " ", serializeTable({MagUID = magUID}) )
     end
 
-    local properties = ModObject.GetObjectProperties(magUID)
+    local properties = UnpukObjectProperties( ModObject.GetObjectProperties(magUID) )
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magUID))
+        return
+    end
 
-    if DEBUG_ENABLED then
-        Logging.Log("locateStorageForMagnet", " ", serializeTable(properties))
+    if (DEBUG_ENABLED) then
+        Logging.LogDebug(string.format("locateStorageForMagnet(magUID = %d). Properties readed.", magUID))
+        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magUID), serializeTable(properties, "properties"))    
     end
 
     -- Cache the Link
-    local bType, tileX, tileY, rotation, name = table.unpack ( properties ) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name
-    local buildingLevel = Buildings.GetMagnetLevel(bType)
-    rotation = math.floor(rotation + 0.5) -- round the rotation to a whole number
-    local dir
-    if rotation == 270 	then dir = 'n' end -- the only place for detecting rotation of magnet.
-    if rotation == 0	then dir = 'e' end
-    if rotation == 90  	then dir = 's' end
-    if rotation == 180 	then dir = 'w' end
+    local buildingLevel = Buildings.GetMagnetLevel (properties.Type)
+     
+    -- the only place for detecting rotation of magnet.
+    local direction = "n"
+    if properties.Rotation == 270 then direction = 'n' end
+    if properties.Rotation == 0   then direction = 'e' end
+    if properties.Rotation == 90  then direction = 's' end
+    if properties.Rotation == 180 then direction = 'w' end
 
-    local x, y = tileXYFromDir({tileX, tileY}, dir)
-    LINK_UIDS[magUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, buildingLevel=buildingLevel, connectToXY={x,y}}
-    if DEBUG_ENABLED then
-        Logging.Log("locateStorageForMagnet LINK_UIDS", " ", serializeTable( LINK_UIDS[magUID] ))
+    local x, y = tileXYFromDir({ properties.TileX, properties.TileY }, direction)
+    LINK_UIDS[magUID] = {
+        bType         = properties.Type,
+        tileX         = properties.TileX,
+        tileY         = properties.TileY,
+        rotation      = properties.Rotation,
+        name          = properties.Name,
+        buildingLevel = buildingLevel,
+        connectToXY   = { x, y }
+    }
+
+    if (DEBUG_ENABLED) then
+        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magUID), serializeTable ( LINK_UIDS[magUID],  "LINK_UIDS[magUID]"))
     end
 
     if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
@@ -153,16 +167,20 @@ function locateStorageForMagnet(magUID)
         end
     end
 
-    addStorageForMagnet(magUID, rotation)
+    addStorageForMagnet(magUID)
 end
 
-function addStorageForMagnet(magUID, rotation)
+--- func desc
+---@param magUID integer
+function addStorageForMagnet (magUID)
     if DEBUG_ENABLED then
-        Logging.Log('addStorageForMagnet: ', serializeTable({magUID = magUID, rotation = rotation}))
+        Logging.LogDebug(string.format('addStorageForMagnet (magUID = %d)', magUID))
     end
     local storageUID = storageUidOnTileWithCallbacks(LINK_UIDS[magUID].connectToXY[1], LINK_UIDS[magUID].connectToXY[2])
 
-    if storageUID == nil then return false end -- no storage there.
+    if storageUID == nil then
+        return false
+    end -- no storage there.
 
     addStorageToMagnet(magUID, storageUID)
 end
@@ -177,16 +195,23 @@ function addStorageToMagnet(magUID, storageUID)
     -- if sProps[2] == nil then return false end -- Was not actually a storage.
 
     -- Cache the storageUID
-    local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(storageUID))
-    rotation = math.floor(rotation + 0.5) -- round the rotation to a whole number
+    local properties = UnpukObjectProperties (ModObject.GetObjectProperties(storageUID))
+    if (not properties.Successfully) then
+        Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magUID))
+        return
+    end
+
     -- Create if needed
-    if STORAGE_UIDS[storageUID] == nil then STORAGE_UIDS[storageUID] = { linkUIDs = {} } end
+    if (STORAGE_UIDS[storageUID] == nil) then
+        STORAGE_UIDS[storageUID] = { linkUIDs = {} }
+    end
+
     -- Set properties
-    STORAGE_UIDS[storageUID].bType 		= bType
-    STORAGE_UIDS[storageUID].tileX 		= tileX
-    STORAGE_UIDS[storageUID].tileY 		= tileY
-    STORAGE_UIDS[storageUID].rotation 	= rotation
-    STORAGE_UIDS[storageUID].name 		= name
+    STORAGE_UIDS[storageUID].bType 		= properties.Type
+    STORAGE_UIDS[storageUID].tileX 		= properties.TileX
+    STORAGE_UIDS[storageUID].tileY 		= properties.TileY
+    STORAGE_UIDS[storageUID].rotation 	= properties.Rotation
+    STORAGE_UIDS[storageUID].name 		= properties.Name
     STORAGE_UIDS[storageUID].sType 		= sProps[1] -- type stored or NIL if no type yet...
     STORAGE_UIDS[storageUID].linkUIDs	= addToTableIfDoesNotExist(STORAGE_UIDS[storageUID].linkUIDs, magUID) -- each storage might have multiple links of any kind
 
@@ -207,14 +232,17 @@ function addStorageToMagnet(magUID, storageUID)
         end
     end
 
-    if DEBUG_ENABLED then
-        Logging.Log(' locateStorageForMagnet: sProps[1] ', sProps[1], ' of ', storageUID)
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateStorageForMagnet: sProps[1] ', sProps[1], ' of ', storageUID)
     end
 end
 
+--- func desc
+---@param magUID integer
+---@param objName string
 function magnetNameUpdated(magUID, objName)
-    if DEBUG_ENABLED then
-        Logging.Log('magnetNameUpdated: ', serializeTable({magUID = magUID, objName = objName}))
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug('magnetNameUpdated: ', serializeTable({magUID = magUID, objName = objName}))
     end
     -- Does the magnet exist in the tracker?
     if LINK_UIDS[magUID] == nil then return false end
@@ -292,7 +320,9 @@ function fireMagnetByUID(magnetUID, buildingLevel)
         if LINK_UIDS[magnetUID] == nil then return end
         if DEBUG_ENABLED then ModDebug.Log(' fireMagnetByUID: (b) ', magnetUID) end
         -- no more storage attached?
-        if LINK_UIDS[magnetUID].storageUID == nil then addStorageForMagnet(magnetUID) end -- Heavy calcs here...
+        if LINK_UIDS[magnetUID].storageUID == nil then
+            addStorageForMagnet(magnetUID)
+        end -- Heavy calcs here...
         -- Still no storage? then we quit.
         if LINK_UIDS[magnetUID].storageUID == nil then return end
         if DEBUG_ENABLED then ModDebug.Log(' fireMagnetByUID: (c) ', magnetUID) end

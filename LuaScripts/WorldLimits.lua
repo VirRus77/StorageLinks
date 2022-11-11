@@ -1,4 +1,4 @@
----@type { Left :number, Top :number, Width :number, Height :number }
+---@type { Left :integer, Top :integer, Width :integer, Height :integer }
 WORLD_LIMITS = {
     Left = 0,
     Top = 0,
