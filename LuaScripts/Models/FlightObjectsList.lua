@@ -51,6 +51,9 @@ function FlightObjectsList:Check()
     -- Logging.LogDebug("FlightObjectsList:Check: %d", count)
 end
 
+--- func desc
+---@param targetId integer
+---@return FlightObject[]
 function FlightObjectsList:FlightObjectByTarget(targetId)
     local found = { }
     for _, value in pairs(self._items) do

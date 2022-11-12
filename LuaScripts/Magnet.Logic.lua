@@ -296,6 +296,7 @@ function fireAllMagnets(buildingLevel)
         magnetType = { Buildings.MagnetSuper.Type }
     end
 
+    local magnetSettings = Buildings.GetMagnetSettings(buildingLevel)
     -- loop over cached magnets
     for _, magnetType in ipairs(magnetType) do
         for uid, props in pairs(LINK_UIDS) do
@@ -303,7 +304,7 @@ function fireAllMagnets(buildingLevel)
                 if props.storageUID ~= nil then
                     -- Is there now a storage there?
                 end
-                fireMagnetById(uid)
+                fireMagnetById(uid, magnetSettings)
             end
         end
     end
@@ -311,7 +312,8 @@ end
 
 --- func desc
 ---@param magnetId integer
-function fireMagnetById(magnetId)
+---@param magnetSettings MagnetSettingsItem
+function fireMagnetById(magnetId, magnetSettings)
     if (Settings.DebugMode.Value) then
         Logging.LogDebug('fireMagnetByUID ( magnetId = %d ) (a)', magnetId)
     end
@@ -347,29 +349,31 @@ function fireMagnetById(magnetId)
     end
 
     -- How many can we put in crate?
-    local maxQty = getQtyToGrabForMagnet(magnetId)
-
+    local maxQuantity = QuantityToGrabForMagnet(magnetId, magnetSettings)
+    if (maxQuantity == 0) then
+        return
+    end
     -- Get them
-    findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty)
+    findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQuantity, magnetSettings)
     if DEBUG_ENABLED then ModDebug.Log(' fireMagnetByUID: (g) ', magnetId) end
 end
 
-function getQtyToGrabForMagnet(magnetUID)
-    -- LINK_UIDS[magnetUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, levelPrefix=levelPrefix, area={top,left,bottom,right}, storageUID}
+---@param magnetUID integer
+---@param magnetSettings MagnetSettingsItem
+function QuantityToGrabForMagnet(magnetUID, magnetSettings)
     local linkUid = LINK_UIDS[magnetUID]
     -- Figure out how many are already moving through the air, and if that is greater than allowed by the level, then return 0;
-    --local alreadyFlyingForStorage =  GetFlightObjectByStorageId(linkUid.storageUID)
     local alreadyFlyingForStorage = OBJECTS_IN_FLIGHT:FlightObjectByTarget(linkUid.storageUID)
+    local countByInitiator = 0
+    for _, value in ipairs(alreadyFlyingForStorage) do
+        if (value.InitiatorId == magnetUID) then
+            countByInitiator = countByInitiator + 1
+        end
+    end
     local alreadyFlyingQty = #alreadyFlyingForStorage
-    -- local alreadyFlyingQty = 0
-    -- if alreadyFlyingForStorage == nil or alreadyFlyingForStorage[1] == nil then
-    --     alreadyFlyingQty = 0
-    -- else
-    --     alreadyFlyingQty = #alreadyFlyingForStorage
-    -- end
 
     -- query storage for min/max
-    local storageProperties = UnpackStorageInfo(ModStorage.GetStorageInfo(linkUid.storageUID))	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
+    local storageProperties = UnpackStorageInfo(ModStorage.GetStorageInfo(linkUid.storageUID))
 
     if (not storageProperties.Successfully) then
         return 0
@@ -388,23 +392,17 @@ function getQtyToGrabForMagnet(magnetUID)
     end
 
     -- Adjust max to be "how many could actually fit into crate"
-    local canCollect = storageProperties.Capacity - storageProperties.AmountStored - alreadyFlyingQty
+    local maxCanCollect = storageProperties.Capacity - storageProperties.AmountStored - alreadyFlyingQty
 
     -- if qty flying will fill up crate, return 0
-    if canCollect <= 0 then
+    if maxCanCollect <= 0 then
         return 0
     end
 
-    -- Adjust based on level prefix
-    if linkUid.buildingLevel == BuildingLevels.Crude then
-        local countInOnetime = 1
-        canCollect = math.max(0, math.min(countInOnetime, canCollect, countInOnetime - alreadyFlyingQty))
-    elseif linkUid.buildingLevel == BuildingLevels.Good then
-        local countInOnetime = 5
-        canCollect = math.max(0, math.min(countInOnetime, canCollect, countInOnetime - alreadyFlyingQty))
-    end
+    local countInOnetime = magnetSettings.CountOneTime
+    maxCanCollect = math.max(0, math.min(countInOnetime, maxCanCollect, countInOnetime - countByInitiator))
 
-    return canCollect
+    return maxCanCollect
 end
 
 --- func desc
@@ -477,24 +475,28 @@ function getAreaForMagnetStorage(magProps, storProps)
     return result
 end
 
-function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
+--- func desc
+---@param magnetId integer
+---@param maxQty integer
+---@param magnetSettings MagnetSettingsItem
+function findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty, magnetSettings)
     if (Settings.DebugMode.Value or ManualDebug) then
-        Logging.LogDebug('findAndCollectHoldablesIntoMagneticStorage(magnetUID = %d, maxQty = %d) (a)\n%s',magnetUID, maxQty, table.show(LINK_UIDS[magnetUID].area))
+        Logging.LogDebug('findAndCollectHoldablesIntoMagneticStorage(magnetUID = %d, maxQty = %d) (a)\n%s',magnetId, maxQty, table.show(LINK_UIDS[magnetId].area))
     end
-    if LINK_UIDS[magnetUID] == nil then
+    if LINK_UIDS[magnetId] == nil then
         Logging.Log('LINK_UIDS[magnetUID] == nil')
         return
     end
-    if STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil then
+    if STORAGE_UIDS[LINK_UIDS[magnetId].storageUID] == nil then
         Logging.Log('STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil')
         return
     end
 
     -- Get all items of sType in area
     --local holdables = ModTiles.GetObjectsOfTypeInAreaUIDs(
-    local magnetArea = LINK_UIDS[magnetUID].area
+    local magnetArea = LINK_UIDS[magnetId].area
     local holdables = ModTiles.GetObjectUIDsOfType(
-        STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID].sType,
+        STORAGE_UIDS[LINK_UIDS[magnetId].storageUID].sType,
         magnetArea.left,
         magnetArea.top,
         magnetArea.right,
@@ -521,7 +523,7 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
         return false
     end
 
-    local storageId = LINK_UIDS[magnetUID].storageUID
+    local storageId = LINK_UIDS[magnetId].storageUID
     local storageInfo = STORAGE_UIDS[storageId]
     local send = 0
     for _, uid in ipairs(holdables)
@@ -544,11 +546,12 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
                 local flightObject = FlightObject.new(
                     uid,
                     storageId,
+                    magnetId,
                     from,
                     to,
                     OnFlightComplete
                 )
-                flightObject:Start(15, 10)
+                flightObject:Start(magnetSettings.Speed, 10)
                 OBJECTS_IN_FLIGHT:Add(flightObject)
                 send = send + 1
             end

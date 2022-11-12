@@ -1,6 +1,7 @@
 ---@class FlightObject
 ---@field Id integer
 ---@field TagerId integer|nil
+---@field InitiatorId integer|nil
 ---@field From Point
 ---@field To Point
 ----@field _flightParameters { Arch :boolean, Wobble :boolean} #
@@ -19,17 +20,19 @@ FlightObject.__index = FlightObject
 --- func desc
 ---@param id integer # Id flight object
 ---@param targetId integer|nil #
+---@param initiatorId? integer|nil
 ---@param from Point #
 ---@param to Point #
 ---@param callbackComplete CallbackFlightComplete #
 ---@param flightParameters? FlightParameters # Default { Arch = true, Wobble = false }
-function FlightObject.new(id, targetId, from, to, callbackComplete, flightParameters)
+function FlightObject.new(id, targetId, initiatorId, from, to, callbackComplete, flightParameters)
     ---@type FlightObject
     local newInstance = {
         _flightParameters = flightParameters or FlightObject._flightParameters,
         _callbacksComplete = { callbackComplete },
         Id = id,
         TagerId = targetId,
+        InitiatorId = initiatorId,
         From = from,
         To = to
     }
