@@ -1,3 +1,5 @@
+---@alias LoggingLevel "TRC"|"DBG"|"INF"|"WRN"|"ERR"|"FTL"
+---@enum LogLevel
 LogLevel = {
     Trace       = "TRC",
     Debug       = "DBG",
@@ -8,7 +10,6 @@ LogLevel = {
 }
 
 Logging = {
-    ---@alias LoggingLevel string|"TRC"|"DBG"|"INF"|"WRN"|"ERR"|"FTL"
     ---@type LoggingLevel #
     MinimalLevel = LogLevel.Information,
 

@@ -38,18 +38,7 @@ function locateMagnets(buildingLevel)
 
     -- Find all Magnets
     --local magnetUIDs = ModBuilding.GetBuildingUIDsOfType(buildingLevel .. ' Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    local magnetUIDs = GetUidsByTypes(buildingTypes)
-
-    -- -- Legacy
-    -- if buildingLevel == 'Super' then
-    --     local oldMagnetUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Magnet (SL)', 0, 0, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    --     if oldMagnetUIDs ~= nil and oldMagnetUIDs[1] ~= -1 and oldMagnetUIDs[1] ~= nil then
-    --         for _, uid in ipairs(oldMagnetUIDs) do
-    --             magnetUIDs[#magnetUIDs + 1] = uid
-    --         end
-    --     end
-    -- end
-    -- -- END Legacy
+    local magnetUIDs = GetUidsByTypesOnMap(buildingTypes)
 
     -- quit if none
     if magnetUIDs == nil or magnetUIDs[1] == nil then
@@ -57,15 +46,11 @@ function locateMagnets(buildingLevel)
     end
 
     -- List the magnets if in debug mode
-    if DEBUG_ENABLED then
+    if (Settings.DebugMode.Value) then
         Logging.Log("locateMagnets:", serializeTable({
             magnetUIDs = magnetUIDs
         }))
     end
-
-    -- if reset == nil then
-    --     reset = false
-    -- end
 
     -- handle each magnet
     for _, uid in ipairs(magnetUIDs)
@@ -77,7 +62,7 @@ function locateMagnets(buildingLevel)
 
 end
 
---- func desc
+--- Spawn new magnet.
 ---@param buildingUID number
 ---@param buildingType string
 ---@param isBlueprint boolean
@@ -104,38 +89,39 @@ function OnMagnetSpawn(buildingUID, buildingType, isBlueprint, isDragging)
 end
 
 --- func desc
----@param magUID number
-function locateStorageForMagnet(magUID)
+---@param magnetUID number
+function locateStorageForMagnet(magnetUID)
     local storageUID, dir
     local magStorage = {}
 
-    if DEBUG_ENABLED then
-        Logging.Log("locateStorageForMagnet", " ", serializeTable({MagUID = magUID}) )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(string.format("locateStorageForMagnet(magnetUID = %d )", magnetUID) )
     end
 
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(magUID) )
+    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(magnetUID) )
     if (not properties.Successfully) then
-        Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magUID))
+        Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magnetUID))
         return
     end
 
-    if (DEBUG_ENABLED) then
-        Logging.LogDebug(string.format("locateStorageForMagnet(magUID = %d). Properties readed.", magUID))
-        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magUID), serializeTable(properties, "properties"))    
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(string.format("locateStorageForMagnet(magUID = %d). Properties readed.", magnetUID))
+        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magnetUID), serializeTable(properties, "properties"))
     end
 
     -- Cache the Link
     local buildingLevel = Buildings.GetMagnetLevel (properties.Type)
-     
+
     -- the only place for detecting rotation of magnet.
+    ---@type NESW #
     local direction = "n"
     if properties.Rotation == 270 then direction = 'n' end
     if properties.Rotation == 0   then direction = 'e' end
     if properties.Rotation == 90  then direction = 's' end
     if properties.Rotation == 180 then direction = 'w' end
 
-    local x, y = tileXYFromDir({ properties.TileX, properties.TileY }, direction)
-    LINK_UIDS[magUID] = {
+    local x, y = tileXYFromDir(Point.new(properties.TileX, properties.TileY), direction)
+    LINK_UIDS[magnetUID] = {
         bType         = properties.Type,
         tileX         = properties.TileX,
         tileY         = properties.TileY,
@@ -145,29 +131,30 @@ function locateStorageForMagnet(magUID)
         connectToXY   = { x, y }
     }
 
-    if (DEBUG_ENABLED) then
-        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magUID), serializeTable ( LINK_UIDS[magUID],  "LINK_UIDS[magUID]"))
+    if (Settings.DebugMode.Value) then
+        Logging.LogTrace(string.format("locateStorageForMagnet(magUID = %d).\n", magnetUID), serializeTable ( LINK_UIDS[magnetUID],  "LINK_UIDS[magUID]"))
     end
 
-    if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-        -- Make sure we have a callback for when magnet is renamed
-        if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRenamedCallback') then
-            ModBuilding.RegisterForBuildingRenamedCallback(magUID, magnetNameUpdated)
-            ModDebug.Log("call ModBuilding.RegisterForBuildingRenamedCallback(", magUID, ")")
-        end
-        -- Make sure we have a callback for when a magnet is moved / rotated
-        if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRepositionedCallback') then
-            ModBuilding.RegisterForBuildingRepositionedCallback(magUID, magnetRepositioned)
-            ModDebug.Log("call ModBuilding.RegisterForBuildingRepositionedCallback(", magUID, ")")
-        end
-        -- And if the magnet is destroyed?
-        if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingDestroyedCallback') then
-            ModBuilding.RegisterForBuildingDestroyedCallback(magUID, linkDestroyed)
-            ModDebug.Log("call ModBuilding.RegisterForBuildingDestroyedCallback(", magUID, ")")
-        end
-    end
+    -- !!! NOT IMPLIMENTED !!!
+    -- if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
+    --     -- Make sure we have a callback for when magnet is renamed
+    --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRenamedCallback') then
+    --         ModBuilding.RegisterForBuildingRenamedCallback(magnetUID, magnetNameUpdated)
+    --         ModDebug.Log("call ModBuilding.RegisterForBuildingRenamedCallback(", magnetUID, ")")
+    --     end
+    --     -- Make sure we have a callback for when a magnet is moved / rotated
+    --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRepositionedCallback') then
+    --         ModBuilding.RegisterForBuildingRepositionedCallback(magnetUID, magnetRepositioned)
+    --         ModDebug.Log("call ModBuilding.RegisterForBuildingRepositionedCallback(", magnetUID, ")")
+    --     end
+    --     -- And if the magnet is destroyed?
+    --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingDestroyedCallback') then
+    --         ModBuilding.RegisterForBuildingDestroyedCallback(magnetUID, linkDestroyed)
+    --         ModDebug.Log("call ModBuilding.RegisterForBuildingDestroyedCallback(", magnetUID, ")")
+    --     end
+    -- end
 
-    addStorageForMagnet(magUID)
+    addStorageForMagnet(magnetUID)
 end
 
 --- func desc

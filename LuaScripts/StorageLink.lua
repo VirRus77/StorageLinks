@@ -18,7 +18,7 @@ function locateBalancers(buildingLevel)
         }
     end
 
-    balancerUIDs = GetUidsByTypes(buildingTypes)
+    balancerUIDs = GetUidsByTypesOnMap(buildingTypes)
     -- --Legacy
     -- if levelPrefix == 'Super' then
     --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Balancer (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
@@ -120,7 +120,7 @@ function locateOverflowPumps(buildingLevel)
         buildingTypes = { Buildings.OverflowPumpSuper.Type, }
     end
 
-    pumpUIDs = GetUidsByTypes(buildingTypes)
+    pumpUIDs = GetUidsByTypesOnMap(buildingTypes)
 
     -- quit if none
     if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then
@@ -195,7 +195,7 @@ end
 
 --- 
 ---@param switchUID number
----@param playerXY Point
+---@param playerXY Point2
 function determineSwitchTargetState(switchUID, playerXY)
     -- If "farmerPlayer" or "Worker" is on tile, state should be OnUpdate
     -- otherwise OFF.
@@ -1376,14 +1376,9 @@ function findStorageInDirection(srcXY, dir)
 
     local storage, x, y
 
-    x, y = tileXYFromDir(srcXY, dir)
+    x, y = tileXYFromDir(Point.new(srcXY[1], srcXY[2]), dir)
 
     storage = storageUidOnTileWithCallbacks(x, y)
-
-    -- if dir == 'n' then storage = storageUidOnTile(srcXY[1]	  , srcXY[2] - 1) end
-    -- if dir == 's' then storage = storageUidOnTile(srcXY[1]	  , srcXY[2] + 1) end
-    -- if dir == 'w' then storage = storageUidOnTile(srcXY[1] - 1, srcXY[2]	) end
-    -- if dir == 'e' then storage = storageUidOnTile(srcXY[1] + 1, srcXY[2]	) end
 
     if storage ~= nil then
         return storage
@@ -1400,7 +1395,7 @@ function storageUidOnTileWithCallbacks(x, y)
 
     uids = ModTiles.GetObjectUIDsOnTile(x,y)
     for _, uid in ipairs(uids) do
-        if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then
+        if ModObject.GetObjectSubcategory(uid) == SubCategory.BuildingsStorage then
             found = true
             buildingUID = uid
             break
@@ -1441,23 +1436,24 @@ function storageUidOnTileWithCallbacks(x, y)
     return nil
 end
 
-function storageUidOnTile(x,y)
+--- Get Storage on Tile
+---@param x integer
+---@param y integer
+---@return integer|nil
+function GetStorageOnTile(x,y)
+    ---@type integer
+    local buildingUID = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
+    local validObject = (buildingUID ~= -1) and
+        ModObject.IsValidObjectUID(buildingUID) and
+        ModObject.GetObjectSubcategory(buildingUID) == 'BuildingsStorage'
 
-    local types
-    local uids
-    local buildingUID
-
-
-    buildingUID = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence,exits.
-    if ModObject.IsValidObjectUID(buildingUID) then
-        if ModObject.GetObjectSubcategory(buildingUID) == 'BuildingsStorage' then
-            return buildingUID
-        else
-            -- uids = ModTiles.GetObjectUIDsOnTile(x,y)
-            -- for _, uid in ipairs(uids) do
-            -- 	if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then return uid end
-            -- end
-        end
+    if validObject then
+        return buildingUID
+    else
+        -- uids = ModTiles.GetObjectUIDsOnTile(x,y)
+        -- for _, uid in ipairs(uids) do
+        -- 	if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then return uid end
+        -- end
     end
 
 
@@ -1476,7 +1472,7 @@ function storageUidOnTile(x,y)
     return nil
 end
 
----@param srcXY Point
+---@param srcXY Point2
 ---@param dir "n"|"e"|"s"|"w"
 ---@return { kind :"storage"|"converter", uid :integer, props: StorageInfo | ConverterProperties }|nil
 function findStorageOrConverterInDirection(srcXY, dir)
@@ -1553,53 +1549,57 @@ end
 
 --- func desc
 ---@param srcXY Point #
----@param direction string|"n"|"e"|"s"|"w" #
+---@alias NESW "n"|"e"|"s"|"w"
+---@param direction NESW #
 ---@return integer, integer # x, y
 function tileXYFromDir(srcXY, direction)
-    if direction == 'n' then return srcXY[1]    , srcXY[2] - 1 end
-    if direction == 's' then return srcXY[1]    , srcXY[2] + 1 end
-    if direction == 'w' then return srcXY[1] - 1, srcXY[2]     end
-    if direction == 'e' then return srcXY[1] + 1, srcXY[2]     end
+    if direction == 'n' then return srcXY.X    , srcXY.Y - 1 end
+    if direction == 's' then return srcXY.X    , srcXY.Y + 1 end
+    if direction == 'w' then return srcXY.X - 1, srcXY.Y     end
+    if direction == 'e' then return srcXY.X + 1, srcXY.Y     end
     error("Unknown direction: "..direction)
 end
 
-function newBuildingInArea(BuildingUID, IsBlueprint, IsDragging) -- BuildingUID, IsBlueprint, IsDragging
-    if IsBlueprint then
+function newBuildingInArea(buildingUID, isBlueprint, isDragging) -- BuildingUID, IsBlueprint, IsDragging
+    if isBlueprint then
         return
     end
-    if IsDragging then
+    if isDragging then
         return
     end
-    if ModBuilding.IsBuildingActuallyFlooring(BuildingUID) then
+    if ModBuilding.IsBuildingActuallyFlooring(buildingUID) then
         return
     end
-    if LINK_UIDS[BuildingUID] ~= nil then
+    if LINK_UIDS[buildingUID] ~= nil then
+        return
+    end
+
+    -- We already know about this building
+    if STORAGE_UIDS[buildingUID] ~= nil then
         return
     end -- We already know about this building
-    if STORAGE_UIDS[BuildingUID] ~= nil then
-        return
-    end -- We already know about this building
-    local TileXY = ModObject.GetObjectTileCoord(BuildingUID)
-    local UIDOnTile
+
+    local tileXY = ModObject.GetObjectTileCoord(buildingUID)
+    local uidOnTile
 
     -- From here we only proceed if this is a storage.
-    if ModBase.ClassAndMethodExist('ModStorage','IsStorageUIDValid') then
-        if (ModStorage.IsStorageUIDValid(BuildingUID) == false) then
+    if ModBase.ClassAndMethodExist('ModStorage', 'IsStorageUIDValid') then
+        if (not ModStorage.IsStorageUIDValid(buildingUID)) then
             return
         end
-        if (DEBUG_ENABLED) then
-            ModDebug.Log(' newBuildingInArea: Checked using "IsStorageUIDValid", true!')
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' newBuildingInArea: Checked using "IsStorageUIDValid", true!')
         end
     else
-        UIDOnTile = storageUidOnTile(TileXY[1], TileXY[2])
-        if (UIDOnTile == nil) then
+        uidOnTile = GetStorageOnTile(tileXY[1], tileXY[2])
+        if (uidOnTile == nil) then
             return
         end
-        BuildingUID = UIDOnTile
-        if DEBUG_ENABLED then ModDebug.Log(' newBuildingInArea: Checked using "storageUidOnTile", not nil!', BuildingUID) end
+        buildingUID = uidOnTile
+        if DEBUG_ENABLED then ModDebug.Log(' newBuildingInArea: Checked using "storageUidOnTile", not nil!', buildingUID) end
     end
 
-    addStorageToLinksWatchingTile(BuildingUID, TileXY)
+    addStorageToLinksWatchingTile(buildingUID, tileXY)
 
 end
 

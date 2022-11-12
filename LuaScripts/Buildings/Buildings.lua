@@ -1,8 +1,8 @@
 Buildings = {
     -- Magnet
-    ---@alias Point integer[] # Point [1] = X, [2] = Y
+    ---@alias Point2 integer[] # Point [1] = X, [2] = Y
     ---@alias Point3 { X? :number, Y? :number, Z? :number }
-    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point, BottomRigth :Point, AccessPoint :Point | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
+    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type BuildingItem #
     MagnetCrude = {
         Type = "MagnetCrude",
