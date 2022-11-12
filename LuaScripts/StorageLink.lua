@@ -461,7 +461,7 @@ end
 ---@param uid integer
 function resetCachedLink(uid)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat(' resetCachedLink(%d) (a) ', uid)
+        Logging.LogDebug(' resetCachedLink(%d) (a) ', uid)
     end
     if LINK_UIDS[uid] == nil then
         return false
@@ -479,7 +479,7 @@ function resetCachedLink(uid)
 
     removeLinkUIDFromStoragesCache(uid)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat(' resetCachedLink(%d) (c) ', uid)
+        Logging.LogDebug(' resetCachedLink(%d) (c) ', uid)
     end
     locateStorageForMagnet(uid)
 end
@@ -1689,42 +1689,6 @@ function isABuildingInTableOnMap(buildingTable)
 
     for _, rType in ipairs(buildingTable) do
         if (ModTiles.GetAmountObjectsOfTypeInArea(rType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height) > 0) then
-            return true
-        end
-    end
-
-    return false
-end
-
--- Moving OBJECTS_IN_FLIGHT
-function updateFlightPositions()
-
-    -- If move not completed and valid, update
-    for UID, ob in pairs(OBJECTS_IN_FLIGHT)
-    do
-        updatePositionOfUIDInFlight(UID, ob)
-    end
-
-end
-
-function updatePositionOfUIDInFlight(UID, ob)
-
-    if UID ~= -1 and ModObject.IsValidObjectUID(UID) then
-
-        local moveComplete = ModObject.UpdateMoveTo(UID, ob.arch, ob.wobble)
-
-        if moveComplete then
-            ob.onFlightComplete(UID, ob)
-            OBJECTS_IN_FLIGHT[UID] = nil
-        end
-    end
-
-end
-
-function hasValue (tab, val)
-    for index, value in ipairs(tab) do
-        if value == nil then return false end -- mmediate exit!
-        if value == val then
             return true
         end
     end

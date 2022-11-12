@@ -7,6 +7,7 @@
 
 --- Used near exclusively for Steam Workshop and Mod information
 function SteamDetails()
+    ModDebug.ClearLog()
     Logging.Log("SteamDetails")
 
     -- Setting of Steam details
@@ -202,7 +203,9 @@ end
 ---@param timeDelta number
 function OnUpdate(timeDelta)
     -- Called on every cycle!
-    updateFlightPositions()
+    --updateFlightPositions()
+    
+    OBJECTS_IN_FLIGHT:Check()
     -- everyFrame(timeDelta)
 
     if (not DEBUG_ENABLED) then

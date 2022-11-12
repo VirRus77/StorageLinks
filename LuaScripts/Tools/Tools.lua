@@ -13,6 +13,35 @@ function GetUidsByTypesOnMap(buildingTypes)
     return uids
 end
 
+---- https://stackoverflow.com/a/53038524/6098146
+function ArrayRemove(t, fnKeep)
+    print('before:');
+    ArrayShow(t);
+    print('---');
+    local j, n = 1, #t;
+    for i=1,n do
+        print('i:'..i, 'j:'..j);
+        if (fnKeep(t, i, j)) then
+            if (i ~= j) then
+                print('keeping:'..i, 'moving to:'..j);
+                -- Keep i's value, move it to j's pos.
+                t[j] = t[i];
+                t[i] = nil;
+            else
+                -- Keep i's value, already at j's pos.
+                print('keeping:'..i, 'already at:'..j);
+            end
+            j = j + 1;
+        else
+            t[i] = nil;
+        end
+    end
+    print('---');
+    print('after:');
+    ArrayShow(t);
+    return t;
+end
+
 --- Get Storage on Tile.
 ---@param x integer
 ---@param y integer
@@ -47,44 +76,6 @@ function GetStorageOnTile(x, y)
     -- end
 
     return nil
-end
-
---- Serialize table.
----@param val table
----@param name? any
----@param skipnewlines? any
----@param depth? any
-function serializeTable (val, name, skipnewlines, depth)
-    skipnewlines = skipnewlines or false
-    depth = depth or 0
-
-    local tmp = string.rep(" ", depth)
-
-    if name then
-        tmp = tmp .. name .. " = "
-    end
-
-    if type(val) == "table" then
-        tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
-
-        for k, v in pairs(val) do
-            tmp =  tmp .. serializeTable (v, k, skipnewlines, depth + 1) .. "," .. (not skipnewlines and "\n" or "")
-        end
-
-        tmp = tmp .. string.rep(" ", depth) .. "}"
-    elseif type(val) == "number" then
-        tmp = tmp .. tostring(val)
-    elseif type(val) == "string" then
-        tmp = tmp .. string.format("%q", val)
-    elseif type(val) == "boolean" then
-        tmp = tmp .. (val and "true" or "false")
-    else
-        tmp = tmp .. "\"[inserializeable datatype:" .. type(val) .. "]\""
-    end
-
-    tmp = tmp .. " :" .. type(val)
-
-    return tmp
 end
 
 --- Get count elements.

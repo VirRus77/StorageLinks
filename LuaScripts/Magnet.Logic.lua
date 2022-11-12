@@ -237,7 +237,7 @@ end
 ---@param objectName string
 function magnetNameUpdated(magnetId, objectName)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat ('magnetNameUpdated ( magnetId = %d, objectName = %s ) ', magnetId, objectName)
+        Logging.LogDebug('magnetNameUpdated ( magnetId = %d, objectName = %s ) ', magnetId, objectName)
     end
 
     -- Does the magnet exist in the tracker?
@@ -264,7 +264,7 @@ end
 
 -- function MagnetRepositioned(magnetId, BuildingType, Rotation, TileX, TileY, IsBlueprint, IsDragging)
 --     if (Settings.DebugMode.Value) then
---         Logging.LogDebugFormat('magnetRepositioned( MagnetUID = $d, BuildingType = %s, Rotation = %d, TileX = %d, TileY = %d, IsBlueprint = %s, IsDragging = %s)', magnetId, BuildingType, Rotation, TileX, TileY, IsBlueprint, IsDragging)
+--         Logging.LogDebug('magnetRepositioned( MagnetUID = $d, BuildingType = %s, Rotation = %d, TileX = %d, TileY = %d, IsBlueprint = %s, IsDragging = %s)', magnetId, BuildingType, Rotation, TileX, TileY, IsBlueprint, IsDragging)
 --     end
 -- 
 --     if IsDragging then
@@ -274,14 +274,14 @@ end
 --         return false
 --     end
 --     if (Settings.DebugMode.Value) then
---         Logging.LogDebugFormat(' magnetRepositioned (%d) ', magnetId)
+--         Logging.LogDebug(' magnetRepositioned (%d) ', magnetId)
 --     end
 --     resetCachedLink(magnetId)
 -- end
 
 function fireAllMagnets(buildingLevel)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat('fireAllMagnets( buildingLevel = %s )', buildingLevel)
+        Logging.LogDebug('fireAllMagnets( buildingLevel = %s )', buildingLevel)
     end
 
     ---@type string[]
@@ -313,7 +313,7 @@ end
 ---@param magnetId integer
 function fireMagnetById(magnetId)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat('fireMagnetByUID ( magnetId = %d ) (a)', magnetId)
+        Logging.LogDebug('fireMagnetByUID ( magnetId = %d ) (a)', magnetId)
     end
     -- looking in area for items that can be picked up.
     if USE_EVENT_STYLE == false then
@@ -356,50 +356,55 @@ end
 
 function getQtyToGrabForMagnet(magnetUID)
     -- LINK_UIDS[magnetUID] = {bType=bType, tileX=tileX, tileY=tileY, rotation=rotation, name=name, levelPrefix=levelPrefix, area={top,left,bottom,right}, storageUID}
-
+    local linkUid = LINK_UIDS[magnetUID]
     -- Figure out how many are already moving through the air, and if that is greater than allowed by the level, then return 0;
-    local alreadyFlyingForStorage = listInFlightWithProp('storageUID', LINK_UIDS[magnetUID].storageUID)
-    local alreadyFlyingQty
-    if alreadyFlyingForStorage == nil or alreadyFlyingForStorage[1] == nil then
-        alreadyFlyingQty = 0
-    else
-        alreadyFlyingQty = #alreadyFlyingForStorage
-    end
+    --local alreadyFlyingForStorage =  GetFlightObjectByStorageId(linkUid.storageUID)
+    local alreadyFlyingForStorage = OBJECTS_IN_FLIGHT:FlightObjectByTarget(linkUid.storageUID)
+    local alreadyFlyingQty = #alreadyFlyingForStorage
+    -- local alreadyFlyingQty = 0
+    -- if alreadyFlyingForStorage == nil or alreadyFlyingForStorage[1] == nil then
+    --     alreadyFlyingQty = 0
+    -- else
+    --     alreadyFlyingQty = #alreadyFlyingForStorage
+    -- end
 
     -- query storage for min/max
-    local sProps = ModStorage.GetStorageInfo(LINK_UIDS[magnetUID].storageUID)	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
+    local storageProperties = UnpackStorageInfo(ModStorage.GetStorageInfo(linkUid.storageUID))	-- [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
 
-    if sProps == nil or sProps == -1 then
+    if (not storageProperties.Successfully) then
         return 0
     end
-    if sProps[2] == nil then
+
+    if storageProperties.AmountStored == nil then
         return 0
     end
-    if sProps[3] == nil then
+    if storageProperties.Capacity == nil then
         return 0
     end
 
     -- if crate is full, return 0
-    if sProps[2] >= sProps[3] then
+    if (storageProperties.AmountStored >= storageProperties.Capacity) then
         return 0
     end
 
     -- Adjust max to be "how many could actually fit into crate"
-    local maxQtyToCollect = sProps[3] - sProps[2] - alreadyFlyingQty
+    local canCollect = storageProperties.Capacity - storageProperties.AmountStored - alreadyFlyingQty
 
     -- if qty flying will fill up crate, return 0
-    if maxQtyToCollect <= 0 then
+    if canCollect <= 0 then
         return 0
     end
 
     -- Adjust based on level prefix
-    if LINK_UIDS[magnetUID].buildingLevel == BuildingLevels.Crude then
-        maxQtyToCollect = 1
-    elseif LINK_UIDS[magnetUID].buildingLevel == BuildingLevels.Good then
-        maxQtyToCollect = 5
+    if linkUid.buildingLevel == BuildingLevels.Crude then
+        local countInOnetime = 1
+        canCollect = math.max(0, math.min(countInOnetime, canCollect, countInOnetime - alreadyFlyingQty))
+    elseif linkUid.buildingLevel == BuildingLevels.Good then
+        local countInOnetime = 5
+        canCollect = math.max(0, math.min(countInOnetime, canCollect, countInOnetime - alreadyFlyingQty))
     end
 
-    return maxQtyToCollect
+    return canCollect
 end
 
 --- func desc
@@ -409,7 +414,7 @@ end
 ---@return { left :integer, top :integer, right :integer, bottom :integer } #
 function getMagnetArea(magnetName, posX, posY)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat("getMagnetArea(magnetName = %s, posX = %d, posY = %d)", magnetName, posX, posY)
+        Logging.LogDebug("getMagnetArea(magnetName = %s, posX = %d, posY = %d)", magnetName, posX, posY)
     end
 
     -- Calculate AREA or SIZE from the name. default to 10x10
@@ -421,8 +426,8 @@ function getMagnetArea(magnetName, posX, posY)
     local height = 10 -- default width
 
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat('getMagnetArea: w1: %d w2: %d', w1, w2 )
-        Logging.LogDebugFormat('getMagnetArea: h1: %d h2: %d', h1, h2 )
+        Logging.LogDebug('getMagnetArea: w1: %d w2: %d', w1, w2 )
+        Logging.LogDebug('getMagnetArea: h1: %d h2: %d', h1, h2 )
     end
 
     if w1 ~= nil then
@@ -449,7 +454,7 @@ function getMagnetArea(magnetName, posX, posY)
 
     local result = { left = left, top = top, right = right, bottom = bottom }
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat('getMagnetArea %s ', serializeTable( result ) )
+        Logging.LogDebug('getMagnetArea %s ', serializeTable( result ) )
     end
 
     return result
@@ -461,7 +466,7 @@ end
 ---@return { left :integer, top :integer, right :integer, bottom :integer }
 function getAreaForMagnetStorage(magProps, storProps)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebugFormat ('getAreaForMagnetStorage:\n%s', serializeTable({magProps = magProps, storProps = storProps}) )
+        Logging.LogDebug('getAreaForMagnetStorage:\n%s', serializeTable({magProps = magProps, storProps = storProps}) )
     end
 
     local result = getMagnetArea( magProps.name, storProps.tileX, storProps.tileY )
@@ -473,13 +478,15 @@ function getAreaForMagnetStorage(magProps, storProps)
 end
 
 function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
-    if DEBUG_ENABLED then
-        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: (a)', table.show(LINK_UIDS[magnetUID].area) )
+    if (Settings.DebugMode.Value or ManualDebug) then
+        Logging.LogDebug('findAndCollectHoldablesIntoMagneticStorage(magnetUID = %d, maxQty = %d) (a)\n%s',magnetUID, maxQty, table.show(LINK_UIDS[magnetUID].area))
     end
     if LINK_UIDS[magnetUID] == nil then
+        Logging.Log('LINK_UIDS[magnetUID] == nil')
         return
     end
     if STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil then
+        Logging.Log('STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil')
         return
     end
 
@@ -494,130 +501,68 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetUID, maxQty)
         magnetArea.bottom
     )
     if DEBUG_ENABLED then
-        ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', holdables )
+        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', holdables )
     end
     if DEBUG_ENABLED then
-        ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', table.show(holdables) )
+        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', table.show(holdables) )
     end
+    Logging.Log('holdables: ', #holdables)
 
     if holdables == nil or holdables[1] == -1 or #holdables == 0 then
         return false
     end
     if DEBUG_ENABLED then
-        ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: #holdables ', #holdables )
+        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: #holdables ', #holdables )
     end
     if maxQty <= 0 then
         if DEBUG_ENABLED then
-            ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: 0 max qty??? ')
+            Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: 0 max qty??? ')
         end
         return false
     end
 
-    local s = STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID]
+    local storageId = LINK_UIDS[magnetUID].storageUID
+    local storageInfo = STORAGE_UIDS[storageId]
+    local send = 0
     for _, uid in ipairs(holdables)
     do
-        if _ > maxQty then
-            return false
-        end -- already requested max Qty
-        if OBJECTS_IN_FLIGHT[uid] ~= nil then
-            return false
-        end -- already flying
-        if uid ~= -1 then -- Is a valid UID
-            ModObject.StartMoveTo(uid, s.tileX, s.tileY, 15, 10)
-            OBJECTS_IN_FLIGHT[uid] = {
-                arch = true,
-                wobble = false,
-                storageUID = LINK_UIDS[magnetUID].storageUID, onFlightComplete = onFlightCompleteForMagnets
-            }
-            --ModObject.SetObjectActive(uid, false)
-            if DEBUG_ENABLED then ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: moving! uid:', uid ) end
-        end
-    end
+        if (send >= maxQty) then
+             return false
+         end -- already requested max Qty
 
-end
-
-function calcQtyToGrabForMagneticStorage(magStorage, buildingLevel)
-    -- {storageUID = storageUID, magUID = magUID, linkProps = linkProps, storageProps = storageProps}
-    -- storageProps [1]=type-stored, [2] = on-hand, [3] = max-qty, [4] = storage container type
-    local alreadyFlyingForStorage = listInFlightWithProp('storageUID', magStorage.storageUID)
-    local alreadyFlyingQty
-    if alreadyFlyingForStorage == nil or alreadyFlyingForStorage[1] == nil then
-        alreadyFlyingQty = 0
-    else
-        alreadyFlyingQty = #alreadyFlyingForStorage
-    end
-    local maxQtyToCollect = magStorage.storageProps[3] - magStorage.storageProps[2] - alreadyFlyingQty
-
-    -- If this is "Crude" or "Good" level
-    if (buildingLevel == BuildingLevels.Crude) then
-        maxQtyToCollect = 1
-    elseif (buildingLevel == BuildingLevels.Good) then
-        maxQtyToCollect = 5
-    end
-
-    if maxQtyToCollect == 0 then return
-        false
-    end
-
-    calcAreaForMagneticStorage(magStorage, maxQtyToCollect, alreadyFlyingForStorage)
-end
-
-function calcAreaForMagneticStorage(magStorage, maxQtyToCollect, alreadyFlyingForStorage)
-    local stXY = ModObject.GetObjectTileCoord(magStorage.storageUID)
-
-    if DEBUG_ENABLED then
-        ModDebug.Log(' calcQtyToGrabForMagneticStorage: magnet Name: "', magStorage.magProps[5], '"' )
-    end
-
-    local result = getMagnetArea(magStorage.magProps[5], stXY[1], stXY[2])
-    if DEBUG_ENABLED then
-        ModDebug.Log(' calcAreaForMagneticStorage: area: ', serializeTable( result ) )
-    end
-
-    collectGoodsIntoMagneticStorage(magStorage, maxQtyToCollect, stXY, result, alreadyFlyingForStorage)
-end
-
-function collectGoodsIntoMagneticStorage(magStorage, maxQtyToCollect, stXY, area, alreadyFlyingForStorage)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' collectGoodsIntoMagneticStorage: (a)' )
-    end
-
-    -- Clip to max area on map
-    local pickables = ModTiles.GetObjectUIDsOfType(magStorage.storageProps[1], area.left, area.top, area.right, area.bottom)
-    if pickables == nil or pickables[1] == -1 or #pickables == 0 then return false end
-    if DEBUG_ENABLED then ModDebug.Log(' collectGoodsIntoMagneticStorage: #pickables ', #pickables ) end
-
-    for _, uid in ipairs(pickables)
-    do
-        if _ > maxQtyToCollect then return false end -- done requestiong.
-        if hasValue(alreadyFlyingForStorage, uid) == false and uid ~= -1 then -- Not already in flight for area
-            ModObject.StartMoveTo(uid, stXY[1], stXY[2], 15, 10)
-            OBJECTS_IN_FLIGHT[uid] = { arch=true, wobble=false, storageUID = magStorage.storageUID, onFlightComplete = onFlightCompleteForMagnets }
-            if DEBUG_ENABLED then ModDebug.Log(' collectGoodsIntoMagneticStorage: moving! uid:', uid ) end
-        end
-    end
-end
-
-function onFlightCompleteForMagnets(flyingUID, ob)
-    -- ob has arrived!
-    if ModObject.IsValidObjectUID(flyingUID) and ModObject.IsValidObjectUID(ob.storageUID) then -- both UID and storageUID are valid
-        -- Use 'AddToStorage' only if it has durability.
-        local maxUsage = ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(flyingUID), 'MaxUsage')
-        if maxUsage == nil or maxUsage == 0 then -- No durability, just up storage qty
-            local sProps = ModStorage.GetStorageInfo(ob.storageUID) -- [2] = current amount, [3] = max
-            if sProps ~= nil and sProps[1] ~= -1 and sProps[2] ~= nil then
-                if sProps[2] < 0 then
-                    sProps[2] = 0
-                    ModStorage.SetStorageQuantityStored(ob.storageUID, 0)
-                end
-                ModStorage.SetStorageQuantityStored(ob.storageUID, sProps[2] + 1)
+        if (not OBJECTS_IN_FLIGHT:Contains(uid)) then
+            Logging.Log(' Add object to fly ')
+            --return false
+         -- already flying
+        -- if (OBJECTS_IN_FLIGHT[uid] ~= nil) then
+        --     return false
+        -- end -- already flying
+            if uid ~= -1 then -- Is a valid UID
+                local objectX, objectY = table.unpack(ModObject.GetObjectTileCoord(uid))
+                local from = Point.new(objectX, objectY)
+                local to = Point.new(storageInfo.tileX, storageInfo.tileY)
+                local flightObject = FlightObject.new(
+                    uid,
+                    storageId,
+                    from,
+                    to,
+                    OnFlightComplete
+                )
+                flightObject:Start(15, 10)
+                OBJECTS_IN_FLIGHT:Add(flightObject)
+                send = send + 1
             end
-        else-- Durability present, use their method.
-            ModStorage.AddToStorage(ob.storageUID, flyingUID)
+
         end
+        -- if uid ~= -1 then -- Is a valid UID
+        --     ModObject.StartMoveTo(uid, s.tileX, s.tileY, 15, 10)
+        --     OBJECTS_IN_FLIGHT[uid] = {
+        --         arch = true,
+        --         wobble = false,
+        --         storageUID = LINK_UIDS[magnetUID].storageUID, onFlightComplete = onFlightCompleteForMagnets
+        --     }
+        --     --ModObject.SetObjectActive(uid, false)
+        --     if DEBUG_ENABLED then ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: moving! uid:', uid ) end
+        -- end
     end
-    -- still valid?
-    if ModObject.IsValidObjectUID(flyingUID) then
-        ModObject.DestroyObject(flyingUID)
-    end -- make sure!
 end

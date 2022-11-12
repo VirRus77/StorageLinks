@@ -10,31 +10,26 @@ LogLevel = {
 }
 
 Logging = {
-    ---@type LoggingLevel #
-    MinimalLevel = LogLevel.Information,
+    ---@type number #
+    ---@private
+    _minimalLevel = 3,
 
     --- List show log levels.
-    ---@type LoggingLevel[]
-    AcceptLogLevel = { 
-        LogLevel.Information,
-        LogLevel.Warning,
-        LogLevel.Error,
-        LogLevel.Fatal
+    ---@type table<string, number>
+    AcceptLogLevel = {
+        TRC = 1,
+        DBG = 2,
+        INF = 3,
+        WRN = 4,
+        ERR = 5,
+        FTL = 6,
     }
 }
 
 --- Set minimal level write log.
 ---@param logLevel LoggingLevel #
 function Logging.SetMinimalLevel (logLevel)
-    Logging.MinimalLevel = logLevel
-    Logging.AcceptLogLevel = {}
-    local append = false
-    for _, value in ipairs(LogLevel) do
-        append = append or (value == logLevel)
-        if  (append) then
-            table.insert (Logging.AcceptLogLevel, value)
-        end
-    end
+    Logging._minimalLevel = Logging.AcceptLogLevel[logLevel]
 end
 
 --- func desc
@@ -47,50 +42,36 @@ function Logging.LogTrace (...)
     Logging.LogLevel(LogLevel.Trace, ...)
 end
 
-function Logging.LogDebug (...)
-    Logging.LogLevel(LogLevel.Debug, ...)
-end
-
 --- 
 ---@param formatString string
 ---@param ... any
-function Logging.LogDebugFormat (formatString, ...)
+function Logging.LogDebug (formatString, ...)
     Logging.LogLevel(LogLevel.Debug, string.format(formatString, ...))
 end
 
-function Logging.LogInformation (...)
-    Logging.LogLevel(LogLevel.Information, ...)
+function Logging.LogInformation (formatString, ...)
+    Logging.LogLevel(LogLevel.Information, string.format(formatString, ...))
 end
 
-function Logging.LogWarning (...)
-    Logging.LogLevel(LogLevel.Warning, ...)
+function Logging.LogWarning (formatString, ...)
+    Logging.LogLevel(LogLevel.Warning, string.format(formatString, ...))
 end
 
-function Logging.LogError (...)
-    Logging.LogLevel(LogLevel.Error, ...)
+function Logging.LogError (formatString, ...)
+    Logging.LogLevel(LogLevel.Error, string.format(formatString, ...))
 end
 
-function Logging.LogFatal (...)
-    Logging.LogLevel(LogLevel.Fatal, ...)
+function Logging.LogFatal (formatString, ...)
+    Logging.LogLevel(LogLevel.Fatal, string.format(formatString, ...))
 end
 
 --- func desc
 ---@param logLevel LoggingLevel
 ---@param ... any
 function Logging.LogLevel(logLevel, ...)
-    local show = Logging.MinimalLevel == logLevel
-    if (not show) then
-        for _, value in ipairs(Logging.AcceptLogLevel) do
-            show = show or (logLevel == value)
-            if (show) then
-                break
-            end
-        end
-    end
-
+    local show = Logging._minimalLevel <= Logging.AcceptLogLevel[logLevel]
     if (not show) then
         return
     end
-
-    Logging.Log(" ["..logLevel.."] ", ...)
+    Logging.Log(string.format(" [%s] ", logLevel), ...)
 end

@@ -1,13 +1,20 @@
+--
+Logging.SetMinimalLevel(LogLevel.Trace)
+ManualDebug = true
+
 -- Static
 FRAMES_BETWEEN_CHECK = 10
 LAST_TIME_DELTA = 0
 
 VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before uploading to steam!!
 
--- Internal Databases
----@alias OBJECTS_IN_FLIGHT_Item { arch :boolean, wobble :boolean, storageUID :integer }
----@type OBJECTS_IN_FLIGHT_Item[] #
-OBJECTS_IN_FLIGHT = {}
+--  -- Internal Databases
+--  ---@alias OBJECTS_IN_FLIGHT_Item { arch :boolean, wobble :boolean, storageUID :integer, onFlightComplete :fun( id :integer, objectInFlight :OBJECTS_IN_FLIGHT_Item) }
+--  ---@type OBJECTS_IN_FLIGHT_Item[] #
+--  OBJECTS_IN_FLIGHT = {}
+---@type FlightObjectsList #
+OBJECTS_IN_FLIGHT = FlightObjectsList.new()
+
 SWITCHES_TURNED_OFF = {} -- key = '>some name'. use pairs().
 
 -- Internal Caching

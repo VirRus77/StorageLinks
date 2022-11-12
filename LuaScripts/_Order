@@ -1,10 +1,13 @@
 # The order in which the files are combined.
 GameValues/SubCategory.lua
 Models/Point.lua
+Models/FlightObject.lua
+Models/FlightObjectsList.lua
 Models/Timer.lua
 Models/TimersStack.lua
 Models/WorldLimits.lua
 Models/Logging.lua
+Tools/SerializeTable.lua
 Tools/Extensions.lua
 Tools/Tools.lua
 Settings.lua
