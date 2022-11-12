@@ -351,8 +351,10 @@ end
 --     end
 -- end
 
+--- func desc
+---@param uid integer
 function updateLinkPropsAsNeeded(uid)
-    if ModObject.IsValidObjectUID(uid) == false then
+    if ((uid == -1) or (not ModObject.IsValidObjectUID(uid))) then
         removeLinkUIDFromStorageCache(uid)
         LINK_UIDS[uid] = nil
         return
@@ -364,6 +366,7 @@ function updateLinkPropsAsNeeded(uid)
         return
     end
     --local bType, tileX, tileY, rotation, name = table.unpack (ModObject.GetObjectProperties(uid))
+    ---@type LINK_UIDS_Item
     local newProps = {
         bType    = properties.Type,
         tileX    = properties.TileX,
@@ -372,7 +375,7 @@ function updateLinkPropsAsNeeded(uid)
         name     = properties.Name
     }
 
-    if standardPropsMatch(LINK_UIDS[uid], newProps) == false then
+    if (not standardPropsMatch(LINK_UIDS[uid], newProps)) then
         resetCachedLink(uid)
     end
 end
@@ -454,9 +457,11 @@ function addStorageToLinksWatchingTile(BuildingUID, TileXY)
     end
 end
 
+--- func desc
+---@param uid integer
 function resetCachedLink(uid)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' resetCachedLink: (a) ', uid)
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebugFormat(' resetCachedLink(%d) (a) ', uid)
     end
     if LINK_UIDS[uid] == nil then
         return false
@@ -473,8 +478,8 @@ function resetCachedLink(uid)
     -- end
 
     removeLinkUIDFromStoragesCache(uid)
-    if DEBUG_ENABLED then
-        Logging.Log(' resetCachedLink: (c) ', uid)
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebugFormat(' resetCachedLink(%d) (c) ', uid)
     end
     locateStorageForMagnet(uid)
 end
@@ -522,21 +527,30 @@ function removeLinkUIDFromStoragesCache(linkUID)
     end
 end
 
+--- func desc
+---@param storageUID integer
+---@param linkUID? integer
 function removeLinkUIDFromStorageCache(storageUID, linkUID)
     if STORAGE_UIDS[storageUID] == nil then
         return
     end
+
     -- only one?
     if STORAGE_UIDS[storageUID].linkUID ~= nil and LINK_UIDS[storageUID].linkUID == linkUID then
         STORAGE_UIDS[storageUID].linkUID = nil
     elseif STORAGE_UIDS[storageUID].linkUIDs ~= nil then
         -- more than one?
         for idx, l_uid in ipairs(STORAGE_UIDS[storageUID].linkUIDs) do
-            if l_uid == storageUID then table.remove(STORAGE_UIDS[storageUID].linkUIDs, idx) end
+            if l_uid == storageUID then
+                table.remove(STORAGE_UIDS[storageUID].linkUIDs, idx)
+            end
         end
     end
 end
 
+--- func desc
+---@param oldProps LINK_UIDS_Item
+---@param newProps LINK_UIDS_Item
 function standardPropsMatch(oldProps, newProps)
 
     if  	oldProps.bType 		== newProps.bType
@@ -562,21 +576,19 @@ function storagePropsMatch(oldProps, newProps)
     return false
 end
 
-function addToTableIfDoesNotExist(tab, val)
-    local found = false
-
-    for _, v in ipairs(tab) do
-        if v == val then
-            found = true
-            break
+--- func desc
+---@param list any[]
+---@param value any
+function AddIfNotExist(list, value)
+    for _, v in ipairs(list) do
+        if v == value then
+            return list
         end
     end
 
-    if found then return tab end
+    table.insert(list, value)
 
-    tab[#tab + 1] = val
-
-    return tab
+    return list
 end
 
 -- Receivers and transmitters
@@ -1146,6 +1158,7 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
     -- 'one' = pump.
     if direction == 'one' and (properties.Rotation == 270 or properties.Rotation == 180) then -- with 270 and 0, east/west work, north/south fail
         -- Swap sides
+        ---@type integer|nil
         local side3Storage = side1Storage
         side1Storage = side2Storage
         side2Storage = side3Storage
@@ -1387,89 +1400,28 @@ function findStorageInDirection(srcXY, dir)
     return nil
 end
 
-function storageUidOnTileWithCallbacks(x, y)
-    local types
-    local uids
-    local buildingUID
-    local found = false
-
-    uids = ModTiles.GetObjectUIDsOnTile(x,y)
-    for _, uid in ipairs(uids) do
-        if ModObject.GetObjectSubcategory(uid) == SubCategory.BuildingsStorage then
-            found = true
-            buildingUID = uid
-            break
-        end
-    end
-
-
-    -- if ModTiles.IsSubcategoryOnTile(x,y,'Vehicles') then
-        -- -- Check if it is a train carriage?
-        -- types = ModTiles.GetObjectTypeOnTile(x, y)
-        -- for _, typ in ipairs(types)
-        -- do
-            -- if string.sub(typ, 1, 8) == 'Carriage' then
-                -- uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typ, x, y, x, y)
-                -- if uids ~= nil and uids[1] ~= nil and uids[1] ~= -1 then return uids[1] end
-            -- end
-        -- end
-    -- end
-
-    -- Callback remove
-    if found then
-        -- REMOVE any 'watch this tile for storage' callbacks
-        if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-            if ModBase.ClassAndMethodExist('ModBuilding','UnregisterForNewBuildingInAreaCallback') then
-                ModBuilding.UnregisterForNewBuildingInAreaCallback(x, y, x, y)
-            end
-        end
-        return buildingUID
-    end
-
-    -- Add a callback for that area!
-    if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForNewBuildingInAreaCallback') then
-            ModBuilding.RegisterForNewBuildingInAreaCallback(x, y, x, y, newBuildingInArea)
-        end
-    end
-
-    return nil
-end
-
---- Get Storage on Tile
+--- func desc
 ---@param x integer
 ---@param y integer
----@return integer|nil
-function GetStorageOnTile(x,y)
-    ---@type integer
-    local buildingUID = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
-    local validObject = (buildingUID ~= -1) and
-        ModObject.IsValidObjectUID(buildingUID) and
-        ModObject.GetObjectSubcategory(buildingUID) == 'BuildingsStorage'
-
-    if validObject then
-        return buildingUID
-    else
-        -- uids = ModTiles.GetObjectUIDsOnTile(x,y)
-        -- for _, uid in ipairs(uids) do
-        -- 	if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then return uid end
-        -- end
+function storageUidOnTileWithCallbacks(x, y)
+    local storageId = GetStorageOnTile(x, y)
+    if (storageId == nil) then
+        -- Add a callback for that area!
+        if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
+            if ModBase.ClassAndMethodExist('ModBuilding','RegisterForNewBuildingInAreaCallback') then
+                ModBuilding.RegisterForNewBuildingInAreaCallback(x, y, x, y, newBuildingInArea)
+            end
+        end
+        return nil
     end
 
-
-    -- if ModTiles.IsSubcategoryOnTile(x,y,'Vehicles') then
-        -- -- Check if it is a train carriage?
-        -- types = ModTiles.GetObjectTypeOnTile(x, y)
-        -- for _, typ in ipairs(types)
-        -- do
-            -- if string.sub(typ, 1, 8) == 'Carriage' then
-                -- uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typ, x, y, x, y)
-                -- if uids ~= nil and uids[1] ~= nil and uids[1] ~= -1 then return uids[1] end
-            -- end
-        -- end
-    -- end
-
-    return nil
+    -- REMOVE any 'watch this tile for storage' callbacks
+    if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
+        if ModBase.ClassAndMethodExist('ModBuilding','UnregisterForNewBuildingInAreaCallback') then
+            ModBuilding.UnregisterForNewBuildingInAreaCallback(x, y, x, y)
+        end
+    end
+    return storageId
 end
 
 ---@param srcXY Point2
@@ -1767,30 +1719,6 @@ function updatePositionOfUIDInFlight(UID, ob)
         end
     end
 
-end
-
-function listInFlightWithProp(propName, propValue, returnUIDs)
-
-    local listOfReturns = {}
-
-    if returnUIDs == nil or returnUIDs == false then
-        for UID, ob in pairs(OBJECTS_IN_FLIGHT)
-        do
-            if ob[propName] ~= nil and ob[propName] == propValue then
-                listOfReturns[#listOfReturns + 1] = ob
-            end
-        end
-        return listOfReturns
-    end
-
-    for UID, ob in pairs(OBJECTS_IN_FLIGHT)
-    do
-        if ob[propName] ~= nil and ob[propName] == propValue then
-            listOfReturns[#listOfReturns + 1] = UID
-        end
-    end
-
-    return listOfReturns
 end
 
 function hasValue (tab, val)

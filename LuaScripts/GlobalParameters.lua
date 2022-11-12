@@ -5,11 +5,17 @@ LAST_TIME_DELTA = 0
 VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before uploading to steam!!
 
 -- Internal Databases
+---@alias OBJECTS_IN_FLIGHT_Item { arch :boolean, wobble :boolean, storageUID :integer }
+---@type OBJECTS_IN_FLIGHT_Item[] #
 OBJECTS_IN_FLIGHT = {}
 SWITCHES_TURNED_OFF = {} -- key = '>some name'. use pairs().
 
 -- Internal Caching
+---@alias LINK_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation: integer, name :string, linkUID? :integer, storageUIDs? :integer[], buildingLevel :BuildingLevels, connectToXY :integer[], storageUID? :integer, area :{ left :integer, top :integer, right :integer, bottom :integer } }
+---@type LINK_UIDS_Item[] #
 LINK_UIDS = {}
+---@alias STORAGE_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation :integer, name :string, sType :string, linkUIDs? :integer[], linkUID? :integer }
+---@type STORAGE_UIDS_Item[]
 STORAGE_UIDS = {}
 
 --- func desc

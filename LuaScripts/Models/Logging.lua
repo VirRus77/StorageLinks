@@ -51,6 +51,13 @@ function Logging.LogDebug (...)
     Logging.LogLevel(LogLevel.Debug, ...)
 end
 
+--- 
+---@param formatString string
+---@param ... any
+function Logging.LogDebugFormat (formatString, ...)
+    Logging.LogLevel(LogLevel.Debug, string.format(formatString, ...))
+end
+
 function Logging.LogInformation (...)
     Logging.LogLevel(LogLevel.Information, ...)
 end

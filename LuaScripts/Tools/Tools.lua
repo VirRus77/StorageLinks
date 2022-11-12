@@ -13,6 +13,42 @@ function GetUidsByTypesOnMap(buildingTypes)
     return uids
 end
 
+--- Get Storage on Tile.
+---@param x integer
+---@param y integer
+---@return integer|nil
+function GetStorageOnTile(x, y)
+    ---@type integer
+    local buildingId = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
+    local validBuilding = (buildingId ~= -1) and
+        ModObject.IsValidObjectUID(buildingId) and
+        (ModObject.GetObjectSubcategory(buildingId) == SubCategory.BuildingsStorage)
+
+    if (validBuilding) then
+        return buildingId
+    else
+        -- uids = ModTiles.GetObjectUIDsOnTile(x,y)
+        -- for _, uid in ipairs(uids) do
+        -- 	if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then return uid end
+        -- end
+    end
+
+
+    -- if ModTiles.IsSubcategoryOnTile(x,y,'Vehicles') then
+        -- -- Check if it is a train carriage?
+        -- types = ModTiles.GetObjectTypeOnTile(x, y)
+        -- for _, typ in ipairs(types)
+        -- do
+            -- if string.sub(typ, 1, 8) == 'Carriage' then
+                -- uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typ, x, y, x, y)
+                -- if uids ~= nil and uids[1] ~= nil and uids[1] ~= -1 then return uids[1] end
+            -- end
+        -- end
+    -- end
+
+    return nil
+end
+
 --- Serialize table.
 ---@param val table
 ---@param name? any

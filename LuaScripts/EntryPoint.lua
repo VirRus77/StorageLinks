@@ -191,8 +191,8 @@ function AfterLoad_LoadedWorld()
     WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
 
     -- Reset caches
-    LINK_UIDS = {}
-    STORAGE_UIDS = {}
+    LINK_UIDS = { }
+    STORAGE_UIDS = { }
 
     -- When world is loaded, find Magnets!
     discoverUnknownMagnets()
