@@ -5,9 +5,48 @@ Author: Sotin NU aka VirRus77
 
 
 BuildingsDependencyTree = {
-    ---@alias DependecyItem { Buildings :BuildingItem[], DependencyOn :string[] } #
+    ---@alias DependecyItem { Buildings :{ Type : string }[], DependencyOn :string[]|nil } #
     ---@type DependecyItem[] #
     Dependencies = { }
+}
+
+BuildingsDependencyTree.Dependencies = {
+    ---@type DependecyItem
+    {
+        Buildings = {
+            Buildings.MagnetGood,
+            Buildings.PumpGood,
+            Buildings.OverflowPumpGood,
+            Buildings.BalancerGood,
+            Buildings.TransmitterGood,
+            Buildings.ReceiverGood
+        },
+        DependencyOn = {
+            'MortarMixerCrude',
+            'MortarMixerGood'
+        }
+    },
+    ---@type DependecyItem
+    {
+        Buildings = {
+            Buildings.MagnetSuper,
+            Buildings.PumpSuper,
+            Buildings.OverflowPumpSuper,
+            Buildings.BalancerSuper,
+            Buildings.TransmitterSuper,
+            Buildings.ReceiverSuper
+        },
+        DependencyOn = {
+            'MetalWorkbench'
+        }
+    },
+    ---@type DependecyItem
+    {
+        Buildings = {
+            Converters.Extractor
+        },
+        DependencyOn = nil
+    }
 }
 
 --- Check any buildings in buildingTable unlock
@@ -26,10 +65,10 @@ function BuildingsDependencyTree.IsAnyBuildingUnlocked(buildingTable)
     return false
 end
 
----@param buildingTable string[]
+---@param buildingTable string[]|nil
 function BuildingsDependencyTree.IsAllBuildingUnlocked(buildingTable)
-    if (buildingTable == nil or buildingTable[1] ~= nil) then
-        return false
+    if (buildingTable == nil or #buildingTable == 0) then
+        return true
     end
 
     for _, value in ipairs(buildingTable) do
@@ -43,6 +82,7 @@ end
 
 --- Switch lock all dependency buildings.
 function BuildingsDependencyTree.SwitchAllLockState()
+    Logging.LogDebug("BuildingsDependencyTree.SwitchAllLockState")
     for _, dependency in ipairs(BuildingsDependencyTree.Dependencies) do
         BuildingsDependencyTree.SwitchLockByUnlockBuildings (dependency)
     end
@@ -90,6 +130,6 @@ end
 
 --- func desc
 ---@param dependecy DependecyItem #
-function BuildingsDependencyTree.AddDependency (dependecy)
+function BuildingsDependencyTree.AddDependency(dependecy)
     table.insert (BuildingsDependencyTree.Dependencies, dependecy)
 end

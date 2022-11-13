@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@enum BuildingEditType
+---@enum BuildingEditType #
 BuildingEditType = {
     Rotate = "Rotate",
     Move = "Move",
@@ -13,25 +13,48 @@ BuildingEditType = {
  }
 
 DirectionDeltaPoint = {
+    ---@type Point # n
     [0] = Point.new( 0, -1),
+    ---@type Point # e
     [1] = Point.new( 1,  0),
+    ---@type Point # s
     [2] = Point.new( 0,  1),
+    ---@type Point # w
     [3] = Point.new(-1,  0),
 }
 
+AngleRotationToNSEW = {
+    ---@type integer # n
+    [0] = 0,
+    ---@type integer # e
+    [90] = 1,
+    ---@type integer # s
+    [180] = 2,
+    ---@type integer # w
+    [270] = 3,
+}
+
 ---@class BuildingBase #
+---@field _logicPeriod number #
+---@field _callbackRemove fun(BuildingBase) #
 ---@field Id integer # Building UID
 ---@field Location Point #
 ---@field Rotation integer #
+---@field Name string #
+---@field Types { Type :string }[] # Association building types.
 ---@type Object|BuildingBase
 BuildingBase = {
-    ---@type string
-    Type = nil,
+    ---@type number
     _logicPeriod = nil,
     ---@type fun(BuildingBase)
-    _callbackRemove = nil
+    _callbackRemove = nil,
+    ---@type { Type :string }[] #
+    Types = { },
 }
-BuildingBase = Object:extend()
+BuildingBase = Object:extend(BuildingBase)
+-- BuildingBase._logicPeriod = nil
+-- BuildingBase.Types = { }
+-- BuildingBase._callbackRemove = nil
 
 ---@param id integer # Building UID.
 ---@param callbackRemove fun(BuildingBase)
@@ -40,18 +63,20 @@ BuildingBase = Object:extend()
 ---@param logicPeriod? number # Period timer
 ---@return BuildingBase
 function BuildingBase.new(id, callbackRemove, location, rotation, logicPeriod)
-    Logging.LogInformation("BuildingBase.new %d, %s %s %s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
+    -- Logging.LogInformation("BuildingBase.new %d %s R:%s T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
     ---@type BuildingBase
     local newInstance = BuildingBase:make()
     return newInstance
 end
 
 function BuildingBase:initialize(id, callbackRemove, location, rotation, logicPeriod)
-    Logging.LogInformation("BuildingBase:initialize %d, %s, %s, %s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
+    -- Logging.LogInformation("BuildingBase:initialize %d, %s, R:%s, T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
     self._logicPeriod = logicPeriod
     self.Id = id
-    self.Location = location or Point.new(table.unpack(ModObject.GetObjectTileCoord(id)))
+    local objectProperties = UnpackObjectProperties(ModObject.GetObjectProperties(id))
+    self.Location = location or Point.new(objectProperties.TileX, objectProperties.TileY)
     self.Rotation = rotation or ModBuilding.GetRotation(id)
+    self.Name = objectProperties.Name
     self._callbackRemove = callbackRemove
 
     ModBuilding.RegisterForBuildingEditedCallback(id, function (buildingUID, editType, newValue) self:OnEditedCallback(buildingUID, editType, newValue); end)
@@ -71,30 +96,6 @@ function BuildingBase:MakeTimer()
     return self.Timer
 end
 
--- ---@param buildingUID integer
--- ---@param buildingType string
--- ---@param isBlueprint boolean
--- ---@param isDragging boolean
--- function BuildingBase.OnSpawnedCallback(buildingUID, buildingType, isBlueprint, isDragging)
---     local position = Point.new(table.unpack(ModObject.GetObjectTileCoord(buildingUID)))
---     Logging.LogInformation(
---         "BuildingBase.OnSpawnedCallback(%d, %s, %s, %s) [%d, %d] %d",
---         buildingUID,
---         buildingType,
---         isBlueprint,
---         isDragging,
---         position.X,
---         position.Y,
---         ModBuilding.GetRotation(buildingUID)
---     )
--- 
---     -- if (isBlueprint or isDragging) then
---     --     return
---     -- end
--- 
---     BuildingBase.OnSpawned(buildingUID, buildingType, isBlueprint, isDragging)
--- end
-
 --- func desc
 ---@param buildingUID integer
 ---@param editType "Rotate"|"Move"|"Rename"|"Destroy"
@@ -109,7 +110,7 @@ function BuildingBase:OnEditedCallback(buildingUID, editType, newValue)
         for value in string.gmatch(newValue, "%d+") do
             pointValues[#pointValues + 1] = tonumber(value)
         end
-        Logging.LogDebug("BuildingEditType.Move %s", serializeTable(pointValues))
+        -- Logging.LogDebug("BuildingEditType.Move %s", serializeTable(pointValues))
         self:OnMove(Point.new(table.unpack(pointValues)))
     elseif (editType == BuildingEditType.Rename) then
         self:OnRename(newValue)
@@ -124,23 +125,8 @@ function BuildingBase:OnStateChangedCallback(buildingUID, newState)
     Logging.LogInformation("BuildingBase.OnStateChangedCallback(%d, %s)", buildingUID, serializeTable(newState))
 end
 
--- ---@protected
--- ---@param buildingType string
--- function BuildingBase.Init(buildingType)
---     ModBuilding.RegisterForBuildingTypeSpawnedCallback(buildingType, BuildingBase.OnSpawnedCallback)
--- end
-
--- function BuildingBase.Subscrible(addCalback, removeCallback)
--- end
-
--- --- func desc
--- ---@param direction integer # nesw = 0123
--- ---@protected
--- function BuildingBase.OnSpawned(buildingUID, buildingType, isBlueprint, isDragging)
--- end
-
 --- func desc
----@param editType BuildingEditType # nesw = 0123
+---@param editType BuildingEditType|nil # nesw = 0123
 ---@protected
 function BuildingBase:UpdateLogic(editType)
     Logging.LogInformation("BuildingBase:UpdateLogic")
@@ -159,7 +145,7 @@ end
 ---@param newLocation Point #
 ---@protected
 function BuildingBase:OnMove(newLocation)
-    Logging.LogInformation("BuildingBase:OnMove %d:%d", newLocation.X, newLocation.Y)
+    Logging.LogInformation("BuildingBase:OnMove %s", newLocation)
     self.Location = newLocation
     self:UpdateLogic(BuildingEditType.Move)
 end
@@ -177,6 +163,9 @@ end
 ---@protected
 function BuildingBase:OnDestroy()
     Logging.LogInformation("BuildingBase:OnDestroy")
+    ModBuilding.UnregisterForBuildingEditedCallback(self.Id)
+    ---@note Not exist unsubscrible RegisterForBuildingStateChangedCallback
+    -- ModBuilding.RegisterForBuildingStateChangedCallback(id, function (buildingUID, newState) self:OnStateChangedCallback(buildingUID, newState); end )
     self:_callbackRemove()
     self:UpdateLogic(BuildingEditType.Destroy)
 end

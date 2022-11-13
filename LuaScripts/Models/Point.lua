@@ -31,3 +31,7 @@ function Point.new(x, y)
     newInstance.__index = Point
     return newInstance
 end
+
+function Point:__tostring()
+    return string.format("%d:%d", self.X, self.Y)
+end

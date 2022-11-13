@@ -1,5 +1,5 @@
 -- Unpack @{ObjectProperties}
----@alias UnpackObjectProperties { Type :string, TileX :integer, TileY:integer, Rotation:number, Name :string, Successfully :boolean, [1] :string, [2] :number, [3] :number, [4] :number, [5] :string } #
+---@alias UnpackObjectProperties { Type :string, TileX :integer, TileY:integer, Rotation :number, Name :string, Successfully :boolean, [1] :string, [2] :number, [3] :number, [4] :number, [5] :string } #
 ---@param properties ObjectProperties|nil #
 ---@param normalizeRotation? boolean # Dafault true
 ---@return UnpackObjectProperties #

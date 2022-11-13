@@ -8,33 +8,43 @@ Author: Sotin NU aka VirRus77
 ---@field Id integer # Building UID
 ---@field Location Point #
 ---@type BuildingBase|Object
-BasicExtractor = {
-    ---@type ConverterItem
-    Type = nil
+BasicExtractor = { 
+    Types = { Converters.Extractor },
+    OutputPoint = 0,
+    InputPoint  = 2,
+    StackLimit = 1,
+    MinStackLimit = 1,
+    MaxStackLimit = 5
 }
-BasicExtractor = BuildingBase:extend()
-BasicExtractor.Type = Converters.Extractor
-BasicExtractor.OutputPoint = 0
-BasicExtractor.InputPoint  = 2
+BasicExtractor = BuildingBase:extend(BasicExtractor)
 
-function BasicExtractor.new(objectId, callbackRemove)
-    Logging.LogInformation("BasicExtractor.new %d, %s", objectId, callbackRemove)
-    local instance = BasicExtractor:make(objectId, callbackRemove, nil, nil, 1)
+--- func desc
+---@param id integer #
+---@param callbackRemove fun() #
+---@return BuildingBase|BasicExtractor
+function BasicExtractor.new(id, callbackRemove)
+    Logging.LogInformation("BasicExtractor.new %d, %s", id, callbackRemove)
+    ---@type BasicExtractor|BuildingBase
+    local instance = BasicExtractor:make(id, callbackRemove, nil, nil, 1)
+    instance:UpdateLogic()
     return instance
 end
 
 --- func desc
----@param editType BuildingEditType # nesw = 0123
+---@param editType BuildingEditType|nil # nesw = 0123
 ---@protected
 function BasicExtractor:UpdateLogic(editType)
     Logging.LogInformation("BasicExtractor:UpdateLogic %s", editType)
-    if (editType == BuildingEditType.Rename) then
+    if (editType == nil) then
+        self:UpdateName()
+    elseif (editType == BuildingEditType.Rename) then
+        self:UpdateName()
         return
     end
 end
 
 function BasicExtractor:OnTimerCallback()
-    Logging.LogInformation("BasicExtractor:OnTimerCallback")
+    Logging.LogInformation("BasicExtractor:OnTimerCallback (%s) R:%d \"%s\" Limit:%d", tostring(self.Location), self.Rotation, self.Name, self.StackLimit)
     local location = self.Location
     local rotation = self.Rotation
     local outputDelta = DirectionDeltaPoint[(BasicExtractor.OutputPoint + rotation) % 4]
@@ -56,10 +66,22 @@ function BasicExtractor:OnTimerCallback()
     --local holdables = GetHoldablesItemsOnArea(storageInfo.TypeStores, outputPoint.X - 5, outputPoint.Y - 5, outputPoint.X + 5, outputPoint.Y + 5)
     local holdables = GetHoldablesItemsOnLocation(storageInfo.TypeStores, outputPoint)
     Logging.LogDebug("GetHoldablesItemsOnLocation holdables: %d", #holdables)
-    if (#holdables < 5) then
+    if (#holdables < self.StackLimit) then
         ModStorage.RemoveFromStorage(storageId, 1, outputPoint.X, outputPoint.Y)
         --local spawnObject = ModBase.SpawnItem(storageId.TypeStores, outputPoint.X, outputPoint.Y, false, true, false)
     end
+end
 
-
+function BasicExtractor:UpdateName()
+    Logging.LogInformation("BasicExtractor:UpdateName %s", self.Name)
+    ---@type integer
+    local limit = 1
+    local startString, endString = string.find(self.Name, 'x%d+')
+    if (startString ~= nil) then
+        limit = tonumber(string.sub(self.Name, startString + 1, endString)) or self.MinStackLimit
+    end
+    limit = math.max(self.MinStackLimit, limit)
+    limit = math.min(self.MaxStackLimit, limit)
+    Logging.LogInformation("BasicExtractor:UpdateName limit %d", limit)
+    self.StackLimit = limit
 end

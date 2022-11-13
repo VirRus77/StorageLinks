@@ -95,7 +95,7 @@ function Creation()
     Converters:UpdateTypeByUniq()
     Buildings.CreateAll()
     Converters.CreateAll()
-    Buildings.AddDependencies()
+    BuildingsDependencyTree.SwitchAllLockState()
 
     if (Settings.ReplaceOldBuildings.Value) then
         Buildings.CreateOldTypes()
@@ -122,16 +122,17 @@ function BeforeLoad()
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
-    BuildingController.Initialize()
 
     if (Settings.ReplaceOldBuildings.Value) then
-        -- for _, value in ipairs(Buildings.MappingOldTypes) do
-        --     ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        -- end
-        -- for _, value in ipairs(Decoratives.MappingOldTypes) do
-        --     ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        -- end
+        for _, value in ipairs(Buildings.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
+        for _, value in ipairs(Decoratives.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
     end
+
+    Converters.UpdateState()
     -- -- Pump
     -- ModVariable.SetVariableForBuildingUpgrade("Crude Pump (SL)", "Good Pump (SL)" )
     -- ModVariable.SetVariableForBuildingUpgrade("Good Pump (SL)" , "Super Pump (SL)")
@@ -183,6 +184,7 @@ function AfterLoad()
         return
     end
 
+    BuildingController.Initialize()
     ReplaceOldBuildings()
 
     --swapOldNamesToNew()

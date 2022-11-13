@@ -7,7 +7,7 @@ Author: Sotin NU aka VirRus77
 ---@type ConverterItem[]
 Converters = {
     -- Extractors
-    ---@alias ConverterItem { Type :string, Recipes : string[]|nil, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2|nil, SpawnPoint :Point2|nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
+    ---@alias ConverterItem { Type :string, Recipes : string[]|nil, Ingridients :string[]|nil, IngridientsAmount :integer[]|nil, ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2|nil, SpawnPoint :Point2|nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type ConverterItem #
     Extractor = {
         Type = "Extractor",
@@ -60,14 +60,14 @@ function Converters.CreateConverter (converter, replaceType)
 
     ModConverter.CreateConverter (
         type,
-        converter.Recipes,
-        converter.Ingridients,
-        converter.IngridientsAmount,
+        converter.Recipes or { },
+        converter.Ingridients or { },
+        converter.IngridientsAmount or { },
         converter.ModelName,
         converter.TopLeft,
         converter.BottomRigth,
-        converter.AccessPoint,
-        converter.SpawnPoint,
+        converter.AccessPoint or converter.SpawnPoint,
+        converter.SpawnPoint or converter.AccessPoint,
         converter.CustomModel or false
     )
 
@@ -85,4 +85,12 @@ function Converters.CreateConverter (converter, replaceType)
     if (converter.Walkable) then
         ModBuilding.SetBuildingWalkable (type, converter.Walkable)
     end
+end
+
+function Converters.UpdateState()
+    -- for _, converter in ipairs(Converters.AllTypes) do
+    --     if (converter.AccessPoint == nil) then
+    --         ModBuilding.ShowBuildingAccessPoint(converter.Type, false)
+    --     end
+    -- end
 end

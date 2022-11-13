@@ -12,11 +12,27 @@ function GetUidsByTypesOnMap(buildingTypes)
     return uids
 end
 
+--- Get all UIDs by array types on map
+---@param buildingTypes string[]
+---@return table<string, integer[]> #
+function GetTypedUidsByTypesOnMap(buildingTypes)
+    local uids = { }
+    for _, buildingType in ipairs(buildingTypes) do
+        --local uidsByType = ModTiles.GetObjectUIDsOfType
+        local uidsByType = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
+        uids[buildingType] = uidsByType
+        --for _, uid in ipairs(tempUids) do
+        --    uids[#uids + 1] = uid
+        --end
+    end
+    return uids
+end
+
 --- func desc
 ---@param itemType string
 ---@param location Point
 function GetHoldablesItemsOnLocation(itemType, location)
-    return GetHoldablesItemsOnArea(itemType, location.X, location.Y, location.X + 1, location.Y + 1)
+    return GetHoldablesItemsOnArea(itemType, location.X, location.Y, location.X, location.Y)
 end
 
 --- func desc

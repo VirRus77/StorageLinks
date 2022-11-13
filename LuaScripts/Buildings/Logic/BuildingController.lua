@@ -41,7 +41,7 @@ function BuildingController.Remove(oldBuilding)
         Logging.LogError("BuildingController not contains %d", oldBuilding.Id)
         return
     end
-    
+
     BuildingController.Buildings[buildingId] = nil
     local timerId = BuildingController.Timers[buildingId]
     if (timerId ~= nil) then
@@ -54,23 +54,42 @@ function BuildingController.Initialize()
     BuildingController.Buildings = { }
     BuildingController.Timers = { }
 
-    BuildingController.Init(
-        BasicExtractor.Type.Type,
+    BuildingController.InitializeTypes(
+        BasicExtractor.Types,
         function (buildingId, buildingType, isBlueprint, isDragging)
-            BuildingController.Add(BasicExtractor.new(buildingId, BuildingController.Remove))
+            ---@type BuildingBase
+            local building = BasicExtractor.new(buildingId, BuildingController.Remove)
+            BuildingController.Add(building)
         end
     )
 end
 
 ---@protected
----@param buildingType string
-function BuildingController.Init(buildingType, addNewCallback)
-    ModBuilding.RegisterForBuildingTypeSpawnedCallback(
-        buildingType,
-        function (buildingId, buildingType, isBlueprint, isDragging)
-            BuildingController.OnSpawnedCallback(buildingId, buildingType, isBlueprint, isDragging, addNewCallback)
+---@param buildingTypes { Type :string }[] #
+---@param addNewCallback BuildingTypeSpawnedCallback #
+function BuildingController.InitializeTypes(buildingTypes, addNewCallback)
+    ---@type string[] #
+    local buildingNameTypes = { }
+    for _, value in ipairs(buildingTypes) do
+        buildingNameTypes[#buildingNameTypes + 1] = value.Type
+    end
+
+    local existBuildings = GetTypedUidsByTypesOnMap(buildingNameTypes)
+    for type, ids in pairs(existBuildings) do
+        Logging.LogDebug("BuildingController.InitializeTypes Found %s = %d", type, #ids)
+        for _, id in ipairs(ids) do
+            BuildingController.OnSpawnedCallback(id, type, false, false, addNewCallback)
         end
-    )
+    end
+
+    for _, buildingType in ipairs(buildingNameTypes) do
+        ModBuilding.RegisterForBuildingTypeSpawnedCallback(
+            buildingType,
+            function (callBuildingId, callBuildingType, callIsBlueprint, callIsDragging)
+                BuildingController.OnSpawnedCallback(callBuildingId, callBuildingType, callIsBlueprint, callIsDragging, addNewCallback)
+            end
+        )
+    end
 end
 
 ---@param buildingId integer
@@ -81,13 +100,12 @@ end
 function BuildingController.OnSpawnedCallback(buildingId, buildingType, isBlueprint, isDragging, addNewCallback)
     local position = Point.new(table.unpack(ModObject.GetObjectTileCoord(buildingId)))
     Logging.LogInformation(
-        "BuildingBase.OnSpawnedCallback(%d, %s, %s, %s) [%d, %d] %d",
+        "BuildingController.OnSpawnedCallback(%d, %s, %s, %s) (%s) R:%d",
         buildingId,
         buildingType,
         isBlueprint,
         isDragging,
-        position.X,
-        position.Y,
+        position,
         ModBuilding.GetRotation(buildingId)
     )
 
