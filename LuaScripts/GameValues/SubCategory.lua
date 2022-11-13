@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 ---@enum
 SubCategory = {
     ToolsLevel1 = "ToolsLevel1",

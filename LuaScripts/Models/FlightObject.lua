@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 ---@class FlightObject
 ---@field Id integer
 ---@field TagerId integer|nil

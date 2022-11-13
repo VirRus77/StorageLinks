@@ -17,7 +17,7 @@ Write-Host "Root:         $RootPath"
 Write-Host "Publish Path: $publishPath"
 if ( [System.IO.Directory]::Exists($publishPath) ) {
   Write-Host "Clear: $publishPath"
-  Remove-Item -Path "$publishPath\*" -Recurse -Force | Out-Null
+  Remove-Item -Path "$publishPath\*" -Recurse -Force
 } else {
   Write-Host "Make: $publishPath"
   New-Item -Path $publishPath -ItemType "directory" | Out-Null

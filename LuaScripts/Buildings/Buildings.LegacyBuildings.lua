@@ -76,7 +76,7 @@ function ReplaceOldBuildings()
         return
     end
 
-    -- Logging.Log(serializeTable({
+    -- Logging.LogDebug(serializeTable({
     --     Buildings.MappingOldTypes,
     --     "Buildings.MappingOldTypes"
     -- }),serializeTable({
@@ -99,10 +99,10 @@ function ReplaceOldBuildings()
     for index, value in ipairs(Decoratives.MappingOldTypes) do
         table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
     end
-    Logging.Log("Replace old...")
+    Logging.LogDebug("Replace old...")
     ReplaceOldTypesToNewTypes(swapTypes)
 
-    Logging.Log("Disable old...")
+    Logging.LogDebug("Disable old...")
     for _, value in ipairs(Buildings.MappingOldTypes) do
         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
     end

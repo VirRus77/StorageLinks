@@ -8,8 +8,8 @@ end
 --- func desc
 ---@param buildingLevel BuildingLevels
 function locateMagnets(buildingLevel)
-    if (DEBUG_ENABLED) then
-        Logging.Log("locateMagnets ", serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug("locateMagnets ", serializeTable({
             buildingLevel = buildingLevel
             })
         )
@@ -47,7 +47,7 @@ function locateMagnets(buildingLevel)
 
     -- List the magnets if in debug mode
     if (Settings.DebugMode.Value) then
-        Logging.Log("locateMagnets:", serializeTable({
+        Logging.LogDebug("locateMagnets:", serializeTable({
             magnetUIDs = magnetUIDs
         }))
     end
@@ -68,8 +68,8 @@ end
 ---@param isBlueprint boolean
 ---@param isDragging boolean
 function OnMagnetSpawn(buildingUID, buildingType, isBlueprint, isDragging)
-    if (DEBUG_ENABLED) then
-        Logging.Log ("onMagnetSpawn ", serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug("onMagnetSpawn ", serializeTable({
             BuildingUID = buildingUID,
             BuildingType = buildingType,
             IsBlueprint = isBlueprint,
@@ -140,17 +140,17 @@ function locateStorageForMagnet(magnetUID)
     --     -- Make sure we have a callback for when magnet is renamed
     --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRenamedCallback') then
     --         ModBuilding.RegisterForBuildingRenamedCallback(magnetUID, magnetNameUpdated)
-    --         ModDebug.Log("call ModBuilding.RegisterForBuildingRenamedCallback(", magnetUID, ")")
+    --         Logging.LogDebug("call ModBuilding.RegisterForBuildingRenamedCallback(", magnetUID, ")")
     --     end
     --     -- Make sure we have a callback for when a magnet is moved / rotated
     --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingRepositionedCallback') then
     --         ModBuilding.RegisterForBuildingRepositionedCallback(magnetUID, magnetRepositioned)
-    --         ModDebug.Log("call ModBuilding.RegisterForBuildingRepositionedCallback(", magnetUID, ")")
+    --         Logging.LogDebug("call ModBuilding.RegisterForBuildingRepositionedCallback(", magnetUID, ")")
     --     end
     --     -- And if the magnet is destroyed?
     --     if ModBase.ClassAndMethodExist('ModBuilding', 'RegisterForBuildingDestroyedCallback') then
     --         ModBuilding.RegisterForBuildingDestroyedCallback(magnetUID, linkDestroyed)
-    --         ModDebug.Log("call ModBuilding.RegisterForBuildingDestroyedCallback(", magnetUID, ")")
+    --         Logging.LogDebug("call ModBuilding.RegisterForBuildingDestroyedCallback(", magnetUID, ")")
     --     end
     -- end
 
@@ -158,18 +158,18 @@ function locateStorageForMagnet(magnetUID)
 end
 
 --- func desc
----@param magUID integer
-function addStorageForMagnet (magUID)
+---@param magnetId integer
+function addStorageForMagnet(magnetId)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebug(string.format('addStorageForMagnet (magUID = %d)', magUID))
+        Logging.LogDebug(string.format('addStorageForMagnet (magUID = %d)', magnetId))
     end
-    local storageUID = storageUidOnTileWithCallbacks(LINK_UIDS[magUID].connectToXY[1], LINK_UIDS[magUID].connectToXY[2])
+    local storageUID = storageUidOnTileWithCallbacks(LINK_UIDS[magnetId].connectToXY[1], LINK_UIDS[magnetId].connectToXY[2])
 
     if storageUID == nil then
         return false
     end -- no storage there.
 
-    addStorageToMagnet(magUID, storageUID)
+    addStorageToMagnet(magnetId, storageUID)
 end
 
 --- func desc
@@ -177,13 +177,13 @@ end
 ---@param storageId integer
 function addStorageToMagnet(magnetId, storageId)
     if (Settings.DebugMode.Value) then
-        Logging.LogDebug(string.format('addStorageToMagnet( magUID = %d, storageUID = %d )', magnetId, storageId), serializeTable({magUID = magnetId, storageUID = storageId}))
+        Logging.LogDebug('addStorageToMagnet( magUID = %d, storageUID = %d )\n', magnetId, storageId)
     end
 
     local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
 
     if (not storageInfo.Successfully) then
-        Logging.LogWarning(string.format('addStorageToMagnet( magUID = %d, storageUID = %d )', magnetId, storageId), " Not dound storage info.")
+        Logging.LogWarning('addStorageToMagnet( magUID = %d, storageUID = %d ) %s', magnetId, storageId, "Not found storage info.")
         return
     end
 
@@ -257,8 +257,8 @@ function magnetNameUpdated(magnetId, objectName)
     -- {left = left, top = top, right = right, bottom = bottom}
     LINK_UIDS[magnetId].area = getAreaForMagnetStorage(LINK_UIDS[magnetId], STORAGE_UIDS[LINK_UIDS[magnetId].storageUID])
 
-    if DEBUG_ENABLED then
-        Logging.Log('magnetNameUpdated end: ', serializeTable( LINK_UIDS[magnetId] ))
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug('magnetNameUpdated end: ', serializeTable( LINK_UIDS[magnetId] ))
     end
 end
 
@@ -325,7 +325,7 @@ function fireMagnetById(magnetId, magnetSettings)
             return
         end
         if (Settings.DebugMode.Value) then
-            ModDebug.Log(' fireMagnetByUID: (b) ', magnetId)
+            Logging.LogDebug(' fireMagnetByUID: (b) ', magnetId)
         end
         -- no more storage attached?
         if LINK_UIDS[magnetId].storageUID == nil then
@@ -334,12 +334,12 @@ function fireMagnetById(magnetId, magnetSettings)
         -- Still no storage? then we quit.
         if LINK_UIDS[magnetId].storageUID == nil then return end
         if (Settings.DebugMode.Value) then
-            ModDebug.Log(' fireMagnetByUID: (c) ', magnetId)
+            Logging.LogDebug(' fireMagnetByUID: (c) ', magnetId)
         end
         -- What if the storage itself moved?
         updateStoragePropsAsNeeded(LINK_UIDS[magnetId].storageUID)
         if (Settings.DebugMode.Value) then
-            ModDebug.Log(' fireMagnetByUID: (d) ', magnetId)
+            Logging.LogDebug(' fireMagnetByUID: (d) ', magnetId)
         end
     end
 
@@ -355,7 +355,9 @@ function fireMagnetById(magnetId, magnetSettings)
     end
     -- Get them
     findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQuantity, magnetSettings)
-    if DEBUG_ENABLED then ModDebug.Log(' fireMagnetByUID: (g) ', magnetId) end
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' fireMagnetByUID: (g) ', magnetId)
+    end
 end
 
 ---@param magnetUID integer
@@ -459,8 +461,8 @@ function getMagnetArea(magnetName, posX, posY)
 end
 
 --- func desc
----@param magProps table
----@param storProps table
+---@param magProps LINK_UIDS_Item
+---@param storProps STORAGE_UIDS_Item
 ---@return { left :integer, top :integer, right :integer, bottom :integer }
 function getAreaForMagnetStorage(magProps, storProps)
     if (Settings.DebugMode.Value) then
@@ -469,7 +471,7 @@ function getAreaForMagnetStorage(magProps, storProps)
 
     local result = getMagnetArea( magProps.name, storProps.tileX, storProps.tileY )
     if (Settings.DebugMode.Value) then
-        Logging.Log(' getAreaForMagnetStorage: area: ', serializeTable( result ) )
+        Logging.LogDebug(' getAreaForMagnetStorage: area: ', serializeTable( result ) )
     end
 
     return result
@@ -480,15 +482,15 @@ end
 ---@param maxQty integer
 ---@param magnetSettings MagnetSettingsItem
 function findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty, magnetSettings)
-    if (Settings.DebugMode.Value or ManualDebug) then
+    if (Settings.DebugMode.Value) then
         Logging.LogDebug('findAndCollectHoldablesIntoMagneticStorage(magnetUID = %d, maxQty = %d) (a)\n%s',magnetId, maxQty, table.show(LINK_UIDS[magnetId].area))
     end
     if LINK_UIDS[magnetId] == nil then
-        Logging.Log('LINK_UIDS[magnetUID] == nil')
+        Logging.LogDebug('LINK_UIDS[magnetUID] == nil')
         return
     end
     if STORAGE_UIDS[LINK_UIDS[magnetId].storageUID] == nil then
-        Logging.Log('STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil')
+        Logging.LogDebug('STORAGE_UIDS[LINK_UIDS[magnetUID].storageUID] == nil')
         return
     end
 
@@ -502,23 +504,23 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty, magnetSett
         magnetArea.right,
         magnetArea.bottom
     )
-    if DEBUG_ENABLED then
-        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', holdables )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' findAndCollectHoldablesIntoMagneticStorage: holdables ', holdables )
     end
-    if DEBUG_ENABLED then
-        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: holdables ', table.show(holdables) )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' findAndCollectHoldablesIntoMagneticStorage: holdables ', table.show(holdables) )
     end
-    Logging.Log('holdables: ', #holdables)
+    Logging.LogTrace('holdables: ', #holdables)
 
     if holdables == nil or holdables[1] == -1 or #holdables == 0 then
         return false
     end
-    if DEBUG_ENABLED then
-        Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: #holdables ', #holdables )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' findAndCollectHoldablesIntoMagneticStorage: #holdables ', #holdables )
     end
     if maxQty <= 0 then
-        if DEBUG_ENABLED then
-            Logging.Log(' findAndCollectHoldablesIntoMagneticStorage: 0 max qty??? ')
+        if (Settings.DebugMode.Value) then
+            Logging.LogDebug(' findAndCollectHoldablesIntoMagneticStorage: 0 max qty??? ')
         end
         return false
     end
@@ -533,7 +535,7 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty, magnetSett
          end -- already requested max Qty
 
         if (not OBJECTS_IN_FLIGHT:Contains(uid)) then
-            Logging.Log(' Add object to fly ')
+            Logging.LogDebug(' Add object to fly ')
             --return false
          -- already flying
         -- if (OBJECTS_IN_FLIGHT[uid] ~= nil) then
@@ -565,7 +567,7 @@ function findAndCollectHoldablesIntoMagneticStorage(magnetId, maxQty, magnetSett
         --         storageUID = LINK_UIDS[magnetUID].storageUID, onFlightComplete = onFlightCompleteForMagnets
         --     }
         --     --ModObject.SetObjectActive(uid, false)
-        --     if DEBUG_ENABLED then ModDebug.Log(' findAndCollectHoldablesIntoMagneticStorage: moving! uid:', uid ) end
+        --     if (Settings.DebugMode.Value) then Logging.LogDebug(' findAndCollectHoldablesIntoMagneticStorage: moving! uid:', uid ) end
         -- end
     end
 end

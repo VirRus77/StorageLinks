@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 Languages = {
     English = "English",
     German = "German",
@@ -93,6 +99,11 @@ Translates.Russian = {
     { Building = Buildings.SwitchSuper, Name = "Нажимная Панель",
         Description = "Отплючает логику объектов. Имя панели должно быть вида: \">{GroupName}\". Имя объектов в группе: \"sw[{GroupName}]\""
     },
+
+    -- Extractor
+    { Building = Converters.Extractor, Name = "Выбрасыватель",
+        Description = "Выбрасывает объект из хранилища."
+    },
 }
 
 Translates.English = {
@@ -130,6 +141,9 @@ Translates.English = {
 
     -- Switch
     { Building = Buildings.SwitchSuper, Name = "Super Switch" },
+
+    -- Extractor
+    { Building = Converters.Extractor, Name = "Extract item" },
 }
 
 function Translates.SetNames()
@@ -148,7 +162,7 @@ function Translates.SetNames()
 end
 
 --- func desc
----@param namesList { Building :BuildingItem, Name :string, Description :string|nil }[] #
+---@param namesList { Building :{ Type :string }, Name :string, Description :string|nil }[] #
 function Translates.SetNamesList(namesList)
     for _, value in ipairs(namesList) do
         ModText.SetText(value.Building.Type, value.Name)

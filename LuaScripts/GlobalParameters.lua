@@ -31,7 +31,13 @@ STORAGE_UIDS = {}
 function MakeTimers (buildingLevel)
     local checkPeriod = 1
     if(buildingLevel == BuildingLevels.Crude) then
-        checkPeriod = 1 / 4
+        checkPeriod = 5
+    end
+    if(buildingLevel == BuildingLevels.Good) then
+        checkPeriod = 1
+    end
+    if(buildingLevel == BuildingLevels.Super) then
+        checkPeriod = 1
     end
 
     return {

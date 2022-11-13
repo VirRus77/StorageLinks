@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 Buildings = {
     -- Magnet
     ---@alias Point2 integer[] # Point [1] = X, [2] = Y
@@ -399,6 +405,8 @@ end
 
 --- Add all buildings.
 function Buildings.CreateAll ()
+    Logging.LogInformation("Buildings.CreateAll")
+
     -- Magnet
     Buildings.Create (Buildings.MagnetCrude)
     Buildings.Create (Buildings.MagnetGood)
@@ -455,6 +463,7 @@ function Buildings.Create (building, replaceType)
     if (replaceType ~= nil) then
         type = replaceType
     end
+
     ModBuilding.CreateBuilding (
         type,
         building.Ingridients,

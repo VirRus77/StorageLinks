@@ -22,7 +22,7 @@ function Settings.ExposedVariableCallback(value, name)
 end
 
 function Settings:ExposedVariableCallbackSelf(value, name)
-    -- Logging.Log("ExposedVariableCallbackSelf", serializeTable({
+    -- Logging.LogDebug("ExposedVariableCallbackSelf", serializeTable({
     --     value = value,
     --     name = name,
     --     Settings = self

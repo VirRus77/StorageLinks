@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 BuildingsDependencyTree = {
     ---@alias DependecyItem { Buildings :BuildingItem[], DependencyOn :string[] } #
     ---@type DependecyItem[] #
@@ -36,7 +42,7 @@ function BuildingsDependencyTree.IsAllBuildingUnlocked(buildingTable)
 end
 
 --- Switch lock all dependency buildings.
-function BuildingsDependencyTree.SwitchAllLock()
+function BuildingsDependencyTree.SwitchAllLockState()
     for _, dependency in ipairs(BuildingsDependencyTree.Dependencies) do
         BuildingsDependencyTree.SwitchLockByUnlockBuildings (dependency)
     end
@@ -53,7 +59,7 @@ function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
     end
 
     if (Settings.DebugMode.Value and (GetTableLength(invertBuildings) > 0)) then
-        Logging.LogDebug(
+        Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings\n%s",
             serializeTable({
                 stateUnlock = stateUnlock,
                 invertBuildings = invertBuildings,

@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 ---@class FlightObjectsList
 ---@field _callbackComplete fun(sender :FlightObject, successfully :boolean)
 FlightObjectsList = {

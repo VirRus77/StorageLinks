@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 ---@class Timer # 
 ---@field Period number # Period of callback
 ---@field Delay Timer # Period delay of callback

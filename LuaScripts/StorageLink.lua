@@ -33,8 +33,8 @@ function locateBalancers(buildingLevel)
     end
 
     -- List the balancer's found
-    if (DEBUG_ENABLED) then
-        Logging.Log(' locateBalancers: ', serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateBalancers: ', serializeTable({
             balancerUIDs = balancerUIDs
         }) )
     end
@@ -45,13 +45,8 @@ function locateBalancers(buildingLevel)
     end
 end
 
---- func desc
 ---@param buildingLevel string
 function locatePumps(buildingLevel)
-    -- Find all Pumps
-    local tmpUIDs = {}
-    local pumpUIDs = {}
-
     ---@type string[]
     local buildingTypes = {}
     if (buildingLevel == BuildingLevels.Crude) then
@@ -67,32 +62,17 @@ function locatePumps(buildingLevel)
         }
     end
 
-    for _, buildingType in ipairs(buildingTypes) do
-        tmpUIDs = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
-        for _, tUID in ipairs(tmpUIDs) do
-            pumpUIDs[#pumpUIDs + 1] = tUID
-        end
-    end
+    -- Find all Pumps
+    local pumpUIDs = GetUidsByTypesOnMap(buildingTypes)
 
-    -- -- LEGACY
-    -- if levelPrefix == 'Super' then
-    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Pump (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    --     for _2, tUID in ipairs(tmpUIDs) do
-    --         pumpUIDs[#pumpUIDs+1] = tUID
-    --     end
-    --     tmpUIDs = ModBuilding.GetBuildingUIDsOfType('Storage Pump XL (SL)', 1, 1, WORLD_LIMITS[1]-1, WORLD_LIMITS[2]-1)
-    --     for _2, tUID in ipairs(tmpUIDs) do
-    --         pumpUIDs[#pumpUIDs+1] = tUID
-    --     end
-    -- end
-    -- -- END LEGACY
     -- quit if none
-    if pumpUIDs == nil or pumpUIDs[1] == nil or pumpUIDs[1] == -1 then
+    if #pumpUIDs == 0 then
         return
     end
+
     -- List the pumps's found
-    if DEBUG_ENABLED then
-        Logging.Log('locatePumps: ', serializeTable(pumpUIDs, "pumpUIDs"))
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug('locatePumps: ', serializeTable(pumpUIDs, "pumpUIDs"))
     end
 
     -- handle each pump
@@ -128,8 +108,8 @@ function locateOverflowPumps(buildingLevel)
     end
 
     -- List the pumps's found
-    if DEBUG_ENABLED then
-        Logging.Log(' locatePumps: ', serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locatePumps: ', serializeTable({
             pumpUIDs = pumpUIDs
         }) )
     end
@@ -180,8 +160,8 @@ function locateSwitches(buildingLevel)
         return
     end
     -- List the switches's found
-    if (DEBUG_ENABLED) then
-        for _, uid in ipairs(switchUIDs) do ModDebug.Log(' localSwitches: ', uid ) end
+    if (Settings.DebugMode.Value) then
+        for _, uid in ipairs(switchUIDs) do Logging.LogDebug(' localSwitches: ', uid ) end
     end
 
     -- handle each of switchUIDs
@@ -250,7 +230,7 @@ function setSwitchState(switchUID, switchProps, turnOn)
     local onSymbols = ModTiles.GetAmountObjectsOfTypeInArea(buildingType, xy[1], xy[2], xy[1], xy[2])
 
     if turnOn then
-        if DEBUG_ENABLED then
+        if (Settings.DebugMode.Value) then
             Logging.LogDebug(string.format(' switch @ %d:$d is ON.', xy[1], xy[2]))
         end
         if onSymbols == 0 then
@@ -260,7 +240,7 @@ function setSwitchState(switchUID, switchProps, turnOn)
             SWITCHES_TURNED_OFF[switchProps.Name] = nil
         end
     else
-        if DEBUG_ENABLED then
+        if (Settings.DebugMode.Value) then
             Logging.LogDebug(string.format(' switch @ %d:$d is OFF.', xy[1], xy[2]))
         end
         if onSymbols > 0 then
@@ -282,15 +262,15 @@ function linkIsSwitchedOff(linkName)
     if ms == nil or me == nil then return false end
     -- assemble switchname
     local switchName = '>' .. string.sub(linkName, ms + 3, me - 1)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' linkIsSwitchedOff? ', switchName, ':', SWITCHES_TURNED_OFF[switchName]  )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' linkIsSwitchedOff? ', switchName, ':', SWITCHES_TURNED_OFF[switchName]  )
     end
     -- If it does not exist, then we are golden
     if SWITCHES_TURNED_OFF[switchName] == nil then
         return false
     end
     -- It must exist
-    if DEBUG_ENABLED then ModDebug.Log(' linkIsSwitchedOff: true ' ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' linkIsSwitchedOff: true ' ) end
     return true
 end
 
@@ -304,32 +284,34 @@ function storageRepositioned(StorageUID, BuildingType, Rotation, TileX, TileY, I
     end
 
 
-    if DEBUG_ENABLED then
-        ModDebug.Log(' storageRepositioned: ', serializeTable( {StorageUID = StorageUID, BuildingType = BuildingType, Rotation = Rotation, TileX = TileX, TileY = TileY, IsBlueprint = IsBlueprint, IsDragging = IsDragging} ))
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' storageRepositioned: ', serializeTable( {StorageUID = StorageUID, BuildingType = BuildingType, Rotation = Rotation, TileX = TileX, TileY = TileY, IsBlueprint = IsBlueprint, IsDragging = IsDragging} ))
     end
 
     resetAttachedLinksCache(StorageUID)
 end
 
 function storageDestroyed(StorageUID)
-    if DEBUG_ENABLED then ModDebug.Log(' storageDestroyed: StorageUID ', StorageUID) end
-    -- Remove callbacks!
-    if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingRenamedCallback') then
-        ModBuilding.UnegisterForBuildingRenamedCallback(StorageUID)
-    end
-    if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingRepositionedCallback') then
-        ModBuilding.UnegisterForBuildingRepositionedCallback(StorageUID)
-    end
-    if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingDestroyedCallback') then
-        ModBuilding.UnegisterForBuildingDestroyedCallback(StorageUID)
-    end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' storageDestroyed: StorageUID ', StorageUID) end
+    -- NOT IMPLEMENTIONS!!!
+    -- -- Remove callbacks!
+    -- if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingRenamedCallback') then
+    --     ModBuilding.UnegisterForBuildingRenamedCallback(StorageUID)
+    -- end
+    -- if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingRepositionedCallback') then
+    --     ModBuilding.UnegisterForBuildingRepositionedCallback(StorageUID)
+    -- end
+    -- if ModBase.ClassAndMethodExist('ModBuilding','UnegisterForBuildingDestroyedCallback') then
+    --     ModBuilding.UnegisterForBuildingDestroyedCallback(StorageUID)
+    -- end
+
     -- Remove references to it from anywhere in the cache.
     removeStorageUIDFromLinksCache(StorageUID)
 end
 
 function linkDestroyed(LinkUID)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' linkDestroyed: LinkUID ', LinkUID)
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' linkDestroyed: LinkUID ', LinkUID)
     end
     if ModObject.IsValidObjectUID(LinkUID) == false then
         removeLinkUIDFromStorageCache(LinkUID)
@@ -344,7 +326,7 @@ end
 --     if IsBlueprint then
 --         return false
 --     end
---     if DEBUG_ENABLED then ModDebug.Log(' storageItemChanged: StorageUID: ', StorageUID, ' into ', NewStoringType ) end
+--     if (Settings.DebugMode.Value) then Logging.LogDebug(' storageItemChanged: StorageUID: ', StorageUID, ' into ', NewStoringType ) end
 
 --     if STORAGE_UIDS[storageUID] ~= nil then
 --         STORAGE_UIDS[storageUID].sType = NewStoringType
@@ -446,12 +428,15 @@ function resetAttachedLinksCache(storageUID)
     end
 end
 
-function addStorageToLinksWatchingTile(BuildingUID, TileXY)
+--- func desc
+---@param buildingId integer
+---@param tilePoint Point
+function addStorageToLinksWatchingTile(buildingId, tilePoint)
     for uid, linkOb in pairs(LINK_UIDS) do
-        if linkOb.connectToXY[1] == TileXY[1] and linkOb.connectToXY[2] == TileXY[2] then
+        if linkOb.connectToXY[1] == tilePoint.X and linkOb.connectToXY[2] == tilePoint.Y then
             -- Update if magnet
-            if Buildings.IsMagnet(linkOb.bType) then
-                addStorageToMagnet(uid, BuildingUID)
+            if (Buildings.IsMagnet(linkOb.bType)) then
+                addStorageToMagnet(uid, buildingId)
             end
         end
     end
@@ -473,8 +458,8 @@ function resetCachedLink(uid)
 
     -- Update if magnet
     -- local buildingLevel = Buildings.GetMagnetLevel(LINK_UIDS[uid].bType)
-    -- if DEBUG_ENABLED then
-    --     ModDebug.Log(' resetCachedLink: (b) buildingLevel: ', buildingLevel)
+    -- if (Settings.DebugMode.Value) then
+    --     Logging.LogDebug(' resetCachedLink: (b) buildingLevel: ', buildingLevel)
     -- end
 
     removeLinkUIDFromStoragesCache(uid)
@@ -509,8 +494,8 @@ function removeStorageUIDFromLinkCache(linkUID, storageUID)
 end
 
 function removeLinkUIDFromStoragesCache(linkUID)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' removeLinkUIDFromStoragesCache: (a)', linkUID )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' removeLinkUIDFromStoragesCache: (a)', linkUID )
     end
 
     if (LINK_UIDS[linkUID] == nil) then
@@ -658,15 +643,15 @@ function locateReceiversAndTransmitters(buildingLevel)
     end
 
     -- List the receivers found
-    if DEBUG_ENABLED then
-        Logging.Log(' locateReceivers: ', serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateReceivers: ', serializeTable({
             buildingLevel = buildingLevel,
             rUIDs = rUIDs
         }) )
     end
     -- List the transmitters found
-    if DEBUG_ENABLED then
-        Logging.Log(' locateTransmitters: ', serializeTable({
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateTransmitters: ', serializeTable({
             buildingLevel = buildingLevel,
             tUIDs = tUIDs
         }) )
@@ -683,8 +668,8 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     -- ModObject.GetObjectProperties(uid) -- [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Nam
     -- ModStorage.GetStorageProperties(uid) -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage (Returns [1] as -1 if unassigned storage)
 
-    if (DEBUG_ENABLED) then
-        Logging.Log(' locateStoragesForReceiversAndTransmitters (a) ' )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateStoragesForReceiversAndTransmitters (a) ' )
     end
 
     -- Find ALL STORAGES for receivers
@@ -704,8 +689,8 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
             --linkRotation = math.floor(linkProps[4] + 0.5)
 
             if linkIsSwitchedOff(properties.Name) == false then
-                if DEBUG_ENABLED then
-                    ModDebug.Log(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] )
+                if (Settings.DebugMode.Value) then
+                    Logging.LogDebug(' locateStoragesForReceiversAndTransmitters Receiver @ ', linkXY[1], ':', linkXY[2] )
                 end
 
                 if properties.Rotation == 180 then dir = 'n' end -- twisted 180 from the transmitters
@@ -769,8 +754,8 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     end
 
     if (Settings.DebugMode.Value) then
-        ModDebug.Log(' #recStorages: ', #recStorages )
-        ModDebug.Log(' #transStorages: ', #transStorages )
+        Logging.LogDebug(' #recStorages: ', #recStorages )
+        Logging.LogDebug(' #transStorages: ', #transStorages )
     end
 
     groupReceiversAndTransmitters(recStorages, transStorages, buildingLevel)
@@ -785,7 +770,7 @@ function groupReceiversAndTransmitters(receivers, transmitters, buildingLevel)
     -- Group receivers
     for _, rec in ipairs(receivers)
     do
-        -- if DEBUG_ENABLED then ModDebug.Log(' groupReceiversAndTransmitters: receiver: ', table.show(rec) ) end
+        -- if (Settings.DebugMode.Value) then Logging.LogDebug(' groupReceiversAndTransmitters: receiver: ', table.show(rec) ) end
         if recGroups[rec.typeStored] == nil then recGroups[rec.typeStored] = { } end
         recGroups[rec.typeStored][#recGroups[rec.typeStored] + 1] = rec
     end
@@ -793,14 +778,14 @@ function groupReceiversAndTransmitters(receivers, transmitters, buildingLevel)
     -- Group transmitters
     for _, trans in ipairs(transmitters)
     do
-        -- if DEBUG_ENABLED then ModDebug.Log(' groupReceiversAndTransmitters: trans: ', table.show(trans) ) end
+        -- if (Settings.DebugMode.Value) then Logging.LogDebug(' groupReceiversAndTransmitters: trans: ', table.show(trans) ) end
         if transGroups[trans.typeStored] == nil then transGroups[trans.typeStored] = { } end
         transGroups[trans.typeStored][#transGroups[trans.typeStored] + 1] = trans
     end
 
-    if DEBUG_ENABLED then
-        Logging.Log(' groupReceiversAndTransmitters: recGroups: ', table.show(recGroups) )
-        Logging.Log(' groupReceiversAndTransmitters: transGroups: ', table.show(transGroups) )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' groupReceiversAndTransmitters: recGroups: ', table.show(recGroups) )
+        Logging.LogDebug(' groupReceiversAndTransmitters: transGroups: ', table.show(transGroups) )
     end
 
     -- Are there no receiving groups?
@@ -829,7 +814,7 @@ function handleReceiverGroup(recGroup, transGroups, buildingLevel)
         if transGroups[recGroup[1].typeStored] == nil then return false end
         local transGroup = transGroups[recGroup[1].typeStored]
 
-        if DEBUG_ENABLED then ModDebug.Log(' handleReceiverGroup: transGroup: ', table.show(transGroup) ) end
+        if (Settings.DebugMode.Value) then Logging.LogDebug(' handleReceiverGroup: transGroup: ', table.show(transGroup) ) end
 
         -- SORT the RECEIVERS by onHandQty (small to large)
         recGroup = table.sort(recGroup, compareSmallerOnHandQty)
@@ -859,17 +844,17 @@ function handleOneConverterReceiver(rec, trxGroups, buildingLevel)
         return trxGroups
     end
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(a): trxGroups ', type(trxGroups) ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneConverterReceiver(a): trxGroups ', type(trxGroups) ) end
 
     -- Add as many as we can as Ingredients
     trxGroups = addAnyPossibleIngredientsFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(b): trxGroups ', type(trxGroups) ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneConverterReceiver(b): trxGroups ', type(trxGroups) ) end
     -- Add as many as we can as Water
     trxGroups = addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(c): trxGroups ',type(trxGroups) ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneConverterReceiver(c): trxGroups ',type(trxGroups) ) end
     -- Add as many as we can as Fuel (sort by fuelAmount first)
     trxGroups = addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, levelCap)
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneConverterReceiver(d): trxGroups ', type(trxGroups) ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneConverterReceiver(d): trxGroups ', type(trxGroups) ) end
     return trxGroups
 end
 
@@ -1026,15 +1011,15 @@ function addFuelFromTransmittersToConverter(rec, trxGroups, buildingLevel, level
         for gkey, trx in ipairs(trxGroups[fuelType]) do -- each transmitter with that fuelType
             if qtyTakenFromStorages >= levelCap then break end
             for i = trx.storageProps[2], 0, -1 do
-                if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter: loop qtyTakenFromStorages:',qtyTakenFromStorages, ', levelCap:', levelCap) end
+                if (Settings.DebugMode.Value) then Logging.LogDebug(' addFuelFromTransmittersToConverter: loop qtyTakenFromStorages:',qtyTakenFromStorages, ', levelCap:', levelCap) end
                 if qtyTakenFromStorages >= levelCap then break end
-                if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter adding ',fuelAmountPerItem, ' to #', rec.converterUID) end
+                if (Settings.DebugMode.Value) then Logging.LogDebug(' addFuelFromTransmittersToConverter adding ',fuelAmountPerItem, ' to #', rec.converterUID) end
                 if ModBuilding.AddFuel(rec.converterUID, fuelAmountPerItem) == false and ModConverter.AddFuelToSpecifiedConverter(rec.converterUID, fuelAmountPerItem) == false then
                     break
                 end
                 trxGroups[fuelType][gkey].storageProps[2] = trx.storageProps[2] - 1
                 qtyTakenFromStorages = qtyTakenFromStorages + 1
-                if DEBUG_ENABLED then ModDebug.Log(' addFuelFromTransmittersToConverter: total taken ', qtyTakenFromStorages, ', left in trx storage: ', trxGroups[fuelType][gkey].storageProps[2] ) end
+                if (Settings.DebugMode.Value) then Logging.LogDebug(' addFuelFromTransmittersToConverter: total taken ', qtyTakenFromStorages, ', left in trx storage: ', trxGroups[fuelType][gkey].storageProps[2] ) end
             end
             if trxGroups[fuelType][gkey].storageProps[2] <= 0 then trxGroups[fuelType][gkey].storageProps[2] = 0 end
             ModStorage.SetStorageQuantityStored(trx.storageUID, trxGroups[fuelType][gkey].storageProps[2])
@@ -1071,7 +1056,7 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
 
     local originalTransmitterOnHandQty = tGrp[1].storageProps[2]
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: rec: ', table.show(rec) ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: rec: ', table.show(rec) ) end
 
     -- Transfer as many as possible from fullest (first) transmitter.
     calculateQtyToTransfer(tGrp[1].linkUID, tGrp[1].storageProps, rec.storageProps, tGrp[1].storageUID, rec.storageUID, 'one', buildingLevel)
@@ -1079,13 +1064,13 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
     -- Regrab the transmitter storage properties (should have less on-hand now!)
     tGrp[1].storageProps = ModStorage.GetStorageInfo(tGrp[1].storageUID)
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (a) ' ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (a) ' ) end
 
     -- If nothing was transferred, we should drop this like a hot potatoe!
     local qtyTransferred = originalTransmitterOnHandQty - tGrp[1].storageProps[2]
     if qtyTransferred == 0 then return tGrp end
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (b) ' ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (b) ' ) end
 
     -- Prune empty transmitters from list
     local newTransmitterGroup = {}
@@ -1097,7 +1082,7 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
     -- If there are no more transmitters, drop and run!
     if newTransmitterGroup == nil or newTransmitterGroup[1] == nil then return {} end
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (c) ' ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (c) ' ) end
 
     -- Sort transmitter list again.
     newTransmitterGroup = table.sort(newTransmitterGroup, compareLargerOnHandQty)
@@ -1105,12 +1090,12 @@ function handleOneReceiver(rec, tGrp, buildingLevel)
     -- If receiver is not full, transfer again from fullest (first) transmitter.
     if buildingLevel == 'Super' and rec.storageProps[2] + qtyTransferred < rec.storageProps[3] then
         rec.storageProps = ModStorage.GetStorageInfo(rec.storageUID)
-        if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {rec} ', table.show(rec) ) end
-        if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.1) {grp} ', table.show(newTransmitterGroup) ) end
+        if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (d.1) {rec} ', table.show(rec) ) end
+        if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (d.1) {grp} ', table.show(newTransmitterGroup) ) end
         return handleOneReceiver(rec, newTransmitterGroup, buildingLevel)
     end
 
-    if DEBUG_ENABLED then ModDebug.Log(' handleOneReceiver: (d.2) ' ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' handleOneReceiver: (d.2) ' ) end
 
     return newTransmitterGroup
 end
@@ -1123,7 +1108,7 @@ end
 ---@param onlyIfSourceFull? boolean
 function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFull)
     if linkUID == -1 then return end
-    if DEBUG_ENABLED then ModDebug.Log(' locateStoragesForLink: ', linkUID, ',', direction ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' locateStoragesForLink: ', linkUID, ',', direction ) end
     -- direction = 'one' or 'both'.
     local linkXY = ModObject.GetObjectTileCoord(linkUID)
 
@@ -1131,7 +1116,7 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
     --local rotation = math.floor(linkProp[4] + 0.5) -- 0, 90, 180, 270
     local properties = UnpackObjectProperties (ModObject.GetObjectProperties(linkUID))
     if (not properties.Successfully) then
-        Logging.LogWarning(string.format("locateStoragesForLink(linkUID = %d, direction = %s, buildingLevel = %s, onlyIfSourceFull = %s). Properties not readed.", linkUID, direction, buildingLevel, onlyIfSourceFull))
+        Logging.LogWarning("locateStoragesForLink(linkUID = %d, direction = %s, buildingLevel = %s, onlyIfSourceFull = %s). Properties not readed.", linkUID, direction, buildingLevel, onlyIfSourceFull)
         return
     end
 
@@ -1141,8 +1126,8 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
         return false
     end
 
-    if DEBUG_ENABLED then
-        ModDebug.Log(' locateStoragesForLink: checking rotations ', linkUID, ',', direction )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' locateStoragesForLink: checking rotations ', linkUID, ',', direction )
     end
 
     if properties.Rotation == 90 or properties.Rotation == 270 then
@@ -1171,36 +1156,35 @@ end
 ---@param direction DirectionType
 ---@param onlyIfSourceFull boolean?
 function checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
-    if DEBUG_ENABLED then ModDebug.Log(' checkStorageCompatability: ', linkUID, ', ', direction ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' checkStorageCompatability: ', linkUID, ', ', direction ) end
     -- direction = 'one' or 'both'.
-    ---@type StorageInfo
-    local side1Prop = ModStorage.GetStorageInfo(side1Storage)
-    ---@type StorageInfo
-    local side2Prop = ModStorage.GetStorageInfo(side2Storage)
-    -- [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
+    ---@type UnpackStorageInfo
+    local side1Property = UnpackStorageInfo(ModStorage.GetStorageInfo(side1Storage))
+    ---@type UnpackStorageInfo
+    local side2Property = UnpackStorageInfo(ModStorage.GetStorageInfo(side2Storage))
 
-    if DEBUG_ENABLED then
-        ModDebug.Log(' checkStorageCompatability: side1: ', side1Prop[4], '(', side1Prop[1], '), side2: ', side2Prop[4], '(', side2Prop[1], ') ' )
-        ModDebug.Log(' checkStorageCompatability: side2: uid(type) ', side2Storage, '(', ModObject.GetObjectType(side2Storage), ')')
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' checkStorageCompatability: side1: ', side1Property.StorageType, '(', side1Property.TypeStores, '), side2: ', side2Property.StorageType, '(', side2Property.TypeStores, ') ' )
+        Logging.LogDebug(' checkStorageCompatability: side2: uid(type) ', side2Storage, '(', ModObject.GetObjectType(side2Storage), ')')
     end
 
-    if side1Prop[1] ~= side2Prop[1] then return false end
+    if side1Property.TypeStores ~= side2Property.TypeStores then return false end
 
-    calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
+    calculateQtyToTransfer(linkUID, side1Property, side2Property, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
 end
 
 
 ---@param linkUID integer
----@param side1Prop StorageInfo
----@param side2Prop StorageInfo
+---@param side1Prop UnpackStorageInfo
+---@param side2Prop UnpackStorageInfo
 ---@param side1Storage integer
 ---@param side2Storage integer
 ---@param direction DirectionType
 ---@param buildingLevel BuildingLevels
 ---@param onlyIfSourceFull? boolean
 function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
-    if DEBUG_ENABLED then
-        ModDebug.Log(buildingLevel, ' calculateQtyToTransfer: ', linkUID, ',', direction )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(buildingLevel, ' calculateQtyToTransfer: ', linkUID, ',', direction )
     end
     -- direction = 'one' or 'both'.
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
@@ -1260,7 +1244,7 @@ end
 ---@param sourceUID integer
 ---@param targetUID integer
 function calculateStyleOfTransfer(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
-    if DEBUG_ENABLED then ModDebug.Log(' calculateStyleOfTransfer: ', linkUID, ', ', qty ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' calculateStyleOfTransfer: ', linkUID, ', ', qty ) end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     -- Can we adjust levels, or do we need to spawn?
     local oType = sourceProp[1]
@@ -1268,12 +1252,12 @@ function calculateStyleOfTransfer(linkUID, qty, sourceProp, targetProp, sourceUI
     local targetSpace = targetProp[3] - targetProp[2]
 
     -- Cap the transfer amount to the available space
-    if qty > targetSpace then qty = targetSpace end
+    qty = math.min(qty, targetSpace)
 
     -- If we aren't transfering anything, abort.
     if qty <= 0 then return end
 
-    if DEBUG_ENABLED then ModDebug.Log(' calculateStyleOfTransfer: maxUsage: ', linkUID, ', ', maxUsage ) end
+    if (Settings.DebugMode.Value) then Logging.LogDebug(' calculateStyleOfTransfer: maxUsage: ', linkUID, ', ', maxUsage ) end
 
     if maxUsage == nil or maxUsage == 0 then
         transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
@@ -1291,8 +1275,8 @@ end
 ---@return boolean
 -- Here we split. One or the other!
 function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
-    if DEBUG_ENABLED then
-        ModDebug.Log(' transferByAdjusting: link:', linkUID, ', qty:', qty, ', src:', sourceUID, ', dst:', targetUID )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' transferByAdjusting: link:', linkUID, ', qty:', qty, ', src:', sourceUID, ', dst:', targetUID )
     end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     local newTargetProp, newSourceProp
@@ -1321,25 +1305,17 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
     -- Put in target
     if ModStorage.SetStorageQuantityStored(targetUID, newTotalInTgt) then
         if (Settings.DebugMode.Value) then
-            newTargetProp = ModStorage.GetStorageInfo(targetUID)
-        end
-        if (Settings.DebugMode.Value) then
-            Logging.LogDebug(' transferByAdjusting: dst:', targetUID, ', increased from:', targetProp[2],' to:', targetProp[2] + qty)
-        end
-        if (Settings.DebugMode.Value) then
-            Logging.LogDebug(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp[2])
+            newTargetProp = UnpackStorageInfo(ModStorage.GetStorageInfo(targetUID))
+            Logging.LogDebug(' transferByAdjusting: dst: %d increased from: %d to: %d', targetUID, targetProp[2], targetProp[2] + qty)
+            Logging.LogDebug(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp.AmountStored)
         end
 
         -- Remove from source
         ModStorage.SetStorageQuantityStored(sourceUID, newTotalInSrc)
         if (Settings.DebugMode.Value) then
-            newSourceProp = ModStorage.GetStorageInfo(sourceUID)
-        end
-        if (Settings.DebugMode.Value) then
+            newSourceProp = UnpackStorageInfo(ModStorage.GetStorageInfo(sourceUID))
             Logging.LogDebug(' transferByAdjusting: src:', sourceUID, ', lowered from:', sourceProp[2],' to:', sourceProp[2] - qty)
-        end
-        if (Settings.DebugMode.Value) then
-            Logging.LogDebug(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp[2])
+            Logging.LogDebug(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp.AmountStored)
         end
     else
         if (Settings.DebugMode.Value) then
@@ -1352,8 +1328,8 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
 end
 
 function transferBySpawning(linkUID, qty, sourceProp, targetProp, sourceUID, targetUID)
-    if (DEBUG_ENABLED) then
-        ModDebug.Log(' transferBySpawning: ', linkUID, ', ', qty )
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' transferBySpawning: ', linkUID, ', ', qty )
     end
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
 
@@ -1383,13 +1359,16 @@ function clearTypesInArea(typeName, xy1, xy2)
     end
 end
 
-function findStorageInDirection(srcXY, dir)
+---@param direction NESW #
+function findStorageInDirection(srcXY, direction)
 
-    if DEBUG_ENABLED then ModDebug.Log(' findStorageInDirection - checking ', dir, srcXY[1], ':', srcXY[2]) end
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug('findStorageInDirection - checking %d %d:%d', direction, srcXY[1], srcXY[2])
+    end
 
     local storage, x, y
 
-    x, y = tileXYFromDir(Point.new(srcXY[1], srcXY[2]), dir)
+    x, y = tileXYFromDir(Point.new(srcXY[1], srcXY[2]), direction)
 
     storage = storageUidOnTileWithCallbacks(x, y)
 
@@ -1409,7 +1388,7 @@ function storageUidOnTileWithCallbacks(x, y)
         -- Add a callback for that area!
         if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
             if ModBase.ClassAndMethodExist('ModBuilding','RegisterForNewBuildingInAreaCallback') then
-                ModBuilding.RegisterForNewBuildingInAreaCallback(x, y, x, y, newBuildingInArea)
+                ModBuilding.RegisterForNewBuildingInAreaCallback(x, y, x, y, OnNewBuildingInAreaCallback)
             end
         end
         return nil
@@ -1429,8 +1408,8 @@ end
 ---@return { kind :"storage"|"converter", uid :integer, props: StorageInfo | ConverterProperties }|nil
 function findStorageOrConverterInDirection(srcXY, dir)
 
-    if DEBUG_ENABLED then
-        ModDebug.Log(' findStorageOrConverterInDirection - checking ', dir, srcXY[1], ':', srcXY[2])
+    if (Settings.DebugMode.Value) then
+        Logging.LogDebug(' findStorageOrConverterInDirection - checking ', dir, srcXY[1], ':', srcXY[2])
     end
 
     local building
@@ -1512,46 +1491,47 @@ function tileXYFromDir(srcXY, direction)
     error("Unknown direction: "..direction)
 end
 
-function newBuildingInArea(buildingUID, isBlueprint, isDragging) -- BuildingUID, IsBlueprint, IsDragging
+function OnNewBuildingInAreaCallback(buildingId, isBlueprint, isDragging) -- BuildingUID, IsBlueprint, IsDragging
     if isBlueprint then
         return
     end
     if isDragging then
         return
     end
-    if ModBuilding.IsBuildingActuallyFlooring(buildingUID) then
+    if (ModBuilding.IsBuildingActuallyFlooring(buildingId)) then
         return
     end
-    if LINK_UIDS[buildingUID] ~= nil then
+    if LINK_UIDS[buildingId] ~= nil then
         return
     end
 
     -- We already know about this building
-    if STORAGE_UIDS[buildingUID] ~= nil then
+    if STORAGE_UIDS[buildingId] ~= nil then
         return
     end -- We already know about this building
 
-    local tileXY = ModObject.GetObjectTileCoord(buildingUID)
+    ---@type Point
+    local tileXY = Point.new(table.unpack(ModObject.GetObjectTileCoord(buildingId)))
     local uidOnTile
 
     -- From here we only proceed if this is a storage.
     if ModBase.ClassAndMethodExist('ModStorage', 'IsStorageUIDValid') then
-        if (not ModStorage.IsStorageUIDValid(buildingUID)) then
+        if (not ModStorage.IsStorageUIDValid(buildingId)) then
             return
         end
         if (Settings.DebugMode.Value) then
             Logging.LogDebug(' newBuildingInArea: Checked using "IsStorageUIDValid", true!')
         end
     else
-        uidOnTile = GetStorageOnTile(tileXY[1], tileXY[2])
+        uidOnTile = GetStorageOnTile(tileXY.X, tileXY.Y)
         if (uidOnTile == nil) then
             return
         end
-        buildingUID = uidOnTile
-        if DEBUG_ENABLED then ModDebug.Log(' newBuildingInArea: Checked using "storageUidOnTile", not nil!', buildingUID) end
+        buildingId = uidOnTile
+        if (Settings.DebugMode.Value) then Logging.LogDebug(' newBuildingInArea: Checked using "storageUidOnTile", not nil!', buildingId) end
     end
 
-    addStorageToLinksWatchingTile(buildingUID, tileXY)
+    addStorageToLinksWatchingTile(buildingId, tileXY)
 
 end
 

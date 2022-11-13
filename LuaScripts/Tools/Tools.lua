@@ -1,4 +1,4 @@
---- Get UIDs by array types on map
+--- Get all UIDs by array types on map
 ---@param buildingTypes string[]
 ---@return integer[]
 function GetUidsByTypesOnMap(buildingTypes)
@@ -6,46 +6,43 @@ function GetUidsByTypesOnMap(buildingTypes)
     for _, buildingType in ipairs(buildingTypes) do
         local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, uid in ipairs(tempUids) do
-            table.insert(uids, uid)
-            --uids[#uids + 1] = uid
+            uids[#uids + 1] = uid
         end
     end
     return uids
 end
 
----- https://stackoverflow.com/a/53038524/6098146
-function ArrayRemove(t, fnKeep)
-    print('before:');
-    ArrayShow(t);
-    print('---');
-    local j, n = 1, #t;
-    for i=1,n do
-        print('i:'..i, 'j:'..j);
-        if (fnKeep(t, i, j)) then
-            if (i ~= j) then
-                print('keeping:'..i, 'moving to:'..j);
-                -- Keep i's value, move it to j's pos.
-                t[j] = t[i];
-                t[i] = nil;
-            else
-                -- Keep i's value, already at j's pos.
-                print('keeping:'..i, 'already at:'..j);
-            end
-            j = j + 1;
-        else
-            t[i] = nil;
-        end
+--- func desc
+---@param itemType string
+---@param location Point
+function GetHoldablesItemsOnLocation(itemType, location)
+    return GetHoldablesItemsOnArea(itemType, location.X, location.Y, location.X + 1, location.Y + 1)
+end
+
+--- func desc
+---@param itemType string
+---@param left integer
+---@param top integer
+---@param right integer
+---@param bottom integer
+function GetHoldablesItemsOnArea(itemType, left, top, right, bottom)
+    local holdables = ModTiles.GetObjectUIDsOfType(
+        itemType,
+        left,
+        top,
+        right,
+        bottom
+    )
+    if (holdables ~= nil and holdables[1] ~= nil) then
+        return holdables
     end
-    print('---');
-    print('after:');
-    ArrayShow(t);
-    return t;
+    return { }
 end
 
 --- Get Storage on Tile.
 ---@param x integer
 ---@param y integer
----@return integer|nil
+---@return integer|nil # Storage Id
 function GetStorageOnTile(x, y)
     ---@type integer
     local buildingId = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
@@ -104,14 +101,14 @@ end
 ---@param oldName string # Old type.
 ---@param newName string # New type.
 function ReplaceOldTypeToNewType(oldName, newName)
-    Logging.Log("Replace: OldType:", oldName, " NewType: ", newName)
+    Logging.LogDebug("Replace: OldType:", oldName, " NewType: ", newName)
     local oldB = ModTiles.GetObjectUIDsOfType(oldName, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
     --local oldB = ModBuilding.GetBuildingUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1] - 1, WORLD_LIMITS[2] - 1)
-    Logging.Log("Found OldType:", GetTableLength(oldB))
+    Logging.LogDebug("Found OldType:", GetTableLength(oldB))
     if oldB == nil or oldB == -1 or oldB[1] == nil or oldB[1] == -1 then
         return false
     end
-    Logging.Log("Replace OldType...")
+    Logging.LogDebug("Replace OldType...")
     local props, newUID, rot
     for _, uid in ipairs(oldB) do
         props = UnpackObjectProperties( ModObject.GetObjectProperties(uid) ) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
@@ -120,13 +117,13 @@ function ReplaceOldTypeToNewType(oldName, newName)
             if (ModObject.DestroyObject(uid)) then
                 newUID = ModBase.SpawnItem(newName, props.TileX, props.TileY, false, true, false)
                 if (newUID == -1 or newUID == nil) then
-                    Logging.Log('Could not re-create ', serializeTable({
+                    Logging.LogDebug('Could not re-create ', serializeTable({
                         props = props
                     }))
                 else
                     ModBuilding.SetRotation(newUID, rot)
                     ModBuilding.SetBuildingName(newUID, props.Name)
-                    Logging.Log("Replace item: ", serializeTable({
+                    Logging.LogDebug("Replace item: ", serializeTable({
                         props = props,
                         newUID = newUID
                     }))
@@ -136,3 +133,15 @@ function ReplaceOldTypeToNewType(oldName, newName)
         end
     end -- of oldB loop
 end
+
+-- --- func desc
+-- ---@param classTable table
+-- ---@param baseClassTable? table
+-- function MakeClass(classTable, baseClassTable)
+--     baseClassTable = baseClassTable or {}               --use passed-in object (if any)
+--     classTable = classTable or {}
+--     --assert(type(old_obj) == 'table','Object/Class is not a table')
+--     --assert(type(new_obj) == 'table','Object/Class is not a table')
+--     baseClassTable.__index = baseClassTable             --store __index in parent object (optimization)
+--     return setmetatable(classTable, baseClassTable)  --create 'new_obj' inheriting 'old_obj'
+-- end

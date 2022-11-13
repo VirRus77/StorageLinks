@@ -8,7 +8,7 @@
 --- Used near exclusively for Steam Workshop and Mod information
 function SteamDetails()
     ModDebug.ClearLog()
-    Logging.Log("SteamDetails")
+    Logging.LogInformation("SteamDetails")
 
     -- Setting of Steam details
     ModBase.SetSteamWorkshopDetails("Storage Links 2.0", [[
@@ -69,8 +69,12 @@ end
 
 --- Here you can expose any variables to the game for settings
 function Expose()
-    Logging.Log("Expose")
-    if (ModBase.GetGameVersionMajor() == 136 and ModBase.GetGameVersionMinor() == 17 and ModBase.GetGameVersionPatch() == 2) then
+    Logging.LogInformation("Expose")
+
+    if (not IsSupportGameVersion()) then
+        ModUI.ShowPopup(
+            "Storage Links 2.0 (Error)",
+            string.format("%s\nUnsupport version game %s. Need before %s.", "Storage Links 2.0", ModBase.GetGameVersion(), VERSION_WITH_CLASSMETHODCHECK_FUNCTION))
         return
     end
 
@@ -81,40 +85,44 @@ end
 
 --- Used to create any custom converters or buildings
 function Creation()
-    Logging.Log("Creation")
-    -- Logging.Log(serializeTable({
-    --     Settings = Settings
-    -- }))
+    Logging.LogInformation("Creation (ver. %s)", ModBase.GetGameVersion())
+    if (not IsSupportGameVersion()) then
+        return
+    end
 
     Buildings:UpdateTypeByUniq()
     Decoratives:UpdateTypeByUniq()
+    Converters:UpdateTypeByUniq()
     Buildings.CreateAll()
+    Converters.CreateAll()
     Buildings.AddDependencies()
 
-    if ( Settings.ReplaceOldBuildings.Value ) then
+    if (Settings.ReplaceOldBuildings.Value) then
         Buildings.CreateOldTypes()
     end
 
     -- Set some overall globals that determine if we want to use a TIMER, or callbacks.
-    if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
-        if ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRenamedCallback') then
-            USE_EVENT_STYLE = true
-        end
-    end
+    USE_EVENT_STYLE = ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) and
+        ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRenamedCallback')
 
 end
 
 --- Initial load function by game
 function BeforeLoad()
-    Logging.Log("BeforeLoad")
+    Logging.LogInformation("BeforeLoad")
+    if (not IsSupportGameVersion()) then
+        return
+    end
 
-    BuildingsDependencyTree.SwitchAllLock()
+    BuildingsDependencyTree.SwitchAllLockState()
     Translates.SetNames()
 
-    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLock))
+    TimersStack.Clear()
+    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
     TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
+    BuildingController.Initialize()
 
     if (Settings.ReplaceOldBuildings.Value) then
         -- for _, value in ipairs(Buildings.MappingOldTypes) do
@@ -170,7 +178,10 @@ end
 
 --- Once a game has loaded key functionality, this is called.
 function AfterLoad()
-    Logging.Log("AfterLoad")
+    Logging.LogInformation("AfterLoad")
+    if (not IsSupportGameVersion()) then
+        return
+    end
 
     ReplaceOldBuildings()
 
@@ -179,15 +190,20 @@ end
 
 --- Only called when creating a game. [v134.23]
 function AfterLoad_CreatedWorld()
-    Logging.Log("AfterLoad_CreatedWorld")
+    Logging.LogInformation("AfterLoad_CreatedWorld")
+    if (not IsSupportGameVersion()) then
+        return
+    end
 end
 
 --- Only called on loading a game. [v134.23]
 function AfterLoad_LoadedWorld()
-    Logging.Log("AfterLoad_LoadedWorld")
-    --lockLevels()
-    --checkUnlockLevels()
-    BuildingsDependencyTree.SwitchAllLock()
+    Logging.LogInformation("AfterLoad_LoadedWorld")
+    if (not IsSupportGameVersion()) then
+        return
+    end
+
+    BuildingsDependencyTree.SwitchAllLockState()
 
     WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
 
@@ -202,60 +218,27 @@ end
 --- Called every frame, see also Time.deltaTime
 ---@param timeDelta number
 function OnUpdate(timeDelta)
+    if (not IsSupportGameVersion()) then
+        return
+    end
     -- Called on every cycle!
-    --updateFlightPositions()
-    
     OBJECTS_IN_FLIGHT:Check()
-    -- everyFrame(timeDelta)
 
-    if (not DEBUG_ENABLED) then
+    if (not Settings.DebugMode.Value) then
         if(ModBase.GetGameState() == "Normal") then
             TimersStack:AppendDelta(timeDelta)
         end
     end
-
-    -- -- Every Five SECONDS_BETWEEN_UNLOCK_CHECKS
-    -- FIVE_SECOND_TIMER = FIVE_SECOND_TIMER + timeDelta
-    -- if FIVE_SECOND_TIMER >= 5 then
-    --     -- discoverUnknownMagnets()
-    --     FIVE_SECOND_TIMER = 0
-    -- end
-
-    --if (ONE_SECOND_TIMER > 1) then
-    --	ONE_SECOND_TIMER = 0
-    --	checkUnlockLevels()
-    --end
-    --ModQuest.IsObjectTypeUnlocked("MetalCog")
-
-    -- if (DEBUG_ENABLED == false) then
-    --     UNLOCK_LEVEL_TIMER:AppendDelta(timeDelta)
--- 
-    --     --local secondsDiff = timeDelta + LAST_TIME_DELTA
-    --     --LAST_TIME_DELTA = timeDelta -- time is in decimal seconds
--- 
-    --     -- Update timing trackers
-    --     CRUDE_TIMER_SECOND = CRUDE_TIMER_SECOND + timeDelta
-    --     GOOD_TIMER_SECOND = GOOD_TIMER_SECOND + timeDelta
-    --     SUPER_TIMER_SECOND = SUPER_TIMER_SECOND + timeDelta
--- 
-    --     -- Crude Level
-    --     if CRUDE_TIMER_SECOND >= (1 / CRUDE_CHECKS_PER_SECOND) then
-    --         locateLinks(BuildingLevels.Crude)
-    --         CRUDE_TIMER_SECOND = 0
-    --     end
--- 
-    --     -- Good Level
-    --     if GOOD_TIMER_SECOND >= (1 / GOOD_CHECKS_PER_SECOND) then
-    --         locateLinks(BuildingLevels.Good)
-    --         GOOD_TIMER_SECOND = 0
-    --     end
--- 
-    --     -- Super Level
-    --     if SUPER_TIMER_SECOND >= (1 / SUPER_CHECKS_PER_SECOND) then
-    --         locateLinks(BuildingLevels.Super)
-    --         SUPER_TIMER_SECOND = 0
-    --     end
-    -- end
-
 end
 
+--- func desc
+---@return boolean
+function IsSupportGameVersion()
+    local support = ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION)
+
+    if (not support) then
+        Logging.LogFatal("Unsupport version game %s. Need before %s.", ModBase.GetGameVersion(), VERSION_WITH_CLASSMETHODCHECK_FUNCTION)
+    end
+
+    return support
+end

@@ -1,4 +1,5 @@
 # The order in which the files are combined.
+Tools/Object.lua
 GameValues/SubCategory.lua
 Models/Point.lua
 Models/FlightObject.lua
@@ -17,6 +18,10 @@ Buildings/Buildings.lua
 Buildings/BuildingsDependencyTree.lua
 Buildings/Buildings.LegacyBuildings.lua
 Buildings/Building.Logic.lua
+Buildings/Converters.lua
+Buildings/Logic/BuildingBase.lua
+Buildings/Logic/BasicExtractor.lua
+Buildings/Logic/BuildingController.lua
 Translates.lua
 Flight.Logic.lua
 Magnet.Logic.lua
