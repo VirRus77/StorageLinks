@@ -54,11 +54,13 @@ A set of links that can hook storages together. This is a great minimal mod.
 
 ~= Enjoy =~
 
-Fork: https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
+Fork: https://steamcommunity.com/sharedfiles/filedetails/?id=2087715431
+https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
+      
 Source mod: https://github.com/VirRus77/StorageLinks
 
     ]],
-    { "transport", "storage", "move", "transmitter", "receiver", "magnet" },
+    { "transport", "storage", "move", "transmitter", "receiver", "magnet", "ejector" },
     "logo2.jpg"
 )
 
@@ -114,25 +116,7 @@ function BeforeLoad()
         return
     end
 
-    BuildingsDependencyTree.SwitchAllLockState()
     Translates.SetNames()
-
-    TimersStack.Clear()
-    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
-
-    if (Settings.ReplaceOldBuildings.Value) then
-        for _, value in ipairs(Buildings.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-        for _, value in ipairs(Decoratives.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-    end
-
-    Converters.UpdateState()
     -- -- Pump
     -- ModVariable.SetVariableForBuildingUpgrade("Crude Pump (SL)", "Good Pump (SL)" )
     -- ModVariable.SetVariableForBuildingUpgrade("Good Pump (SL)" , "Super Pump (SL)")
@@ -177,6 +161,23 @@ function BeforeLoad()
 
 end
 
+--- Only called on loading a game. [v134.23]
+function AfterLoad_LoadedWorld()
+    Logging.LogInformation("AfterLoad_LoadedWorld")
+    if (not IsSupportGameVersion()) then
+        return
+    end
+
+    -- Reset caches
+    LINK_UIDS = { }
+    STORAGE_UIDS = { }
+    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
+    --MakeDevelopMap:Make()
+
+    -- When world is loaded, find Magnets!
+    -- discoverUnknownMagnets()
+end
+
 --- Once a game has loaded key functionality, this is called.
 function AfterLoad()
     Logging.LogInformation("AfterLoad")
@@ -184,6 +185,24 @@ function AfterLoad()
         return
     end
 
+    TimersStack.Clear()
+    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
+    TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
+
+    if (Settings.ReplaceOldBuildings.Value) then
+        for _, value in ipairs(Buildings.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
+        for _, value in ipairs(Decoratives.MappingOldTypes) do
+            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+        end
+    end
+
+    Converters.UpdateState()
+
+    BuildingsDependencyTree.SwitchAllLockState()
     BuildingController.Initialize()
     ReplaceOldBuildings()
 
@@ -196,25 +215,6 @@ function AfterLoad_CreatedWorld()
     if (not IsSupportGameVersion()) then
         return
     end
-end
-
---- Only called on loading a game. [v134.23]
-function AfterLoad_LoadedWorld()
-    Logging.LogInformation("AfterLoad_LoadedWorld")
-    if (not IsSupportGameVersion()) then
-        return
-    end
-
-    BuildingsDependencyTree.SwitchAllLockState()
-
-    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
-
-    -- Reset caches
-    LINK_UIDS = { }
-    STORAGE_UIDS = { }
-
-    -- When world is loaded, find Magnets!
-    discoverUnknownMagnets()
 end
 
 --- Called every frame, see also Time.deltaTime

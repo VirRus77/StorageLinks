@@ -4,24 +4,22 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class FlightObjectsList
+---@class FlightObjectsList :Object
 ---@field _callbackComplete fun(sender :FlightObject, successfully :boolean)
 FlightObjectsList = {
     ---@type FlightObject[]
     ---@protected
     _items = nil
 }
+FlightObjectsList = Object:extend(FlightObjectsList)
 
-FlightObjectsList.__index = FlightObjectsList
-
-function FlightObjectsList.new()
-    local newInstance = {
-        _items = { }
-    }
-
-    setmetatable(newInstance, FlightObjectsList)
-    newInstance.__index = FlightObjectsList
+function FlightObjectsList.new() 
+    local newInstance = FlightObjectsList:make()
     return newInstance
+end
+
+function FlightObjectsList:initialize()
+    self._items = { }
 end
 
 ---@param flightObject FlightObject
@@ -34,7 +32,7 @@ function FlightObjectsList:Add(flightObject)
     -- Logging.LogDebug("FlightObjectsList:Add:\n%s", serializeTable(flightObject))
     if( self._items[flightObject.Id] ~= nil) then
         Logging.LogError("FlightObjectsList:Add:\n%s", serializeTable(self._items[flightObject.Id]))
-        error("Object In Flight")
+        error("Object In Flight", 666)
     end
 
     flightObject:AddCallback(
@@ -64,12 +62,14 @@ function FlightObjectsList:FlightObjectByTarget(targetId)
     local found = { }
     for _, value in pairs(self._items) do
         if (value.TagerId == targetId) then
-            found[#found + 1] = value 
+            found[#found + 1] = value
         end
     end
     return found
 end
 
-function FlightObjectsList:Contains(objectId)
-    return self._items[objectId] ~= nil
+--- Object is fly
+---@param flyObjectId integer
+function FlightObjectsList:Contains(flyObjectId)
+    return self._items[flyObjectId] ~= nil
 end

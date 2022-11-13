@@ -47,7 +47,7 @@ function MakeTimers (buildingLevel)
         Timer.new(checkPeriod, function () locateOverflowPumps (buildingLevel) end,            Timer.MillisecondsToSeconds(300)),
         Timer.new(checkPeriod, function () locateBalancers (buildingLevel) end,                Timer.MillisecondsToSeconds(450)),
         Timer.new(checkPeriod, function () locateReceiversAndTransmitters (buildingLevel) end, Timer.MillisecondsToSeconds(600)),
-        Timer.new(checkPeriod, function () fireAllMagnets (buildingLevel) end,                 Timer.MillisecondsToSeconds(750)),
+        -- Timer.new(checkPeriod, function () fireAllMagnets (buildingLevel) end,                 Timer.MillisecondsToSeconds(750)),
     }
 end
 

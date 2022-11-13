@@ -4,10 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class BasicExtractor #
----@inherits BuildingBase
----@field Id integer # Building UID
----@type BuildingBase|Object
+---@class BasicExtractor :BuildingBase #
 BasicExtractor = {
     SupportTypes = { Converters.Extractor },
     OutputPoint = 0,
@@ -22,10 +19,10 @@ BasicExtractor = BuildingBase:extend(BasicExtractor)
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
----@return BasicExtractor|BuildingBase
+---@return BuildingBase
 function BasicExtractor.new(id, type, callbackRemove)
     Logging.LogInformation("BasicExtractor.new %d, %s", id, callbackRemove)
-    ---@type BasicExtractor|BuildingBase
+    ---@type BasicExtractor
     local instance = BasicExtractor:make(id, type, callbackRemove, nil, nil, 1)
     instance:UpdateLogic()
     return instance
@@ -45,7 +42,7 @@ function BasicExtractor:UpdateLogic(editType)
 end
 
 function BasicExtractor:OnTimerCallback()
-    Logging.LogInformation("BasicExtractor:OnTimerCallback (%s) R:%d \"%s\" Limit:%d", tostring(self.Location), self.Rotation, self.Name, self.StackLimit)
+    -- Logging.LogDebug("BasicExtractor:OnTimerCallback (%s) R:%d \"%s\" Limit:%d", tostring(self.Location), self.Rotation, self.Name, self.StackLimit)
     local location = self.Location
     local rotation = self.Rotation
     local outputDelta = DirectionDeltaPoint[(BasicExtractor.OutputPoint + rotation) % 4]
@@ -54,7 +51,7 @@ function BasicExtractor:OnTimerCallback()
     local inputPoint  = Point.new(location.X + inputDelta.X, location.Y + inputDelta.Y)
 
     ---@type integer|nil
-    local storageId = GetStorageOnTile(inputPoint.X, inputPoint.Y)
+    local storageId = GetStorageIdOnTile(inputPoint.X, inputPoint.Y)
     if (storageId == nil)then
         return
     end
@@ -66,7 +63,7 @@ function BasicExtractor:OnTimerCallback()
 
     --local holdables = GetHoldablesItemsOnArea(storageInfo.TypeStores, outputPoint.X - 5, outputPoint.Y - 5, outputPoint.X + 5, outputPoint.Y + 5)
     local holdables = GetHoldablesItemsOnLocation(storageInfo.TypeStores, outputPoint)
-    Logging.LogDebug("GetHoldablesItemsOnLocation holdables: %d", #holdables)
+    -- Logging.LogDebug("GetHoldablesItemsOnLocation holdables: %d", #holdables)
     if (#holdables < self.StackLimit) then
         ModStorage.RemoveFromStorage(storageId, 1, outputPoint.X, outputPoint.Y)
         --local spawnObject = ModBase.SpawnItem(storageId.TypeStores, outputPoint.X, outputPoint.Y, false, true, false)

@@ -34,7 +34,7 @@ AngleRotationToNSEW = {
     [270] = 3,
 }
 
----@class BuildingBase #
+---@class BuildingBase :Object #
 ---@field _logicPeriod number #
 ---@field _callbackRemove fun(BuildingBase) #
 ---@field Id integer # Building UID
@@ -43,6 +43,9 @@ AngleRotationToNSEW = {
 ---@field Rotation integer #
 ---@field Name string #
 ---@field SupportTypes { Type :string }[] # Association building types.
+---@function MakeTimer
+---@function OnStateChangedCallback
+---@function UpdateLogic
 ---@type Object|BuildingBase
 BuildingBase = {
     ---@type number
@@ -93,7 +96,7 @@ function BuildingBase:MakeTimer()
         return nil
     end
 
-    self.Timer = Timer.new(self._logicPeriod, function() self:OnTimerCallback(); end, Timer.MillisecondsToSeconds(math.random( 0, 1000 )))
+    self.Timer = Timer.new(self._logicPeriod, function() self:OnTimerCallback(); end, Timer.MillisecondsToSeconds(math.random() * self._logicPeriod))
     return self.Timer
 end
 

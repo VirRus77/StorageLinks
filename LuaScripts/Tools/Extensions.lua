@@ -38,9 +38,10 @@ function UnpackObjectProperties(properties, normalizeRotation)
 end
 
 -- Unpack @{StorageInfo}
----@alias UnpackStorageInfo { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean, [1] :string, [2] :integer, [3] :integer, [4] :string } #
+---@alias UnpackStorageInfo { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean } #
+---@alias UnpackStorageInfoOld { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean, [1] :string, [2] :integer, [3] :integer, [4] :string } #
 ---@param properties StorageInfo|nil #
----@return UnpackStorageInfo #
+---@return UnpackStorageInfoOld #
 function UnpackStorageInfo (properties)
     ---{[1] :string, [2] :integer, [3] :integer, [4] :string} # Properties [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     local successfully = properties ~= nil and properties[1] ~= nil

@@ -1383,7 +1383,7 @@ end
 ---@param x integer
 ---@param y integer
 function storageUidOnTileWithCallbacks(x, y)
-    local storageId = GetStorageOnTile(x, y)
+    local storageId = GetStorageIdOnTile(x, y)
     if (storageId == nil) then
         -- Add a callback for that area!
         if ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) then
@@ -1523,7 +1523,7 @@ function OnNewBuildingInAreaCallback(buildingId, isBlueprint, isDragging) -- Bui
             Logging.LogDebug(' newBuildingInArea: Checked using "IsStorageUIDValid", true!')
         end
     else
-        uidOnTile = GetStorageOnTile(tileXY.X, tileXY.Y)
+        uidOnTile = GetStorageIdOnTile(tileXY.X, tileXY.Y)
         if (uidOnTile == nil) then
             return
         end

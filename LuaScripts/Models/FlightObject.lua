@@ -67,7 +67,7 @@ function FlightObject:Start(speed, height)
 end
 
 function FlightObject:Check()
-    Logging.LogDebug("FlightObject:Check")
+    -- Logging.LogDebug("FlightObject:Check")
     if (not ModObject.IsValidObjectUID(self.Id)) then
         self:OnFlightComplete(false)
         return

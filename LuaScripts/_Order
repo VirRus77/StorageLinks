@@ -2,6 +2,7 @@
 Tools/Object.lua
 GameValues/SubCategory.lua
 Models/Point.lua
+Models/Area.lua
 Models/FlightObject.lua
 Models/FlightObjectsList.lua
 Models/Timer.lua
@@ -11,6 +12,7 @@ Tools/SerializeTable.lua
 Models/Logging.lua
 Tools/Extensions.lua
 Tools/Tools.lua
+Tools/MakeDevelopMap.lua
 Settings.lua
 Constants.lua
 GlobalParameters.lua
@@ -18,6 +20,7 @@ Buildings/Buildings.lua
 Buildings/Buildings.LegacyBuildings.lua
 Buildings/Building.Logic.lua
 Buildings/Converters.lua
+Buildings/BuildingSettings.lua
 Buildings/BuildingsDependencyTree.lua
 Buildings/Logic/BuildingBase.lua
 Buildings/Logic/BasicExtractor.lua

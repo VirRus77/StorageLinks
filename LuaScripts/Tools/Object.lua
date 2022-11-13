@@ -11,7 +11,6 @@ Object = {}
 Object.meta = {__index = Object}
 
 -- Create a new instance of this object
----@param initValues? table|nil
 ---@return Object
 function Object:create()
     local meta = rawget(self, "meta")
@@ -71,4 +70,7 @@ function Object:extend(defaultValues)
     instance.meta = meta
 
     return instance
+end
+
+function Object:initialize(...)
 end

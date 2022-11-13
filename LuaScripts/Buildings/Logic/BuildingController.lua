@@ -8,7 +8,6 @@ Author: Sotin NU aka VirRus77
 ---@field Id integer # Building UID
 ---@field Location Point #
 ---@field Rotation integer #
----@field Timer? Timer #
 BuildingController = {
     ---@type table<integer, BuildingBase>
     Buildings = {},
@@ -25,6 +24,7 @@ function BuildingController.Add(newBuilding)
     BuildingController.Buildings[buildingId] = newBuilding
 
     Logging.LogError("BuildingController.Add MakeTimer")
+    ---@type Timer|nil
     local timer = newBuilding:MakeTimer()
     if (timer) then
        local timerId = TimersStack.AddTimer(timer)
@@ -69,7 +69,7 @@ function BuildingController.Initialize()
         Magnet.SupportTypes,
         function (buildingId, buildingType, isBlueprint, isDragging)
             ---@type BuildingBase
-            local building = Magnet.new(buildingId, BuildingController.Remove)
+            local building = Magnet.new(buildingId, buildingType, BuildingController.Remove)
             BuildingController.Add(building)
         end
     )
@@ -97,7 +97,9 @@ function BuildingController.InitializeTypes(buildingTypes, addNewCallback)
         ModBuilding.RegisterForBuildingTypeSpawnedCallback(
             buildingType,
             function (callBuildingId, callBuildingType, callIsBlueprint, callIsDragging)
-                BuildingController.OnSpawnedCallback(callBuildingId, callBuildingType, callIsBlueprint, callIsDragging, addNewCallback)
+                Logging.LogDebug("ModBuilding.RegisterForBuildingTypeSpawnedCallback(%s, %s, %s, %s)", ToTypedString(callBuildingId), ToTypedString(callBuildingType), ToTypedString(callIsBlueprint), ToTypedString(callIsDragging))
+                local makeBuilding = buildingType
+                BuildingController.OnSpawnedCallback(callBuildingId, makeBuilding, callIsBlueprint, callIsDragging, addNewCallback)
             end
         )
     end

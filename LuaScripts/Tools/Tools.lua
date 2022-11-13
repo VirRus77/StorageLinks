@@ -1,9 +1,36 @@
+function AddItemToStorage(storageId, itemId)
+    -- ob has arrived!
+    if (ModObject.IsValidObjectUID(storageId)) then -- both UID and storageUID are valid
+        -- Use 'AddToStorage' only if it has durability.
+        local maxUsage = ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(itemId), 'MaxUsage')
+        if (maxUsage == nil or maxUsage == 0) then -- No durability, just up storage qty
+            local storageInfo = UnpackStorageInfo ( ModStorage.GetStorageInfo(storageId) ) -- [2] = current amount, [3] = max
+            if (storageInfo.Successfully) then
+                if storageInfo.AmountStored < 0 then
+                    storageInfo.AmountStored = 0
+                    ModStorage.SetStorageQuantityStored(storageId, 0)
+                end
+                ModStorage.SetStorageQuantityStored(storageId, storageInfo.AmountStored + 1)
+            end
+        else-- Durability present, use their method.
+            ModStorage.AddToStorage(storageId, itemId)
+        end
+    end
+
+    -- still valid?
+    if ModObject.IsValidObjectUID(itemId) then
+        ModObject.DestroyObject(itemId)
+    end -- make sure!
+end
+
 --- Get all UIDs by array types on map
 ---@param buildingTypes string[]
 ---@return integer[]
 function GetUidsByTypesOnMap(buildingTypes)
+    -- Logging.LogDebug("GetUidsByTypesOnMap %s", buildingTypes)
     local uids = { }
     for _, buildingType in ipairs(buildingTypes) do
+        -- Logging.LogDebug("GetUidsByTypesOnMap k:%s v:%s", _, buildingType)
         local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         for _, uid in ipairs(tempUids) do
             uids[#uids + 1] = uid
@@ -59,7 +86,7 @@ end
 ---@param x integer
 ---@param y integer
 ---@return integer|nil # Storage Id
-function GetStorageOnTile(x, y)
+function GetStorageIdOnTile(x, y)
     ---@type integer
     local buildingId = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
     local validBuilding = (buildingId ~= -1) and
@@ -148,6 +175,18 @@ function ReplaceOldTypeToNewType(oldName, newName)
             end -- of if object destroyed
         end
     end -- of oldB loop
+end
+
+function ToTypedString(value)
+    local typeValue = type(value)
+    local localValue = value
+    if (typeValue == "boolean") then
+        localValue = tostring(value)
+    elseif (typeValue =="table" and type(value.__tostring) == "function") then
+        localValue = tostring(value)
+    end
+
+    return string.format("%s :%s", localValue, typeValue)
 end
 
 -- --- func desc
