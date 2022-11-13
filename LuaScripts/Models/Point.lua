@@ -9,27 +9,28 @@ Author: Sotin NU aka VirRus77
 ---@field Y integer
 Point = {
     X = 0,
-    Y = 0
+    Y = 0,
+    [0] = 0,
+    [1] = 0
 }
-Point.__index = Point
+---@type Point|Object
+Point = Object:extend(Point)
 
 --- func desc
 ---@param x? integer
 ---@param y? integer
 ---@return Point
 function Point.new(x, y)
-    ---@type Point2
-    local newInstance = { }
-
-    newInstance.X = x or Point.X
-    newInstance.Y = y or Point.Y
-    --- Old style
-    newInstance[1] = newInstance.X
-    newInstance[2] = newInstance.Y
-
-    setmetatable(newInstance, Point)
-    newInstance.__index = Point
+    ---@type Point
+    local newInstance = Point:make(x,y)
     return newInstance
+end
+
+function Point:initialize(x, y)
+    self.X = x
+    self.Y = y
+    self[0] = x
+    self[1] = y
 end
 
 function Point:__tostring()
