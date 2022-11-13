@@ -54,11 +54,22 @@ function BuildingController.Initialize()
     BuildingController.Buildings = { }
     BuildingController.Timers = { }
 
+    -- Extractor
     BuildingController.InitializeTypes(
-        BasicExtractor.Types,
+        BasicExtractor.SupportTypes,
         function (buildingId, buildingType, isBlueprint, isDragging)
             ---@type BuildingBase
-            local building = BasicExtractor.new(buildingId, BuildingController.Remove)
+            local building = BasicExtractor.new(buildingId, buildingType, BuildingController.Remove)
+            BuildingController.Add(building)
+        end
+    )
+
+    -- Magnet
+    BuildingController.InitializeTypes(
+        Magnet.SupportTypes,
+        function (buildingId, buildingType, isBlueprint, isDragging)
+            ---@type BuildingBase
+            local building = Magnet.new(buildingId, BuildingController.Remove)
             BuildingController.Add(building)
         end
     )

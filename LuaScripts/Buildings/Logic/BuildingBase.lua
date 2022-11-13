@@ -38,10 +38,11 @@ AngleRotationToNSEW = {
 ---@field _logicPeriod number #
 ---@field _callbackRemove fun(BuildingBase) #
 ---@field Id integer # Building UID
+---@field Type string #
 ---@field Location Point #
 ---@field Rotation integer #
 ---@field Name string #
----@field Types { Type :string }[] # Association building types.
+---@field SupportTypes { Type :string }[] # Association building types.
 ---@type Object|BuildingBase
 BuildingBase = {
     ---@type number
@@ -49,30 +50,30 @@ BuildingBase = {
     ---@type fun(BuildingBase)
     _callbackRemove = nil,
     ---@type { Type :string }[] #
-    Types = { },
+    SupportTypes = { },
 }
 BuildingBase = Object:extend(BuildingBase)
--- BuildingBase._logicPeriod = nil
--- BuildingBase.Types = { }
--- BuildingBase._callbackRemove = nil
 
+-- Constructor.
 ---@param id integer # Building UID.
----@param callbackRemove fun(BuildingBase)
+---@param type string # Building type.
+---@param callbackRemove fun(BuildingBase) # Callback remove.
 ---@param location? Point # Building position.
 ---@param rotation? integer # Building position.
----@param logicPeriod? number # Period timer
+---@param logicPeriod? number # Period timer in seconds.
 ---@return BuildingBase
-function BuildingBase.new(id, callbackRemove, location, rotation, logicPeriod)
+function BuildingBase.new(id, type, callbackRemove, location, rotation, logicPeriod)
     -- Logging.LogInformation("BuildingBase.new %d %s R:%s T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
     ---@type BuildingBase
-    local newInstance = BuildingBase:make()
+    local newInstance = BuildingBase:make(id, type, callbackRemove, location, rotation, logicPeriod)
     return newInstance
 end
 
-function BuildingBase:initialize(id, callbackRemove, location, rotation, logicPeriod)
+function BuildingBase:initialize(id, type, callbackRemove, location, rotation, logicPeriod)
     -- Logging.LogInformation("BuildingBase:initialize %d, %s, R:%s, T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
     self._logicPeriod = logicPeriod
     self.Id = id
+    self.Type = type
     local objectProperties = UnpackObjectProperties(ModObject.GetObjectProperties(id))
     self.Location = location or Point.new(objectProperties.TileX, objectProperties.TileY)
     self.Rotation = rotation or ModBuilding.GetRotation(id)

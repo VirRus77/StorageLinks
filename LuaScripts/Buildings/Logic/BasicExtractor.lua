@@ -5,11 +5,11 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class BasicExtractor #
+---@inherits BuildingBase
 ---@field Id integer # Building UID
----@field Location Point #
 ---@type BuildingBase|Object
-BasicExtractor = { 
-    Types = { Converters.Extractor },
+BasicExtractor = {
+    SupportTypes = { Converters.Extractor },
     OutputPoint = 0,
     InputPoint  = 2,
     StackLimit = 1,
@@ -20,12 +20,13 @@ BasicExtractor = BuildingBase:extend(BasicExtractor)
 
 --- func desc
 ---@param id integer #
+---@param type string #
 ---@param callbackRemove fun() #
----@return BuildingBase|BasicExtractor
-function BasicExtractor.new(id, callbackRemove)
+---@return BasicExtractor|BuildingBase
+function BasicExtractor.new(id, type, callbackRemove)
     Logging.LogInformation("BasicExtractor.new %d, %s", id, callbackRemove)
     ---@type BasicExtractor|BuildingBase
-    local instance = BasicExtractor:make(id, callbackRemove, nil, nil, 1)
+    local instance = BasicExtractor:make(id, type, callbackRemove, nil, nil, 1)
     instance:UpdateLogic()
     return instance
 end
