@@ -51,9 +51,9 @@ Creates a new sub-class.
 ]]
 
 --- func desc
----@param overideMeta table|nil
+---@param defaultValues table|nil
 ---@return Object|any
-function Object:extend(overideMeta)
+function Object:extend(defaultValues)
     local instance = self:create()
     local meta = {}
     -- move the meta methods defined in our ancestors meta into our own
@@ -61,8 +61,8 @@ function Object:extend(overideMeta)
     for k, v in pairs(self.meta) do
         meta[k] = v
     end
-    if (overideMeta ~= nil and type(overideMeta) == "table") then
-        for key, value in pairs(overideMeta) do
+    if (defaultValues ~= nil and type(defaultValues) == "table") then
+        for key, value in pairs(defaultValues) do
             instance[key] = value
         end
     end
