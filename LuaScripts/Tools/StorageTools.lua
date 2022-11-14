@@ -1,5 +1,60 @@
 StorageTools = {}
 
+--- func desc
+---@param storesType string # Type store items.
+---@param storageSourceId integer # Source storage Id.
+---@param storageSourceInfo UnpackStorageInfo
+---@param storageDestId integer # Destination storage.
+---@param storageDestInfo UnpackStorageInfo
+---@param count any # Count transfer.
+function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
+    local isDurability = DurabilityObjects.IsDurability(storesType)
+    -- Logging.LogDebug("StorageTools.TransferItems %d ==%d==> %d", storageSourceId, count, storageDestId)
+    if (not isDurability) then
+        local outputCount = storageSourceInfo.AmountStored - count
+        ModStorage.SetStorageQuantityStored(storageSourceId, outputCount)
+        local inputCount = storageDestInfo.AmountStored + count
+        ModStorage.SetStorageQuantityStored(storageDestId, inputCount)
+        return
+    end
+    local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
+    for _, itemId in ipairs(itemIds) do
+        ModStorage.AddToStorage(storageDestId, itemId)
+        if (ModObject.IsValidObjectUID(itemId)) then
+            Logging.LogError("StorageTools.TransferItems Destory object: %d", itemId)
+            ModObject.DestroyObject(itemId)
+        end
+    end
+end
+
+--- 
+---@param storageId integer
+---@param storageInfo UnpackStorageInfo
+---@param objectInFlight? FlightObjectsList
+---@return integer
+function StorageTools.GetAmount(storageId, storageInfo, objectInFlight)
+    local amount = storageInfo.AmountStored;
+    if (objectInFlight ~= nil) then
+        amount = amount + #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
+    end
+
+    return amount
+end
+
+--- 
+---@param storageId integer
+---@param storageInfo UnpackStorageInfo
+---@param objectInFlight? FlightObjectsList
+---@return integer
+function StorageTools.GetFreeSpace(storageId, storageInfo, objectInFlight)
+    local freeSpace = storageInfo.Capacity - storageInfo.AmountStored
+    if(objectInFlight ~= nil)then
+        freeSpace = freeSpace - #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
+    end
+
+    return freeSpace
+end
+
 function StorageTools.AddItemToStorage(storageId, itemId)
     -- ob has arrived!
     if (ModObject.IsValidObjectUID(storageId)) then -- both UID and storageUID are valid

@@ -26,6 +26,7 @@ Buildings/BuildingsDependencyTree.lua
 Buildings/Logic/BuildingBase.lua
 Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua
+Buildings/Logic/PumpBase.lua
 Buildings/Logic/BuildingController.lua
 Translates.lua
 Flight.Logic.lua

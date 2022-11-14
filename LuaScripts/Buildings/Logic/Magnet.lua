@@ -27,7 +27,6 @@ function Magnet.new(id, type, callbackRemove)
     Logging.LogInformation("Magnet.new %d, %s", id, callbackRemove)
     ---@type MagnetSettingsItem2
     local settings = BuildingSettings.GetSettingsByType(type) or error("Magnet Settings not found", 666) or { }
-
     local instance = Magnet:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
     instance.Settings = settings
     local area = instance.Settings.Area
@@ -185,7 +184,6 @@ end
 ---@param successfully boolean
 function Magnet.OnFlightComplete(flyingObject, successfully)
     -- Logging.LogDebug(' OnFlightComplete(successfully = %s)\n%s', successfully, serializeTable(flyingObject))
-    Logging.LogDebug('OnFlightComplete')
     local flyingId = flyingObject.Id
     if (not ModObject.IsValidObjectUID(flyingId)) then
         return

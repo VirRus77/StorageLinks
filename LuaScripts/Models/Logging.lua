@@ -59,7 +59,7 @@ function Logging.LogLevel(logLevel, formatString, ...)
     if (not show) then
         return
     end
-    
+
     local cahngedParamsStringFormat = { }
     for i = 1, select("#", ...) do
         local value = select(i, ...)

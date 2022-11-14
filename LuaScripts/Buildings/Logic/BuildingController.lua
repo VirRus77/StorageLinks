@@ -73,6 +73,16 @@ function BuildingController.Initialize()
             BuildingController.Add(building)
         end
     )
+
+    -- Pump
+    BuildingController.InitializeTypes(
+        PumpBase.SupportTypes,
+        function (buildingId, buildingType, isBlueprint, isDragging)
+            ---@type BuildingBase
+            local building = PumpBase.new(buildingId, buildingType, BuildingController.Remove)
+            BuildingController.Add(building)
+        end
+    )
 end
 
 ---@protected

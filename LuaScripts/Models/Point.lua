@@ -33,6 +33,28 @@ function Point:initialize(x, y)
     self[1] = y
 end
 
+--- Rotate the coordinate point clockwise by 90 degrees.
+---@param point Point
+---@param countRotate? integer # Count rotation by 90 degrees. Default 1.
+function Point.Rotate(point, countRotate)
+    if (countRotate == nil) then
+        countRotate = 1
+    end
+    if (countRotate < 0) then
+        error("Point.Rotate countRotate < 0", 666)
+    end
+    countRotate = countRotate % 4
+    if (countRotate == 0) then
+        return Point.new(point.X, point.Y)
+    elseif (countRotate == 1) then
+        return Point.new(-point.Y, point.X)
+    elseif (countRotate == 2) then
+        return Point.new(-point.X, -point.Y)
+    elseif (countRotate == 3) then
+        return Point.new(point.Y, -point.X)
+    end
+end
+
 function Point:__tostring()
     return string.format("%d:%d", self.X, self.Y)
 end

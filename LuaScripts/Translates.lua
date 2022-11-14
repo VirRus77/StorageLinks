@@ -58,16 +58,16 @@ Translates.Russian = {
 
     -- Pump
     { Building = Buildings.PumpCrude, Name = "Помпа",
-        Description = "Перекачивает объекты."
+        Description = "Транспортирует объекты."
     },
     { Building = Buildings.PumpGood, Name = "Хорошая Помпа",
-        Description = "Перекачивает объекты."
+        Description = "Транспортирует объекты."
     },
     { Building = Buildings.PumpSuper, Name = "Супер Помпа",
-        Description = "Перекачивает объекты."
+        Description = "Транспортирует объекты."
     },
     { Building = Buildings.PumpSuperLong, Name = "Супер Помпа - длинная",
-        Description = "Перекачивает объекты."
+        Description = "Транспортирует объекты."
     },
 
     -- Overflow Pump

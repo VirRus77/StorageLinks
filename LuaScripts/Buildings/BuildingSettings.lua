@@ -7,13 +7,13 @@ Author: Sotin NU aka VirRus77
 ---@alias BuildingSettingItem { Type : { Type :string }, Settings :table }
 ---@type table<string, BuildingSettingItem[]>
 BuildingSettings = {
-    ---@type BuildingSettingItem[]
+    ---@type BuildingSettingItem[] #
     Magnets = {
         {
             Type = Buildings.MagnetCrude,
-            ---@alias MagnetSettingsItem2 { CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer, UpdatePeriod :number }
+            ---@alias MagnetSettingsItem2 { UpdatePeriod :number, CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer }
             Settings = {
-                UpdatePeriod = 5,
+                UpdatePeriod = 1 / 4,
                 CountOneTime = 1,
                 Speed = 10,
                 Height = 10,
@@ -24,7 +24,7 @@ BuildingSettings = {
         {
             Type = Buildings.MagnetGood,
             Settings = {
-                UpdatePeriod = 1,
+                UpdatePeriod = 1 / 4,
                 CountOneTime = 5,
                 Speed = 15,
                 Height = 10,
@@ -44,6 +44,112 @@ BuildingSettings = {
             },
         }
     },
+
+    ---@type PumpSettingsItem[] #
+    Pump = {
+        {
+            Type = Buildings.PumpCrude,
+            ---@alias PumpSettingsItem { UpdatePeriod :number, MaxTransferPercentOneTime :integer, LogicType: "Transfer"|"Overflow"|"Balancer", InputPoint? :Point, OutputPoint? :Point }
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 1,
+                LogicType = "Transfer",
+            },
+        },
+        {
+            Type = Buildings.PumpGood,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 5,
+                LogicType = "Transfer",
+            },
+        },
+        {
+            Type = Buildings.PumpSuper,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 10,
+                LogicType = "Transfer",
+            },
+        },
+        {
+            Type = Buildings.PumpSuperLong,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 10,
+                LogicType = "Transfer",
+                InputPoint  = Point.new(0, -2),
+                OutputPoint = Point.new(0,  2),
+            },
+        },
+    },
+
+    ---@type PumpSettingsItem[] #
+    OverflowPump = {
+        {
+            Type = Buildings.OverflowPumpCrude,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 1,
+                LogicType = "Overflow",
+            },
+        },
+        {
+            Type = Buildings.OverflowPumpGood,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 5,
+                LogicType = "Overflow",
+            },
+        },
+        {
+            Type = Buildings.OverflowPumpSuper,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 10,
+                LogicType = "Overflow",
+            },
+        },
+    },
+    
+
+    ---@type PumpSettingsItem[] #
+    BalancerPump = {
+        {
+            Type = Buildings.BalancerCrude,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 1,
+                LogicType = "Balancer",
+            },
+        },
+        {
+            Type = Buildings.BalancerGood,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 5,
+                LogicType = "Balancer",
+            },
+        },
+        {
+            Type = Buildings.BalancerSuper,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 10,
+                LogicType = "Balancer",
+            },
+        },
+        {
+            Type = Buildings.BalancerSuperLong,
+            Settings = {
+                UpdatePeriod = 1,
+                MaxTransferPercentOneTime = 10,
+                LogicType = "Balancer",
+                InputPoint  = Point.new(0, -2),
+                OutputPoint = Point.new(0,  2),
+            },
+        },
+    }
 }
 
 --- GetSettings by building type.

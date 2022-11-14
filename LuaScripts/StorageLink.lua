@@ -1150,7 +1150,9 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
         side3Storage = nil
     end
 
-    checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
+    if (not checkStorageCompatability(linkUID, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)) then
+        return
+    end
 end
 
 ---@param direction DirectionType
@@ -1171,6 +1173,7 @@ function checkStorageCompatability(linkUID, side1Storage, side2Storage, directio
     if side1Property.TypeStores ~= side2Property.TypeStores then return false end
 
     calculateQtyToTransfer(linkUID, side1Property, side2Property, side1Storage, side2Storage, direction, buildingLevel, onlyIfSourceFull)
+
 end
 
 
@@ -1190,10 +1193,10 @@ function calculateQtyToTransfer(linkUID, side1Prop, side2Prop, side1Storage, sid
     -- Prop = [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     -- If direction == 'one', we go from side1 to side2. Otherwise we can go either way.
 
-    local qty1 = side1Prop[2]
-    local qty2 = side2Prop[2]
-    local max1 = side1Prop[3]
-    local max2 = side2Prop[3]
+    local qty1 = side1Prop.AmountStored
+    local qty2 = side2Prop.AmountStored
+    local max1 = side1Prop.Capacity
+    local max2 = side2Prop.Capacity
     local qtyTo2 = 0
 
     if qty1 == nil or qty2 == nil then return false end

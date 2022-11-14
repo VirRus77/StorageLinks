@@ -21,7 +21,6 @@
 ---@param successfully boolean
 function OnFlightComplete(flyingObject, successfully)
     --Logging.LogDebug(' OnFlightComplete(successfully = %s)\n%s', successfully, serializeTable(flyingObject))
-    Logging.LogDebug('OnFlightComplete')
     local flyingId = flyingObject.Id
     if (not ModObject.IsValidObjectUID(flyingId)) then
         return
