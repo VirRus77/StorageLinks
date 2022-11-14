@@ -1342,7 +1342,7 @@ function transferBySpawning(linkUID, qty, sourceProp, targetProp, sourceUID, tar
         ModStorage.AddToStorage(targetUID, freshUID)
         if ModObject.IsValidObjectUID(freshUID) then
             ModObject.DestroyObject(freshUID)
-        end
+        end 
     end
 end
 

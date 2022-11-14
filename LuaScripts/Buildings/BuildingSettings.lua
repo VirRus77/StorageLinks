@@ -64,3 +64,24 @@ function BuildingSettings.GetSettingsByType(buildingType)
     Logging.LogWarning("BuildingSettings.GetSettingsByType %s not found settings", buildingType)
     return nil
 end
+
+
+
+--- GetSettings by building type.
+---@param buildingType { Type :string } # Builfing type.
+---@return table|nil
+function BuildingSettings.GetSettingsByReferenceType(buildingType)
+    for _, settings in pairs(BuildingSettings) do
+        if(type(settings) ~= "function") then
+            --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
+            for _, settingByType in ipairs(settings) do
+                if (settingByType.Type.Type == buildingType.Type)then
+                    return settingByType.Settings
+                end
+            end
+        end
+    end
+
+    Logging.LogWarning("BuildingSettings.GetSettingsByType %s not found settings", buildingType)
+    return nil
+end

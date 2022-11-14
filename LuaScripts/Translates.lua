@@ -22,16 +22,38 @@ Translates = {
     DefaultLanguage = Languages.English,
 }
 
+--- func desc
+---@param value TranslateItem
+function Translates.UpdateMagnetDescription(value)
+    --Logging.LogDebug("UpdateMagnetDescription %s", value)
+    ---@type MagnetSettingsItem2
+    local settings = BuildingSettings.GetSettingsByReferenceType(value.Building) or error("Not found settings.", 666) or { }
+    value.Description = string.format(
+        value.Description,
+        settings.CountOneTime,
+        settings.Area:Width(),
+        settings.Area:Height()
+    )
+end
+
+---@type TranslateItem[]
 Translates.Russian = {
     -- Magnet
-    { Building = Buildings.MagnetCrude, Name = "Магнит",
-        Description = "Притягивает объекты."
+    ---@alias TranslateItem { Building :{ Type :string }, Name :string, Description :string|nil, UpdateDescription :fun(value :{ Buiding :{ Type :string }, Description :string })|nil }
+    {
+        Building = Buildings.MagnetCrude, Name = "Магнит",
+        Description = "Притягивает %d объект(ов). Область притягивания %dx%d.",
+        UpdateDescription = Translates.UpdateMagnetDescription
     },
-    { Building = Buildings.MagnetGood, Name = "Хороший магнит",
-        Description = "Притягивает объекты."
+    {
+        Building = Buildings.MagnetGood, Name = "Хороший магнит",
+        Description = "Притягивает %d объект(ов). Область притягивания %dx%d.",
+        UpdateDescription = Translates.UpdateMagnetDescription
     },
-    { Building = Buildings.MagnetSuper, Name = "Супер магнит",
-        Description = "Притягивает объекты."
+    {
+        Building = Buildings.MagnetSuper, Name = "Супер магнит",
+        Description = "Притягивает %d объект(ов). Область притягивания %dx%d.",
+        UpdateDescription = Translates.UpdateMagnetDescription
     },
 
     -- Pump
@@ -148,17 +170,26 @@ Translates.English = {
 
 function Translates.SetNames()
     local languag = ModText.GetLanguage();
+    local translateList = Translates.English
     if (languag == Languages.English) then
-        Translates.SetNamesList(Translates.English)
-        return
+        translateList = Translates.English
+    elseif (languag == Languages.Russian) then
+        translateList = Translates.Russian
     end
 
-    if (languag == Languages.Russian) then
-        Translates.SetNamesList(Translates.Russian)
-        return
-    end
+    Translates.UpdateDescriptions(translateList)
+    Translates.SetNamesList(translateList)
+end
 
-    Translates.SetNamesList(Translates.English)
+---@param namesList TranslateItem[] #
+function Translates.UpdateDescriptions(namesList)
+    Logging.LogInformation("Translates.UpdateDescriptions")
+    for _, value in ipairs(namesList) do
+        -- Logging.LogDebug("K:%s V:%s", _, value)
+        if (value.UpdateDescription ~= nil) then
+            value.UpdateDescription(value)
+        end
+    end
 end
 
 --- func desc

@@ -12,6 +12,7 @@ Tools/SerializeTable.lua
 Models/Logging.lua
 Tools/Extensions.lua
 Tools/Tools.lua
+Tools/StorageTools.lua
 Tools/MakeDevelopMap.lua
 Settings.lua
 Constants.lua

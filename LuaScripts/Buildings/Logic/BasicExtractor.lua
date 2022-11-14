@@ -65,7 +65,8 @@ function BasicExtractor:OnTimerCallback()
     local holdables = GetHoldablesItemsOnLocation(storageInfo.TypeStores, outputPoint)
     -- Logging.LogDebug("GetHoldablesItemsOnLocation holdables: %d", #holdables)
     if (#holdables < self.StackLimit) then
-        ModStorage.RemoveFromStorage(storageId, 1, outputPoint.X, outputPoint.Y)
+        StorageTools.ExtractItemFromStorage(storageId, storageInfo.TypeStores, outputPoint)
+        --ModStorage.RemoveFromStorage(storageId, 1, outputPoint.X, outputPoint.Y)
         --local spawnObject = ModBase.SpawnItem(storageId.TypeStores, outputPoint.X, outputPoint.Y, false, true, false)
     end
 end

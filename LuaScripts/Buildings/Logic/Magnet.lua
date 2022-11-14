@@ -50,7 +50,7 @@ function Magnet:UpdateLogic(editType)
 end
 
 function Magnet:OnTimerCallback()
-    Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
+    -- Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
     local location = self.Location
     local outputDelta = DirectionDeltaPoint[(Magnet.OutputPoint + self.Rotation) % 4]
     local outputPoint = Point.new(location.X + outputDelta.X, location.Y + outputDelta.Y)
@@ -196,5 +196,5 @@ function Magnet.OnFlightComplete(flyingObject, successfully)
         return
     end
 
-   AddItemToStorage(storageId, flyingId)
+    StorageTools.AddItemToStorage(storageId, flyingId)
 end

@@ -70,8 +70,8 @@ function Logging.LogLevel(logLevel, formatString, ...)
         elseif (type(value) == "function") then
             cahngedParamsStringFormat[i] = string.format("[%s]", tostring(value))
         elseif (type(value) == "table") then
-            if(type(value.__tostring) == "function") then
-                cahngedParamsStringFormat[i] = tostring(value)
+            if(value.__tostring ~= nil) then
+                cahngedParamsStringFormat[i] = value:__tostring()
             else
                 cahngedParamsStringFormat[i] = serializeTable(value)
             end

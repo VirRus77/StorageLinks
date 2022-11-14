@@ -87,6 +87,7 @@ end
 
 --- Used to create any custom converters or buildings
 function Creation()
+    ModDebug.ClearLog()
     Logging.LogInformation("Creation (ver. %s)", ModBase.GetGameVersion())
     if (not IsSupportGameVersion()) then
         return
@@ -172,6 +173,7 @@ function AfterLoad_LoadedWorld()
     LINK_UIDS = { }
     STORAGE_UIDS = { }
     WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
+    --DiscoveredAllMap:Go()
     --MakeDevelopMap:Make()
 
     -- When world is loaded, find Magnets!

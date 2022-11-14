@@ -169,3 +169,30 @@ function MakeDevelopMap:Make()
 
     Logging.LogDebug("CanDrop: %s", canDrop)
 end
+
+DiscoveredAllMap = {
+
+}
+
+function DiscoveredAllMap:Go()
+    local location = Point.new(table.unpack(ModPlayer.GetLocation()))
+    if(location.X == -1 or location.Y == -1) then
+        Logging.LogDebug("DiscoveredAllMap player not found.") 
+        return
+    end
+    local discoveredArea = Area.new(0, 0, 10, 12)
+    local newLocation = Point.new(5, 6)
+    local x = 0
+    for x = 5, WORLD_LIMITS.Width, discoveredArea:Width() do
+        for y = 6, WORLD_LIMITS.Height, discoveredArea:Height() do
+            ModPlayer.SetStartLocation(x, y)
+            local newLocation = Point.new(table.unpack(ModPlayer.GetLocation()))
+            Logging.LogDebug("Teleprt %d:%d %s", x, y, newLocation)
+            if(newLocation.X == x and newLocation.Y == y) then
+                return
+            end
+        end
+    end
+
+    ModPlayer.SetStartLocation(location.X, location.Y)
+end
