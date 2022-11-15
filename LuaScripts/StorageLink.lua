@@ -180,7 +180,7 @@ function determineSwitchTargetState(switchUID, playerXY)
     -- If "farmerPlayer" or "Worker" is on tile, state should be OnUpdate
     -- otherwise OFF.
 
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(switchUID) )
+    local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(switchUID) )
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("determineSwitchTargetState(switchUID = %d, playerXY = ($d, $d)). Properties not readed.", switchUID, playerXY[1], playerXY[2]))
         return
@@ -342,7 +342,7 @@ function updateLinkPropsAsNeeded(uid)
         return
     end
 
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+    local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("updateLinkPropsAsNeeded(uid = %d). Properties not readed.", uid))
         return
@@ -373,7 +373,7 @@ function updateStoragePropsAsNeeded(storageUID)
     end
 
     -- Has the storage stayed in the same x and y?
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(storageUID) )
+    local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(storageUID) )
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("updateStoragePropsAsNeeded(storageUID = %d). Properties not readed.", storageUID))
         return
@@ -394,7 +394,7 @@ function updateStoragePropsAsNeeded(storageUID)
         -- resetAttachedLinksCache resets this, so no reason to check both.
         -- Has it changed type? hate to do this every call!
         ---@type UnpackStorageInfo
-        local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo (storageUID))
+        local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo (storageUID))
         if (not storageInfo.Successfully)then
             Logging.LogWarning(string.format("updateStoragePropsAsNeeded ModStorage.GetStorageInfo(storageUID = %d). Properties not readed.", storageUID))
             return
@@ -675,7 +675,7 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     -- Find ALL STORAGES for receivers
     for _, uid in ipairs(recUIDs) do
 
-        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+        local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
         if (not properties.Successfully) then
             Logging.LogWarning(
                 string.format(
@@ -714,10 +714,10 @@ function locateStoragesForReceiversAndTransmitters(recUIDs, transUIDs, buildingL
     for _, uid in ipairs(transUIDs)
     do
         --linkProps = ModObject.GetObjectProperties(uid)
-        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+        local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
         linkXY = ModObject.GetObjectTileCoord(uid)
 
-        local properties = UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
+        local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) )
         if (not properties.Successfully) then
             Logging.LogWarning(
                 string.format(
@@ -924,7 +924,7 @@ function addWaterFromTransmittersToConverter(rec, trxGroups, buildingLevel, leve
     -- Can this building take water?
     --local buildingProps = ModObject.GetObjectProperties(rec.converterUID)
 
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(rec.converterUID) )
+    local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(rec.converterUID) )
     if (not properties.Successfully) then
         Logging.LogWarning(
             string.format(
@@ -1114,7 +1114,7 @@ function locateStoragesForLink(linkUID, direction, buildingLevel, onlyIfSourceFu
 
     --local linkProp = ModObject.GetObjectProperties(linkUID)	--  [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
     --local rotation = math.floor(linkProp[4] + 0.5) -- 0, 90, 180, 270
-    local properties = UnpackObjectProperties (ModObject.GetObjectProperties(linkUID))
+    local properties = Extensions.UnpackObjectProperties (ModObject.GetObjectProperties(linkUID))
     if (not properties.Successfully) then
         Logging.LogWarning("locateStoragesForLink(linkUID = %d, direction = %s, buildingLevel = %s, onlyIfSourceFull = %s). Properties not readed.", linkUID, direction, buildingLevel, onlyIfSourceFull)
         return
@@ -1161,9 +1161,9 @@ function checkStorageCompatability(linkUID, side1Storage, side2Storage, directio
     if (Settings.DebugMode.Value) then Logging.LogDebug(' checkStorageCompatability: ', linkUID, ', ', direction ) end
     -- direction = 'one' or 'both'.
     ---@type UnpackStorageInfo
-    local side1Property = UnpackStorageInfo(ModStorage.GetStorageInfo(side1Storage))
+    local side1Property = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(side1Storage))
     ---@type UnpackStorageInfo
-    local side2Property = UnpackStorageInfo(ModStorage.GetStorageInfo(side2Storage))
+    local side2Property = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(side2Storage))
 
     if (Settings.DebugMode.Value) then
         Logging.LogDebug(' checkStorageCompatability: side1: ', side1Property.StorageType, '(', side1Property.TypeStores, '), side2: ', side2Property.StorageType, '(', side2Property.TypeStores, ') ' )
@@ -1308,7 +1308,7 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
     -- Put in target
     if ModStorage.SetStorageQuantityStored(targetUID, newTotalInTgt) then
         if (Settings.DebugMode.Value) then
-            newTargetProp = UnpackStorageInfo(ModStorage.GetStorageInfo(targetUID))
+            newTargetProp = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(targetUID))
             Logging.LogDebug(' transferByAdjusting: dst: %d increased from: %d to: %d', targetUID, targetProp[2], targetProp[2] + qty)
             Logging.LogDebug(' transferByAdjusting: check dst:', targetUID, ', now at:', newTargetProp.AmountStored)
         end
@@ -1316,7 +1316,7 @@ function transferByAdjusting(linkUID, qty, sourceProp, targetProp, sourceUID, ta
         -- Remove from source
         ModStorage.SetStorageQuantityStored(sourceUID, newTotalInSrc)
         if (Settings.DebugMode.Value) then
-            newSourceProp = UnpackStorageInfo(ModStorage.GetStorageInfo(sourceUID))
+            newSourceProp = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(sourceUID))
             Logging.LogDebug(' transferByAdjusting: src:', sourceUID, ', lowered from:', sourceProp[2],' to:', sourceProp[2] - qty)
             Logging.LogDebug(' transferByAdjusting: check src:', sourceUID, ', now at:', newSourceProp.AmountStored)
         end

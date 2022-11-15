@@ -56,5 +56,4 @@ SubCategory = {
     Effects = "Effects",
     Prizes = "Prizes",
     Total = "Total",
-    
 }

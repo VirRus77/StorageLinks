@@ -46,7 +46,6 @@ AngleRotationToNSEW = {
 ---@function MakeTimer
 ---@function OnStateChangedCallback
 ---@function UpdateLogic
----@type Object|BuildingBase
 BuildingBase = {
     ---@type number
     _logicPeriod = nil,
@@ -55,6 +54,7 @@ BuildingBase = {
     ---@type { Type :string }[] #
     SupportTypes = { },
 }
+---@type BuildingBase
 BuildingBase = Object:extend(BuildingBase)
 
 -- Constructor.
@@ -77,7 +77,7 @@ function BuildingBase:initialize(id, type, callbackRemove, location, rotation, l
     self._logicPeriod = logicPeriod
     self.Id = id
     self.Type = type
-    local objectProperties = UnpackObjectProperties(ModObject.GetObjectProperties(id))
+    local objectProperties = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(id))
     self.Location = location or Point.new(objectProperties.TileX, objectProperties.TileY)
     self.Rotation = rotation or ModBuilding.GetRotation(id)
     self.Name = objectProperties.Name

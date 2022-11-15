@@ -1,9 +1,17 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
+Extensions = { }
+
 -- Unpack @{ObjectProperties}
 ---@alias UnpackObjectProperties { Type :string, TileX :integer, TileY:integer, Rotation :number, Name :string, Successfully :boolean, [1] :string, [2] :number, [3] :number, [4] :number, [5] :string } #
 ---@param properties ObjectProperties|nil #
 ---@param normalizeRotation? boolean # Dafault true
 ---@return UnpackObjectProperties #
-function UnpackObjectProperties(properties, normalizeRotation)
+function Extensions.UnpackObjectProperties(properties, normalizeRotation)
     local successfully = properties ~= nil and properties[1] ~= nil
     if (not successfully) then
         return { Successfully = false }
@@ -26,7 +34,7 @@ function UnpackObjectProperties(properties, normalizeRotation)
         [3]      = properties[3],
         [4]      = properties[4],
         [5]      = properties[5],
-        
+
     }
 
     if (normalizeRotation == nil or normalizeRotation) then
@@ -42,7 +50,7 @@ end
 ---@alias UnpackStorageInfoOld { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean, [1] :string, [2] :integer, [3] :integer, [4] :string } #
 ---@param properties StorageInfo|nil #
 ---@return UnpackStorageInfoOld #
-function UnpackStorageInfo (properties)
+function Extensions.UnpackStorageInfo (properties)
     ---{[1] :string, [2] :integer, [3] :integer, [4] :string} # Properties [1]=Object It Stores, [2]=Amount Stored, [3]=Capacity, [4]=Type Of Storage
     local successfully = properties ~= nil and properties[1] ~= nil
     if (not successfully) then
@@ -74,7 +82,7 @@ end
 ---@alias UnpackConverterProperties { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string,  [1] : "Idle"|"Converting"|"Creating"|"Cancelling", [2] :integer, [3] :integer, [4] :number, [5] :string, [6] :boolean, [7] :integer, [8] :integer, [9] :integer, [10] :integer, [11] :string|integer, [12] :integer, [13] :integer }
 ---@param properties ConverterProperties|nil
 ---@return UnpackConverterProperties #
-function UnpackConverterProperties (properties)
+function Extensions.UnpackConverterProperties (properties)
     local successfully = properties ~= nil and properties[1] ~= nil
     if (not successfully) then
         return { Successfully = false }

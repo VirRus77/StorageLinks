@@ -6,7 +6,7 @@ Author: Sotin NU aka VirRus77
 
 ---@class Magnet :BuildingBase #
 ---@field WorkArea Area #
----@field OutputPoint integer # Direction base rotation
+---@field OutputPoint Point # Direction base rotation
 ---@field Settings MagnetSettingsItem2 #
 Magnet = {
     SupportTypes = {
@@ -14,9 +14,9 @@ Magnet = {
         Buildings.MagnetGood,
         Buildings.MagnetSuper,
     },
-    OutputPoint = 1,
-    InputPoint  = nil,
+    OutputPoint = Point.new(1, 0),
 }
+---@type Magnet
 Magnet = BuildingBase:extend(Magnet)
 
 ---@param id integer #
@@ -51,8 +51,8 @@ end
 function Magnet:OnTimerCallback()
     -- Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
     local location = self.Location
-    local outputDelta = DirectionDeltaPoint[(Magnet.OutputPoint + self.Rotation) % 4]
-    local outputPoint = Point.new(location.X + outputDelta.X, location.Y + outputDelta.Y)
+    local outputRotate = Point.Rotate(self.OutputPoint, self.Rotation)
+    local outputPoint =  Point.new(location.X + outputRotate.X, location.Y + outputRotate.Y)
 
     local storageId = GetStorageIdOnTile(outputPoint.X, outputPoint.Y)
     if (storageId == nil) then
@@ -60,12 +60,12 @@ function Magnet:OnTimerCallback()
     end
     -- query storage for min/max
     ---@type UnpackStorageInfo
-    local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
+    local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
     if (not storageInfo.Successfully) then
         return
     end
 
-    local buildingProperties = UnpackObjectProperties(ModObject.GetObjectProperties(storageId))
+    local buildingProperties = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(storageId))
     if (not buildingProperties.Successfully) then
         return
     end

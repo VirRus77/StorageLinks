@@ -13,6 +13,7 @@ BasicExtractor = {
     MinStackLimit = 1,
     MaxStackLimit = 5
 }
+---@type BuildingBase #
 BasicExtractor = BuildingBase:extend(BasicExtractor)
 
 --- func desc
@@ -55,7 +56,7 @@ function BasicExtractor:OnTimerCallback()
     if (storageId == nil)then
         return
     end
-    local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
+    local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
     local amount = storageInfo.AmountStored
     if(amount <= 0) then
         return

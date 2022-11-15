@@ -16,6 +16,12 @@ Tools/StorageTools.lua
 Tools/MakeDevelopMap.lua
 Settings.lua
 Constants.lua
+Logic/AccessPoint.lua
+Logic/Consumer.lua
+Logic/Provider.lua
+Logic/StorageConsumer.lua
+Logic/StorageProvider.lua
+Logic/VirtualNetwork.lua
 GlobalParameters.lua
 Buildings/Buildings.lua
 Buildings/Buildings.LegacyBuildings.lua
@@ -27,6 +33,7 @@ Buildings/Logic/BuildingBase.lua
 Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua
 Buildings/Logic/PumpBase.lua
+Buildings/Logic/Transmitter.lua
 Buildings/Logic/BuildingController.lua
 Translates.lua
 Flight.Logic.lua

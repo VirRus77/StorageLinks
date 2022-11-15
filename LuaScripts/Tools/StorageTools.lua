@@ -8,15 +8,18 @@ StorageTools = {}
 ---@param storageDestInfo UnpackStorageInfo
 ---@param count any # Count transfer.
 function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
-    local isDurability = DurabilityObjects.IsDurability(storesType)
+    local isDurability = Tools.IsDurability(HASH_TABLES.Durability, storesType)
     -- Logging.LogDebug("StorageTools.TransferItems %d ==%d==> %d", storageSourceId, count, storageDestId)
     if (not isDurability) then
         local outputCount = storageSourceInfo.AmountStored - count
         ModStorage.SetStorageQuantityStored(storageSourceId, outputCount)
+        storageSourceInfo.AmountStored = outputCount
         local inputCount = storageDestInfo.AmountStored + count
         ModStorage.SetStorageQuantityStored(storageDestId, inputCount)
+        storageSourceInfo.AmountStored = inputCount
         return
     end
+
     local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
     for _, itemId in ipairs(itemIds) do
         ModStorage.AddToStorage(storageDestId, itemId)
@@ -61,7 +64,7 @@ function StorageTools.AddItemToStorage(storageId, itemId)
         -- Use 'AddToStorage' only if it has durability.
         local maxUsage = ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(itemId), 'MaxUsage')
         if (maxUsage == nil or maxUsage == 0) then -- No durability, just up storage qty
-            local storageInfo = UnpackStorageInfo ( ModStorage.GetStorageInfo(storageId) ) -- [2] = current amount, [3] = max
+            local storageInfo = Extensions.UnpackStorageInfo ( ModStorage.GetStorageInfo(storageId) ) -- [2] = current amount, [3] = max
             if (storageInfo.Successfully) then
                 if storageInfo.AmountStored < 0 then
                     storageInfo.AmountStored = 0

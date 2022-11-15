@@ -1,3 +1,173 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
+---@type Tools
+Tools = { }
+
+--- func desc
+---@param hashTable table<string, integer> # HashTable Durability
+---@param itemType string # Type of item
+---@return boolean
+function Tools.IsDurability(hashTable, itemType)
+    return Tools.Durability(hashTable, itemType) > 0
+end
+
+--- func desc
+---@param hashTable table<string, integer> # HashTable Durability
+---@param itemType string # Type of item
+---@return integer
+function Tools.Durability(hashTable, itemType)
+    local amount = Tools.Dictionary.GetOrAddValueLazy(
+        hashTable,
+        itemType,
+        function ()
+            return ModVariable.GetVariableForObjectAsInt(itemType, 'MaxUsage') or -1
+        end
+    )
+    return amount
+end
+
+--- func desc
+---@param hashTable table<string, integer> # HashTable Durability
+---@param itemType string # Type of item
+---@return integer|nil
+function Tools.FuelAmount(hashTable, itemType)
+    local amount = hashTable[itemType]
+    if (amount == nil) then
+        ---@type integer
+        amount = ModVariable.GetVariableForObjectAsInt(itemType, "Fuel") or -1
+        hashTable[itemType] = amount
+    end
+end
+
+--- func desc
+---@param hashTable table<string, integer> # HashTable Durability
+---@param itemType string # Type of item
+---@return integer|nil
+function Tools.WaterCapacity(hashTable, itemType)
+    local amount = hashTable[itemType]
+    if (amount == nil) then
+        ---@type integer
+        amount = ModVariable.GetVariableForObjectAsInt(itemType, "WaterCapacity") or -1
+        hashTable[itemType] = amount
+    end
+end
+
+--- Get building by location. Excludes floor, walls, and entrence, exits.
+---@param location Point
+---@return integer|nil
+function Tools.GetBuilding(location)
+    local id = ModBuilding.GetBuildingCoveringTile(location.X, location.Y)
+    if (id == -1) then
+        return nil
+    end
+    return id
+end
+
+--- Is storage.
+---@param id integer
+---@return boolean
+function Tools.IsStorage(id)
+    return ModObject.GetObjectSubcategory(id) == SubCategory.BuildingsStorage
+end
+
+--- Get count elements.
+---@param tableValue table|any[]
+function Tools.GetTableLength(tableValue)
+    local count = 0
+    if (tableValue == nil) then
+        return count
+    end
+    for _ in pairs(tableValue) do
+        count = count + 1
+    end
+    return count
+end
+
+--- By sort small to big
+---@param a any
+---@param b any
+---@param invert boolean|nil
+function Tools.Compare(a, b, invert)
+    local result = (a < b)
+    if(invert) then
+        return not result
+    end
+    return result
+end
+
+--- Sort table if key integer
+---@param tableValue table
+---@param valueComparer fun(a :any, b :any) :boolean
+---@return { Key :any, Value:any }[]
+function Tools.TableSort(tableValue, valueComparer)
+    valueComparer = valueComparer or function(a, b) return a < b end
+    ---@type { Key :any, Value:any }[]
+    local tempTable = { }
+    for key, value in pairs(tableValue) do
+        tempTable[#tempTable + 1] = { Key = key, Value = value }
+    end
+    table.sort(tempTable, function(a, b) return valueComparer(a.Value, b.Value) end)
+    local newTable = { }
+    for _, value in ipairs(tempTable) do
+        newTable[#newTable + 1] = value
+    end
+    return newTable
+end
+
+Tools.Dictionary = {}
+
+--- func desc
+---@param hashTable table
+---@param key any
+---@return any|nil
+function Tools.Dictionary.GetOrAddValue(hashTable, key, value)
+    local hasValue = hashTable[key]
+    if (hasValue == nil)then
+        hasValue = value
+        hashTable[key] = hasValue
+    end
+    return hasValue
+end
+
+--- func desc
+---@param hashTable table
+---@param key any
+---@param getValue fun() :any
+---@return any|nil
+function Tools.Dictionary.GetOrAddValueLazy(hashTable, key, getValue)
+    local hasValue = hashTable[key]
+    if (hasValue == nil) then
+        hasValue = getValue()
+        hashTable[key] = hasValue
+    end
+    return hasValue
+end
+
+
+--- func desc
+---@param hashTables table
+---@param hashtableName string
+---@param key any
+---@param getValue fun() :any|nil
+---@return any|nil
+function Tools.Dictionary.GetOrAddValueByHashTables(hashTables, hashtableName, key, getValue)
+    local hashTable = Tools.Dictionary.GetOrAddValue(hashTables, hashtableName, { })
+    local value = hashTable[key]
+    if (value == nil) then
+        if (getValue == nil) then
+            Logging.LogError("Tools.Dictionary.GetOrAddValueByHashTable getValue nil")
+            return nil
+        end
+        value = getValue()
+        hashTable[key] = value
+    end
+
+    return value
+end
 
 
 --- Get all UIDs by array types on map
@@ -64,11 +234,12 @@ end
 ---@param y integer
 ---@return integer|nil # Storage Id
 function GetStorageIdOnTile(x, y)
-    ---@type integer
-    local buildingId = ModBuilding.GetBuildingCoveringTile(x, y) -- excludes floor, walls, and entrence, exits.
-    local validBuilding = (buildingId ~= -1) and
-        ModObject.IsValidObjectUID(buildingId) and
-        (ModObject.GetObjectSubcategory(buildingId) == SubCategory.BuildingsStorage)
+    ---@type integer|nil
+    local buildingId = Tools.GetBuilding(Point.new(x, y))
+    local validBuilding =
+        (buildingId ~= nil) and
+        (buildingId ~= -1) and
+        Tools.IsStorage(buildingId)
 
     if (validBuilding) then
         return buildingId
@@ -95,19 +266,6 @@ function GetStorageIdOnTile(x, y)
     return nil
 end
 
---- Get count elements.
----@param tableValue table|any[]
-function GetTableLength(tableValue)
-    local count = 0
-    if (tableValue == nil) then
-        return count
-    end
-    for _ in pairs(tableValue) do
-        count = count + 1
-    end
-    return count
-end
-
 --- func desc
 ---@alias ReplaceItem { OldType :string, NewType :string } #
 ---@param replaceList ReplaceItem[] #
@@ -124,14 +282,14 @@ function ReplaceOldTypeToNewType(oldName, newName)
     Logging.LogDebug("Replace: OldType:", oldName, " NewType: ", newName)
     local oldB = ModTiles.GetObjectUIDsOfType(oldName, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
     --local oldB = ModBuilding.GetBuildingUIDsOfType(oldName, 0, 0, WORLD_LIMITS[1] - 1, WORLD_LIMITS[2] - 1)
-    Logging.LogDebug("Found OldType:", GetTableLength(oldB))
+    Logging.LogDebug("Found OldType:", Tools.GetTableLength(oldB))
     if oldB == nil or oldB == -1 or oldB[1] == nil or oldB[1] == -1 then
         return false
     end
     Logging.LogDebug("Replace OldType...")
     local props, newUID, rot
     for _, uid in ipairs(oldB) do
-        props = UnpackObjectProperties( ModObject.GetObjectProperties(uid) ) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
+        props = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) ) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
         if (props.Successfully) then
             rot = ModBuilding.GetRotation(uid)
             if (ModObject.DestroyObject(uid)) then

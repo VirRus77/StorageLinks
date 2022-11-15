@@ -23,12 +23,12 @@ function BuildingController.Add(newBuilding)
     end
     BuildingController.Buildings[buildingId] = newBuilding
 
-    Logging.LogError("BuildingController.Add MakeTimer")
+    Logging.LogDebug("BuildingController.Add MakeTimer")
     ---@type Timer|nil
     local timer = newBuilding:MakeTimer()
     if (timer) then
        local timerId = TimersStack.AddTimer(timer)
-       Logging.LogError("BuildingController.Add MakeTimer timerId=%s", timerId)
+       Logging.LogDebug("BuildingController.Add MakeTimer timerId=%s", timerId)
        BuildingController.Timers[buildingId] = timerId
     end
 end
@@ -64,7 +64,7 @@ function BuildingController.Initialize()
         end
     )
 
-    -- Magnet
+    -- Magnet All
     BuildingController.InitializeTypes(
         Magnet.SupportTypes,
         function (buildingId, buildingType, isBlueprint, isDragging)
@@ -74,12 +74,22 @@ function BuildingController.Initialize()
         end
     )
 
-    -- Pump
+    -- Pump All
     BuildingController.InitializeTypes(
         PumpBase.SupportTypes,
         function (buildingId, buildingType, isBlueprint, isDragging)
             ---@type BuildingBase
             local building = PumpBase.new(buildingId, buildingType, BuildingController.Remove)
+            BuildingController.Add(building)
+        end
+    )
+
+    -- Transmitters and Receivers
+    BuildingController.InitializeTypes(
+        Transmitter.SupportTypes,
+        function (buildingId, buildingType, isBlueprint, isDragging)
+            ---@type BuildingBase
+            local building = Transmitter.new(buildingId, buildingType, BuildingController.Remove)
             BuildingController.Add(building)
         end
     )

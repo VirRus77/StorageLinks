@@ -189,9 +189,10 @@ function AfterLoad()
 
     TimersStack.Clear()
     TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
-    TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
+    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
+    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
+    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
+    TimersStack.AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 
     if (Settings.ReplaceOldBuildings.Value) then
         for _, value in ipairs(Buildings.MappingOldTypes) do

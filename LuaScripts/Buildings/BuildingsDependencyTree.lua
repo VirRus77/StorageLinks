@@ -98,7 +98,7 @@ function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
         stateValue = 1;
     end
 
-    if (Settings.DebugMode.Value and (GetTableLength(invertBuildings) > 0)) then
+    if (Settings.DebugMode.Value and (Tools.GetTableLength(invertBuildings) > 0)) then
         Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings\n%s",
             serializeTable({
                 stateUnlock = stateUnlock,

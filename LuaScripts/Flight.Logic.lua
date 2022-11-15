@@ -35,7 +35,7 @@ function OnFlightComplete(flyingObject, successfully)
         -- Use 'AddToStorage' only if it has durability.
         local maxUsage = ModVariable.GetVariableForObjectAsInt(ModObject.GetObjectType(flyingId), 'MaxUsage')
         if (maxUsage == nil or maxUsage == 0) then -- No durability, just up storage qty
-            local storageInfo = UnpackStorageInfo ( ModStorage.GetStorageInfo(storageId) ) -- [2] = current amount, [3] = max
+            local storageInfo = Extensions.UnpackStorageInfo ( ModStorage.GetStorageInfo(storageId) ) -- [2] = current amount, [3] = max
             if (storageInfo.Successfully) then
                 if storageInfo.AmountStored < 0 then
                     storageInfo.AmountStored = 0

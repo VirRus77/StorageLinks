@@ -13,7 +13,9 @@ FlightObjectsList = {
 }
 FlightObjectsList = Object:extend(FlightObjectsList)
 
-function FlightObjectsList.new() 
+--- func desc
+---@return FlightObjectsList
+function FlightObjectsList.new()
     local newInstance = FlightObjectsList:make()
     return newInstance
 end

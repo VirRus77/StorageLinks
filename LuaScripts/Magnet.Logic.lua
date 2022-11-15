@@ -98,7 +98,7 @@ function locateStorageForMagnet(magnetUID)
         Logging.LogDebug(string.format("locateStorageForMagnet(magnetUID = %d )", magnetUID) )
     end
 
-    local properties = UnpackObjectProperties( ModObject.GetObjectProperties(magnetUID) )
+    local properties = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(magnetUID) )
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("locateStorageForMagnet(magUID = %d). Properties not readed.", magnetUID))
         return
@@ -180,7 +180,7 @@ function addStorageToMagnet(magnetId, storageId)
         Logging.LogDebug('addStorageToMagnet( magUID = %d, storageUID = %d )\n', magnetId, storageId)
     end
 
-    local storageInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
+    local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
 
     if (not storageInfo.Successfully) then
         Logging.LogWarning('addStorageToMagnet( magUID = %d, storageUID = %d ) %s', magnetId, storageId, "Not found storage info.")
@@ -190,7 +190,7 @@ function addStorageToMagnet(magnetId, storageId)
     -- if sProps[2] == nil then return false end -- Was not actually a storage.
 
     -- Cache the storageUID
-    local properties = UnpackObjectProperties (ModObject.GetObjectProperties(storageId))
+    local properties = Extensions.UnpackObjectProperties (ModObject.GetObjectProperties(storageId))
     if (not properties.Successfully) then
         Logging.LogWarning(string.format("addStorageToMagnet(magUID = %d, storageUID = %d). Properties not readed.", magnetId, storageId))
         return
@@ -375,7 +375,7 @@ function QuantityToGrabForMagnet(magnetUID, magnetSettings)
     local alreadyFlyingQty = #alreadyFlyingForStorage
 
     -- query storage for min/max
-    local storageProperties = UnpackStorageInfo(ModStorage.GetStorageInfo(linkUid.storageUID))
+    local storageProperties = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(linkUid.storageUID))
 
     if (not storageProperties.Successfully) then
         return 0

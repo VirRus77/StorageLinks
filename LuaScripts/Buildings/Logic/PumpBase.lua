@@ -73,8 +73,8 @@ function PumpBase:OnTimerCallback()
         return
     end
 
-    local storageInputInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageInputId))
-    local storageOutputInfo = UnpackStorageInfo(ModStorage.GetStorageInfo(storageOutputId))
+    local storageInputInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageInputId))
+    local storageOutputInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageOutputId))
     -- Logging.LogDebug("%d %s -> %d %s", storageInputId, inputPoint, storageOutputId, outputPoint)
 
     if(not storageInputInfo.Successfully) then

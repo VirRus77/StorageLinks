@@ -25,18 +25,20 @@ LINK_UIDS = {}
 ---@type STORAGE_UIDS_Item[]
 STORAGE_UIDS = {}
 
----@type table<string, boolean>
-DurabilityObjects = {
+
+HASH_TABLES = {
+    --- HashTable Durability
+    ---@type table<string, integer>
+    Durability = { },
+    --- HashTable Fuel
+    ---@type table<string, integer>
+    Fuel = { },
+    --- HashTable Water
+    ---@type table<string, integer>
+    Water = { },
 }
 
-function DurabilityObjects.IsDurability(itemType)
-    local isDurability = DurabilityObjects[itemType]
-    if( isDurability == nil ) then
-        isDurability = (ModVariable.GetVariableForObjectAsInt(itemType, 'MaxUsage') or 0) > 0
-        DurabilityObjects[itemType] = isDurability
-    end
-    return isDurability
-end
+VIRTUAL_NETWORK = VirtualNetwor.new()
 
 --- func desc
 ---@param buildingLevel BuildingLevels #
@@ -55,11 +57,11 @@ function MakeTimers (buildingLevel)
 
     return {
         -- Crude
-        Timer.new(checkPeriod, function () locateSwitches (buildingLevel) end),
+        -- Timer.new(checkPeriod, function () locateSwitches (buildingLevel) end),
         -- Timer.new(checkPeriod, function () locatePumps (buildingLevel) end,                    Timer.MillisecondsToSeconds(150)),
         -- Timer.new(checkPeriod, function () locateOverflowPumps (buildingLevel) end,            Timer.MillisecondsToSeconds(300)),
         -- Timer.new(checkPeriod, function () locateBalancers (buildingLevel) end,                Timer.MillisecondsToSeconds(450)),
-        Timer.new(checkPeriod, function () locateReceiversAndTransmitters (buildingLevel) end, Timer.MillisecondsToSeconds(600)),
+        -- Timer.new(checkPeriod, function () locateReceiversAndTransmitters (buildingLevel) end, Timer.MillisecondsToSeconds(600)),
         -- Timer.new(checkPeriod, function () fireAllMagnets (buildingLevel) end,                 Timer.MillisecondsToSeconds(750)),
     }
 end
