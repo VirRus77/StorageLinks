@@ -1,5 +1,6 @@
 # The order in which the files are combined.
 Tools/Object.lua
+Tools/ReferenceValue.lua
 GameValues/SubCategory.lua
 Models/Point.lua
 Models/Area.lua
@@ -21,6 +22,7 @@ Logic/Consumer.lua
 Logic/Provider.lua
 Logic/StorageConsumer.lua
 Logic/StorageProvider.lua
+Logic/BuildingConsumer.lua
 Logic/VirtualNetwork.lua
 GlobalParameters.lua
 Buildings/Buildings.lua

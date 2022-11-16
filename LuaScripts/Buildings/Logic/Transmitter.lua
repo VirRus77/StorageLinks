@@ -5,6 +5,7 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class Transmitter :BuildingBase #
+---@field _acccessType "Transmitter"|"Receiver"|"Both"
 ---@field WorkArea Area #
 ---@field InputPoint Point|nil # Direction base rotation
 ---@field OutputPoint Point|nil # Direction base rotation
@@ -33,16 +34,20 @@ function Transmitter.new(id, type, callbackRemove)
     Logging.LogInformation("Transmitter.new %d, %s", id, callbackRemove)
     ---@type TransmitterSettingsItem
     local settings = BuildingSettings.GetSettingsByType(type) or error("Transmitter Settings not found", 666) or { }
+    ---@type Transmitter
     local instance = Transmitter:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
+
     instance.Settings = settings
     instance.InputPoint = settings.InputPoint
     instance.OutputPoint = settings.OutputPoint
+    instance:SetAccessType()
     instance:UpdateLogic()
+
     return instance
 end
 
 --- func desc
----@param editType BuildingEditType # nesw = 0123
+---@param editType BuildingEditType|nil # nesw = 0123
 ---@protected
 function Transmitter:UpdateLogic(editType)
     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
@@ -51,18 +56,18 @@ function Transmitter:UpdateLogic(editType)
     elseif (editType == BuildingEditType.Rename) then
         self:UpdateName()
         return
+    elseif (editType == BuildingEditType.Destroy) then
+        self:RemoveLink()
+        return
     end
 end
 
 function Transmitter:OnTimerCallback()
     -- Logging.LogInformation("Transmitter:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
     local location = self.Location
-    ---@type "Transmitter"|"Receiver" #
-    local buildingType = "Transmitter"
-    ---@type Point
     local accessPoint = self.InputPoint
-    if (accessPoint == nil) then
-        buildingType = "Receiver"
+    ---@type Point
+    if(self._acccessType == "Receiver")then
         accessPoint = self.OutputPoint
     end
 
@@ -78,18 +83,22 @@ function Transmitter:OnTimerCallback()
     if (building == self.LinkedBuildingId) then
         return
     end
-    self:RemoveLink(buildingType)
+
+    if(building ~= nil)then
+        Logging.LogDebug("Transmitter:OnTimerCallback BuildingRequirements:\n%s", ModBuilding.GetBuildingRequirements(building))
+    end
+
+    self:RemoveLink()
     self.LinkedBuildingId = building
-    self:AddLink(buildingType)
+    self:AddLink()
 end
 
----@param buildingType "Transmitter"|"Receiver" #
-function Transmitter:RemoveLink(buildingType)
+function Transmitter:RemoveLink()
     if (self.AccessPointId == nil) then
         return
     end
 
-    if(buildingType == "Transmitter")then
+    if(self._acccessType == "Transmitter")then
         VIRTUAL_NETWORK:RemoveProvider(self.AccessPointId)
     else
         VIRTUAL_NETWORK:RemoveConsumer(self.AccessPointId)
@@ -97,22 +106,30 @@ function Transmitter:RemoveLink(buildingType)
     self.AccessPointId = nil
 end
 
----@param buildingType "Transmitter"|"Receiver" #
-function Transmitter:AddLink(buildingType)
+function Transmitter:AddLink()
     if (self.LinkedBuildingId == nil) then
         return
     end
-    if (not Tools.IsStorage(self.LinkedBuildingId)) then
+    if ((self._acccessType == "Transmitter") and (not Tools.IsStorage(self.LinkedBuildingId))) then
         return
     end
 
-    if (buildingType == "Transmitter") then
+    if (self._acccessType == "Transmitter") then
         self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.LinkedBuildingId, nil, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
     else
-        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(StorageConsumer.new(self.LinkedBuildingId, nil, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
+        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.LinkedBuildingId, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
     end
 end
 
 function Transmitter:UpdateName()
     Logging.LogInformation("Transmitter:UpdateName %s", self.Name)
+end
+
+function Transmitter:SetAccessType()
+    self._acccessType = "Both"
+    if (self.InputPoint == nil) then
+        self._acccessType = "Receiver"
+    elseif (self.OutputPoint == nil) then
+        self._acccessType = "Transmitter"
+    end
 end

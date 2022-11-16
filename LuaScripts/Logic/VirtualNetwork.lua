@@ -51,8 +51,8 @@ end
 --- func desc
 ---@param providerId string #
 function VirtualNetwor:RemoveProvider(providerId)
-    if (self.Providers[providerId] ~= nil) then
-       Logging.LogError("VirtualNetwor:RemoveProvider Not found provider %s", providerId)
+    if (self.Providers[providerId] == nil) then
+       Logging.LogError("VirtualNetwor:RemoveProvider Not found provider %s\n", providerId, self.Providers)
        return
     end
     self.Providers[providerId] = nil
@@ -61,183 +61,269 @@ end
 --- func desc
 ---@param consumerId string #
 function VirtualNetwor:RemoveConsumer(consumerId)
-    if (self.Consumers[consumerId] ~= nil) then
-       Logging.LogError("VirtualNetwor:RemoveProvider Not found provider %s", consumerId)
+    if (self.Consumers[consumerId] == nil) then
+       Logging.LogError("VirtualNetwor:RemoveProvider Not found consumer %s\n", consumerId, self.Consumers)
        return
     end
     self.Consumers[consumerId] = nil
 end
 
 function VirtualNetwor:TimeCallback()
-    ---@alias AggregateConsumerProvider table< string, AggregateConsumerProviderItem >
-    ---@alias AggregateConsumerProviderItem { Consumers : table<integer, Consumer[]>, Providers :Provider<integer, Provider[]> }
-    ---@type AggregateConsumerProvider
-    local aggregateHash = { }
-    self:ClearHashTables()
+    self:ChainProcess()
 
-    local consumersCount = 0
-    -- local consumersByType = {}
-    for _, consumer in pairs(self.Consumers) do
-        consumer:BeginRead(self.HashTables)
-        if (consumer:Require() > 0) then
-            consumersCount = consumersCount + 1
-            -- local consumerGroup = Tools.Dictionary.GetOrAddValue(consumersByType, consumer.Type, { })
-            -- consumerGroup[#consumerGroup + 1] = consumer
-            local aggregateConsumerType = Tools.Dictionary.GetOrAddValue(aggregateHash, consumer.Type, { })
-            local aggregateConsumers = Tools.Dictionary.GetOrAddValue(aggregateConsumerType, "Consumers", { })
-            local aggregateConsumersId = Tools.Dictionary.GetOrAddValue(aggregateConsumers, consumer.Id, { })
-            aggregateConsumersId[#aggregateConsumersId + 1] = consumer
-        end
-    end
-    Logging.LogDebug("VirtualNetwor:TimeCallback consumersCount: %d", consumersCount)
-    if (consumersCount == 0) then
-        return
-    end
+    -- local consumersCount = 0
+    -- ---@type table<integer, RequireItem[]>
+    -- local consumersById = { }
+    -- for _, consumer in pairs(self.Consumers) do
+    --     consumer:BeginRead(self.HashTables)
+    --     local requires = consumer:Requires()
+    --     local aggregateConsumersById = Tools.Dictionary.GetOrAddValue(consumersById, consumer.Id, { })
+    --     Tools.TableConcat(aggregateConsumersById, requires)
+    --     consumersCount = consumersCount + #requires
+    -- end
+    -- Logging.LogDebug("VirtualNetwor:TimeCallback consumersCount: %d", consumersCount)
+    -- if(consumersCount == 0)then
+    --     return
+    -- end
 
-    local providersCount = 0
-    for key, _ in pairs(aggregateHash) do
-        for _, provider in pairs(self.Providers) do
-            provider:BeginRead(self.HashTables)
-            --Logging.LogDebug("provider %d T:%s Amount:%d\n%s", provider.Id, provider.Type ,provider:Amount(), provider)
-            if(provider:Amount() > 0) then
-                providersCount = providersCount + 1
-                -- local providerGroup = Tools.Dictionary.GetOrAddValue(providersByType, provider.Type, { })
-                -- providerGroup[#providerGroup + 1] = provider
-                local aggregateConsumerType = aggregateHash[provider.Type]
-                --Logging.LogDebug("aggregateConsumerType %s", aggregateConsumerType)
-                if(aggregateConsumerType ~= nil) then
-                     local aggregateProviders = Tools.Dictionary.GetOrAddValue(aggregateConsumerType, "Providers", { })
-                     local aggregateProvidersId = Tools.Dictionary.GetOrAddValue(aggregateProviders, provider.Id, { })
-                     aggregateProvidersId[#aggregateProvidersId + 1] = provider
-                end
-            end
-        end
-    end
-    Logging.LogDebug("VirtualNetwor:TimeCallback providersCount: %d", providersCount)
-    if (providersCount == 0) then
-        return
-    end
+    -- for id, value in pairs(consumersById) do
+    --    local consumerAggreagated = Consumer.Aggregate(value)
+    --    for key, value in pairs(consumerAggreagated) do
+    --        local consumersGroupItemType = Tools.Dictionary.GetOrAddValue(aggregateHash, value.Type, { })
+    --        local consumersGroup = Tools.Dictionary.GetOrAddValue(consumersGroupItemType, "Consumers", { })
+    --        local consumersGroupById = Tools.Dictionary.GetOrAddValue(consumersGroup, value.Id, { })
+    --        consumersGroupById[#consumersGroupById + 1] = value
+    --    end
+    -- end
 
-    local chains = self.MakeChain(aggregateHash)
-    Logging.LogDebug("VirtualNetwor:TimeCallback chainsCount: %d", #chains)
-    self.ExecuteChains(chains)
+    -- local providersCount = 0
+    -- for _, provider in pairs(self.Providers) do
+    --     provider:BeginRead(self.HashTables)
+    --     local aggregateConsumerType = aggregateHash[provider.Type]
+    --     if(aggregateConsumerType == nil)then
+    --         return
+    --     end
+    --     if(provider:Amount() > 0) then
+    --         providersCount = providersCount + 1
+    --         local aggregateProviders = Tools.Dictionary.GetOrAddValue(aggregateConsumerType, "Providers", { })
+    --         local aggregateProvidersId = Tools.Dictionary.GetOrAddValue(aggregateProviders, provider.Id, { })
+    --         aggregateProvidersId[#aggregateProvidersId + 1] = provider
+    --     end
+    -- end
+
+    -- Logging.LogDebug("VirtualNetwor:TimeCallback providersCount: %d", providersCount)
+    -- if (providersCount == 0) then
+    --     return
+    -- end
+
+    -- local chains = self.MakeChain(aggregateHash)
+    -- Logging.LogDebug("VirtualNetwor:TimeCallback chainsCount: %d", #chains)
+    -- self.ExecuteChains(chains)
 end
 
 function VirtualNetwor:ClearHashTables()
     self.HashTables = { }
 end
 
----@param aggregateHash AggregateConsumerProvider
----@return { ItemType :string, Chains :ChainItem }[]
-function VirtualNetwor.MakeChain(aggregateHash)
-    Logging.LogDebug("VirtualNetwor.MakeChain\naggregateHash = %s", aggregateHash)
-    ---@type { ItemType :string, Chains :ChainItem[] }[]
-    local chainList = { }
-    for itemType, aggregateValue in pairs(aggregateHash) do
-        if (aggregateValue.Providers ~= nil) then
-            local chains =  VirtualNetwor.SumChain(aggregateValue.Consumers, aggregateValue.Providers)
-            chainList[#chainList + 1] = { ItemType = itemType, Chains = chains }
-        end
-        -- for _, value in pairs(aggregateValue) do
-        --     Logging.LogDebug("VirtualNetwor.MakeChain\n%s", value)
-        --     if (value.Providers ~= nil) then
-        --         local chains =  VirtualNetwor.SumChain(value.Consumers, value.Providers)
-        --         chainList[#chainList + 1] = { ItemType = itemType, Chains = chains }
-        --     end
+-- -----@param aggregateHash AggregateConsumerProvider
+-- ---@return { ItemType :string, Chains :ChainItem }[]
+-- function VirtualNetwor.MakeChain(aggregateHash)
+    -- -- Logging.LogDebug("VirtualNetwor.MakeChain\naggregateHash = %s", aggregateHash)
+    -- ---@type { ItemType :string, Chains :ChainItem[] }[]
+    -- local chainList = { }
+    -- for itemType, aggregateValue in pairs(aggregateHash) do
+        -- if (aggregateValue.Providers ~= nil) then
+            -- local chains =  VirtualNetwor.SumChain(aggregateValue.Consumers, aggregateValue.Providers)
+            -- chainList[#chainList + 1] = { ItemType = itemType, Chains = chains }
         -- end
+    -- end
+    -- return chainList
+-- end
+
+-- --- func desc
+-- ---@param consumers { Id :integer, Require: integer }[]
+-- ---@param providers { Id :integer, Amount: integer }[]
+-- ---@return { SourceId :integer, DestinationId :integer, Count :integer}[]
+-- function VirtualNetwor.ZipChain(consumers, providers)
+--     ---@type ChainItem[]
+--     local chains = { }
+--     for _, consumerValue in pairs(consumers) do
+--         local consumerId = consumerValue.Id
+--         local required = consumerValue.Require
+--         ---@type ChainItem
+--         local chain = { DestinationId = consumerId }
+--         for providerIndex, providerValue in pairs(providers) do
+--             if(consumerId ~= providerValue.Id and providerValue.Amount > 0) then
+--                 chain.SourceId = providerValue.Id
+--                 chain.Count = math.min(required, providerValue.Amount)
+--                 required = required - chain.Count
+--                 providers[providerIndex].Amount = providerValue.Amount - chain.Count
+--                 chains[#chains + 1] = chain
+--                 if (required == 0) then
+--                     break
+--                 end
+--             end
+--         end
+--     end
+--     return chains
+-- end
+
+function VirtualNetwor:ChainProcess()
+    self:ClearHashTables()
+    ---@type RequireItem[]
+    local requires = { }
+
+    for _, consumer in pairs(self.Consumers) do
+        consumer:BeginRead(self.HashTables)
+        Tools.TableConcat(requires, consumer:Requires())
     end
-    return chainList
+    Logging.LogDebug("VirtualNetwor:ChainProcess countRequires: %d\n%s", #requires, requires)
+    Logging.LogDebug("VirtualNetwor:ChainProcess self.HashTables: \n%s", self.HashTables)
+    if (#requires == 0) then
+        return
+    end
+
+    -- local groupIdRequires = Tools.GroupBy(requires, function (a) return a.Id end)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess groupId=\n%s", groupIdRequires)
+    requires = Consumer.Aggregate(requires)
+    -- for _, value in pairs(groupIdRequires) do
+    --     Tools.TableConcat(requires, )
+    -- end
+
+    ---@type ProviderItem[]
+    local providers = { }
+    -- Providers
+    for _, provider in pairs(self.Providers) do
+        provider:BeginRead(self.HashTables)
+        local providerItem = provider:Amount()
+        if (providerItem.FullAmount.Value > 0) then
+            providers[#providers + 1] = providerItem
+        end
+    end
+    providers = Provider.Aggregate(providers)
+    Logging.LogDebug("VirtualNetwor:ChainProcess providers: %d\n%s", #providers, providers)
+    if (#providers == 0) then
+        return
+    end
+    Logging.LogDebug("VirtualNetwor:ChainProcess (end) requires: %d\n%s", #requires, requires)
+    Logging.LogDebug("VirtualNetwor:ChainProcess (end) self.HashTables: \n%s", self.HashTables)
+    local chains = VirtualNetwor.MakeChain(requires, providers)
+    Logging.LogDebug("VirtualNetwor:ChainProcess (end) self.HashTables: \n%s", self.HashTables)
+    VirtualNetwor.ExecuteChains(chains, self.HashTables)
 end
 
 --- func desc
----@param consumers table<integer, Consumer[]>
----@param providers table<integer, Provider[]>
----@return { SourceId :integer, DestinationId :integer, Count :integer}[]
-function VirtualNetwor.SumChain(consumers, providers)
-    Logging.LogDebug("VirtualNetwor.SumChain\n%s\n%s", consumers, providers)
-    ---@type { Id :integer, Require: integer }[]
-    local sumConsumers = { }
-    for id, consumerGroup in pairs(consumers) do
-        --sumConsumers[id] = Consumer.Aggregate(consumerGroup)
-        sumConsumers[#sumConsumers + 1] = { Id = id, Require = Consumer.Aggregate(consumerGroup)}
-    end
-    Logging.LogDebug("VirtualNetwor.SumChain sumConsumers = \n%s", sumConsumers)
-
-    ---@type { Id :integer, Amount: integer }[]
-    local sumProviders = { }
-    for id, providerGroup in pairs(providers) do
-        --sumProviders[id] = Provider.Aggregate(providerGroup)
-        sumProviders[#sumProviders + 1] = { Id = id, Amount = Provider.Aggregate(providerGroup)}
-    end
-    Logging.LogDebug("VirtualNetwor.SumChain sumProviders = \n%s", sumProviders)
-
-    table.sort(sumConsumers, function (a, b) return a < b end)
-    table.sort(sumProviders, function (a, b) return a > b end)
-    -----@type { Key :integer, Value :integer }[]
-    --local sortedSumConsumers = Tools.TableSort(sumConsumers, function (a, b) return Tools.Compare(a, b) end)
-    --table.sort(sumConsumers, function (a, b) return Tools.Compare(a, b, true) end) or error("VirtualNetwor.SumChain table sort", 666) or { }
-    -----@type { Key :integer, Value :integer }[]
-    --local sortedSumProviders = Tools.TableSort(sumProviders, function (a, b) return Tools.Compare(a, b, true) end)
-    --local sortedSumProviders = table.sort(sumProviders, function (a, b) return Tools.Compare(a, b, true) end) or error("VirtualNetwor.SumChain table sort", 666) or { }
-    return VirtualNetwor.ZipChain(sumConsumers, sumProviders)
-end
-
---- func desc
----@param consumers { Id :integer, Require: integer }[]
----@param providers { Id :integer, Amount: integer }[]
----@return { SourceId :integer, DestinationId :integer, Count :integer}[]
-function VirtualNetwor.ZipChain(consumers, providers)
-    ---@alias ChainItem { SourceId :integer, DestinationId :integer, Count :integer }
-    ---@type ChainItem[]
+---@param requires RequireItem[]
+---@param provider ProviderItem[]
+---@return ChainItem[]
+function VirtualNetwor.MakeChain(requires, provider)
+    Logging.LogDebug("VirtualNetwor.MakeChain requires: %d provider: %d", #requires, #provider)
+    ---@type ChainItem
     local chains = { }
-    for _, consumerValue in pairs(consumers) do
-        local consumerId = consumerValue.Id
-        local required = consumerValue.Require
-        ---@type ChainItem
-        local chain = { DestinationId = consumerId }
-        for providerIndex, providerValue in pairs(providers) do
-            if(consumerId ~= providerValue.Id and providerValue.Amount > 0) then
-                chain.SourceId = providerValue.Id
-                chain.Count = math.min(required, providerValue.Amount)
-                required = required - chain.Count
-                providers[providerIndex].Amount = providerValue.Amount - chain.Count
-                chains[#chains + 1] = chain
-                if (required == 0) then
-                    break
+    ---@type table<string, RequireItem[]>
+    local requiresByRequiredType = Tools.GroupBy(requires, function (v) return v.RequirementType end)
+    ---@type table<string,ProviderItem[]>
+    local providersGroupType = Tools.GroupBy(provider, function (v) return v.Type end)
+
+    for key, _ in pairs(OrderRequireType) do
+        -- Logging.LogDebug("VirtualNetwor.MakeChain OrderRequireType.key: %s", key)
+        local requiresByReqType = requiresByRequiredType[key]
+        if (requiresByReqType ~= nil) then
+            if (key == "Fuel") then
+                table.sort(requiresByReqType, function (a, b) return (OrderFuel[a.Type] or 999) < (OrderFuel[b.Type] or 999) end)
+            else
+                table.sort(requiresByReqType, function (a, b) return a.Requires.Value < b.Requires.Value end)
+            end
+            for _, consumer in pairs(requiresByRequiredType[key]) do
+                local providersByType = providersGroupType[consumer.Type]
+                -- if (key == "Storage")then
+                --     Logging.LogDebug("VirtualNetwor.MakeChain require: %s providersByType: %s", require, providersByType)
+                -- end
+                --Logging.LogDebug("require.Requires: %s", require.Requires)
+                if (providersByType ~= nil and (consumer.Requires.Value > 0) and (consumer.Bandwidth.Value > 0)) then
+                    for _, provider in pairs(providersByType) do
+                        if (provider.FullAmount.Value > 0 and provider.Bandwidth.Value > 0 and provider.Id ~= consumer.Id) then
+                            ---@type ChainItem
+                            local chain = {
+                                Type = consumer.Type,
+                                SourceId = provider.Id,
+                                DestinationId = consumer.Id,
+                                Count = math.min(provider.FullAmount.Value, provider.Bandwidth.Value, consumer.Requires.Value, consumer.Bandwidth.Value),
+                                SourceRequireType = provider.RequirementType,
+                                DestinationRequireType = consumer.RequirementType
+                            }
+                            consumer.Bandwidth.Value = consumer.Bandwidth.Value - chain.Count
+                            consumer.Requires.Value = consumer.Requires.Value - chain.Count
+                            provider.FullAmount.Value = provider.FullAmount.Value - chain.Count
+                            provider.Bandwidth.Value = provider.Bandwidth.Value - chain.Count
+                            chains[#chains + 1]  = chain
+                        end
+                    end
                 end
             end
         end
     end
+
+    Logging.LogDebug("VirtualNetwor.MakeChain (end) chains: %d", #chains)
     return chains
 end
 
 --- func desc
----@param chains { ItemType :string, Chains :ChainItem[] }[]
-function VirtualNetwor.ExecuteChains(chains)
-    for _, chainItems in pairs(chains) do
-        for _, value in pairs(chainItems.Chains) do
+---@param chains ChainItem[]
+function VirtualNetwor.ExecuteChains(chains, hashTable)
+    Logging.LogDebug("VirtualNetwor:ExecuteChains chains: %s", chains)
+    local storageInfoGroup = AccessPoint.GetHashGroup(hashTable, "StorageInfo")
+    for _, chain in pairs(chains) do
+        if(chain.SourceRequireType == "Storage" and chain.DestinationRequireType == "Storage") then
             StorageTools.TransferItems(
-                chainItems.ItemType,
-                value.SourceId,
-                AccessPoint.GetStorageInfo(value.SourceId),
-                value.DestinationId,
-                AccessPoint.GetStorageInfo(value.DestinationId),
-                value.Count
+                chain.Type,
+                chain.SourceId,
+                AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
+                chain.DestinationId,
+                AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
+                chain.Count
             )
         end
     end
+    -- for _, chainItems in pairs(chains) do
+        -- for _, value in pairs(chainItems.Chains) do
+            -- StorageTools.TransferItems(
+                -- chainItems.ItemType,
+                -- value.SourceId,
+                -- AccessPoint.GetStorageInfo(value.SourceId),
+                -- value.DestinationId,
+                -- AccessPoint.GetStorageInfo(value.DestinationId),
+                -- value.Count
+            -- )
+        -- end
+    -- end
 end
 
 -- --- func desc
--- ---@param a Consumer[]
--- ---@param b Consumer[]
--- function VirtualNetwor.SortConsumersToBig(a, b)
---     return Tools.Compare(Consumer.Aggregate(a), Consumer.Aggregate(b))
+-- ---@param consumers table<integer, RequireItem[]>
+-- ---@param providers table<integer, Provider[]>
+-- ---@return { SourceId :integer, DestinationId :integer, Count :integer}[]
+-- function VirtualNetwor.SumChain(consumers, providers)
+--     -- Logging.LogDebug("VirtualNetwor.SumChain\n%s\n%s", consumers, providers)
+--     ---@type { Id :integer, Require: integer }[]
+--     local sumConsumers = { }
+--     -- for id, consumerGroup in pairs(consumers) do
+--     --     --sumConsumers[id] = Consumer.Aggregate(consumerGroup)
+--     --     sumConsumers[#sumConsumers + 1] = { Id = id, Require = Consumer.Aggregate(consumerGroup)}
+--     -- end
+--     -- Logging.LogDebug("VirtualNetwor.SumChain sumConsumers = \n%s", sumConsumers)
+-- 
+--     ---@type { Id :integer, Amount: integer }[]
+--     local sumProviders = { }
+--     for id, providerGroup in pairs(providers) do
+--         --sumProviders[id] = Provider.Aggregate(providerGroup)
+--         sumProviders[#sumProviders + 1] = { Id = id, Amount = Provider.Aggregate(providerGroup)}
+--     end
+--     -- Logging.LogDebug("VirtualNetwor.SumChain sumProviders = \n%s", sumProviders)
+-- 
+--     table.sort(sumConsumers, function (a, b) return a < b end)
+--     table.sort(sumProviders, function (a, b) return a > b end)
+-- 
+--     return VirtualNetwor.ZipChain(sumConsumers, sumProviders)
 -- end
 
--- --- func desc
--- ---@param a Provider[]
--- ---@param b Provider[]
--- function VirtualNetwor.SortProvidersToSmall(a, b)
---     return Tools.Compare(Provider.Aggregate(a), Provider.Aggregate(b))
--- end

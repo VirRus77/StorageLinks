@@ -4,7 +4,10 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@type Tools
+
+
+---@class Tools
+---@function  GroupBy
 Tools = { }
 
 --- func desc
@@ -121,8 +124,10 @@ end
 Tools.Dictionary = {}
 
 --- func desc
----@param hashTable table
----@param key any
+---@generic T :integer|string|table
+---@param hashTable table<T, any>
+---@param key T
+---@param value any
 ---@return any|nil
 function Tools.Dictionary.GetOrAddValue(hashTable, key, value)
     local hasValue = hashTable[key]
@@ -134,14 +139,30 @@ function Tools.Dictionary.GetOrAddValue(hashTable, key, value)
 end
 
 --- func desc
----@param hashTable table
----@param key any
+---@generic T :integer|string
+---@param hashTable table<T, any>
+---@param key T
 ---@param getValue fun() :any
 ---@return any|nil
 function Tools.Dictionary.GetOrAddValueLazy(hashTable, key, getValue)
     local hasValue = hashTable[key]
     if (hasValue == nil) then
         hasValue = getValue()
+        hashTable[key] = hasValue
+    end
+    return hasValue
+end
+
+--- func desc
+---@generic T :integer|string
+---@param hashTable table<T, any>
+---@param key T
+---@param getValue fun(key :T) :any
+---@return any|nil
+function Tools.Dictionary.GetOrAddValueLazyVariable(hashTable, key, getValue)
+    local hasValue = hashTable[key]
+    if (hasValue == nil) then
+        hasValue = getValue(key)
         hashTable[key] = hasValue
     end
     return hasValue
@@ -169,6 +190,73 @@ function Tools.Dictionary.GetOrAddValueByHashTables(hashTables, hashtableName, k
     return value
 end
 
+--- func desc
+---@param hashTables table
+---@param hashtableName string
+---@param key any
+---@param getValue fun(key :any) :any|nil
+---@return any|nil
+function Tools.Dictionary.GetOrAddValueByHashTablesVariable(hashTables, hashtableName, key, getValue)
+    local hashTable = Tools.Dictionary.GetOrAddValue(hashTables, hashtableName, { })
+    local value = hashTable[key]
+    if (value == nil) then
+        if (getValue == nil) then
+            Logging.LogError("Tools.Dictionary.GetOrAddValueByHashTable getValue nil")
+            return nil
+        end
+        value = getValue(key)
+        hashTable[key] = value
+    end
+
+    return value
+end
+
+--- func desc
+---@generic TKey :string|table
+---@generic TValue :any|table
+---@param table TValue[]
+---@param keySelector fun(v :TValue) :TKey
+---@return table<TKey, TValue[]>
+function Tools.GroupBy(table, keySelector)
+    local list = { }
+    for _, value in pairs(table) do
+        local key = keySelector(value)
+        if (key == nil) then
+            Logging.LogFatal("Tools.GroupBy Key is nil\n%s", table)
+            error("Tools.GroupBy Key is nil\n%s", 666)
+        end
+        local group = Tools.Dictionary.GetOrAddValue(list, key, { })
+        group[#group + 1] = value
+    end
+    return list
+end
+
+--- func desc
+---@generic TKey :string|table
+---@generic TValue :any|table
+---@param table table<any, TValue>|table<integer, TValue>
+---@param keySelector fun(v :TValue) :TKey
+---@return table<TKey, TKey>
+function Tools.SelectDistinctValues(table, keySelector)
+    local list = { }
+    for _, value in pairs(table) do
+        local key = keySelector(value)
+        list[key] = key
+    end
+    return list
+end
+
+--- func desc
+---@generic TValue :any
+---@param table table<integer,TValue>
+---@param table2 table<integer,TValue>
+---@return table<integer,TValue>
+function Tools.TableConcat(table, table2)
+    for index, value in ipairs(table2) do
+        table[#table + 1] = value
+    end
+    return table
+end
 
 --- Get all UIDs by array types on map
 ---@param buildingTypes string[]

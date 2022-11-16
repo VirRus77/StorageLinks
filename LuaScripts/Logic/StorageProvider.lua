@@ -19,13 +19,14 @@ StorageProvider = Provider:extend(StorageProvider)
 ---@param hashTables? table # HashTables
 ---@return StorageProvider
 function StorageProvider.new(id, type, bandwidth, hashTables)
-    if(type == nil)then
-        if (hashTables == nil) then
-            type = type or AccessPoint.GetStorageInfo(id).TypeStores
-        else
-            local getValue = function () return AccessPoint.GetStorageInfo(id) end
-            type = type or AccessPoint.GetOrAddValueByHashTableStatic(hashTables, "StorageInfo", id, getValue).TypeStores
-        end
+    if (type == nil) then
+        -- if (hashTables == nil) then
+            -- type = type or AccessPoint.GetStorageInfo(id).TypeStores
+        -- else
+            -- local getValue = function () return AccessPoint.GetStorageInfo(id) end
+            -- type = type or AccessPoint.GetOrAddValueByHashTable(hashTables, "StorageInfo", id, getValue).TypeStores
+        -- end
+        type = type or AccessPoint.GetStorageInfo(id).TypeStores
     end
 
     local instance = StorageProvider:make(id, type, bandwidth)
@@ -41,7 +42,7 @@ function StorageProvider:Update()
     ---@type fun() :UnpackStorageInfo
     local getValue = function () return AccessPoint.GetStorageInfo(self.Id) end
     ---@type UnpackStorageInfo|nil
-    local storageInfo = self:GetOrAddValueByHashTable("StorageInfo", self.Id, getValue)
+    local storageInfo = self:GetStorageInfoSelf()
     if (storageInfo == nil or (not storageInfo.Successfully)) then
         self._amount = 0
         Logging.LogWarning("StorageConsumer:Update StorageInfo not readed %d", self.Id)

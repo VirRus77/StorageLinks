@@ -1,3 +1,4 @@
+---@class StorageTools
 StorageTools = {}
 
 --- func desc
@@ -6,7 +7,7 @@ StorageTools = {}
 ---@param storageSourceInfo UnpackStorageInfo
 ---@param storageDestId integer # Destination storage.
 ---@param storageDestInfo UnpackStorageInfo
----@param count any # Count transfer.
+---@param count integer # Count transfer.
 function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
     local isDurability = Tools.IsDurability(HASH_TABLES.Durability, storesType)
     -- Logging.LogDebug("StorageTools.TransferItems %d ==%d==> %d", storageSourceId, count, storageDestId)
@@ -36,6 +37,9 @@ end
 ---@param objectInFlight? FlightObjectsList
 ---@return integer
 function StorageTools.GetAmount(storageId, storageInfo, objectInFlight)
+    if (storageInfo.Capacity == nil or storageInfo.AmountStored == nil) then
+        Logging.LogWarning("StorageTools.GetAmount storageInfo.Capacity == nil or storageInfo.AmountStored == nil\n%s", storageInfo)
+    end
     local amount = storageInfo.AmountStored;
     if (objectInFlight ~= nil) then
         amount = amount + #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
@@ -50,8 +54,15 @@ end
 ---@param objectInFlight? FlightObjectsList
 ---@return integer
 function StorageTools.GetFreeSpace(storageId, storageInfo, objectInFlight)
+    if (not storageInfo.Successfully) then
+        Logging.LogWarning("StorageTools.GetAmount GetFreeSpace ~storageInfo.Successfully")
+        return 0
+    end
+    if (storageInfo.Capacity == nil or storageInfo.AmountStored == nil) then
+        Logging.LogWarning("StorageTools.GetAmount storageInfo.Capacity == nil or storageInfo.AmountStored == nil\n%s", storageInfo)
+    end
     local freeSpace = storageInfo.Capacity - storageInfo.AmountStored
-    if(objectInFlight ~= nil)then
+    if (objectInFlight ~= nil) then
         freeSpace = freeSpace - #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
     end
 

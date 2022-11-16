@@ -1,4 +1,6 @@
 {
+    "Lua.runtime.fileEncoding": "utf8",
+    "Lua.runtime.version": "Lua 5.3",
     "Lua.diagnostics.globals": [
     ],
     "Lua.workspace.library": [

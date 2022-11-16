@@ -8,7 +8,7 @@ Constants = {
         MagnetCrude = "MagnetCrude",
         MagnetGood = "MagnetGood",
         MagnetSuper = "MagnetSuper",
-    },
+    }
 }
 
 --- Add unique ID to name.
@@ -27,4 +27,23 @@ BuildingLevels = {
     Crude = "Crude",
     Good = "Good",
     Super = "Super"
+}
+
+---@type table<RequirementType|"Storage", integer>
+OrderRequireType = {
+    ["Fuel"] = 0,
+    ["Water"] = 1,
+    ["Ingredient"] = 2,
+    ["Heart"] = 3,
+    ["Hay"] = 4,
+    ["Storage"] = 5
+}
+
+OrderFuel = {
+    ["Charcoal"] = 0,
+    ["Coal"] = 1,
+    ["Log"] = 2,
+    ["Plank"] = 3,
+    ["Pole"] = 4,
+    ["Stick"] = 5
 }

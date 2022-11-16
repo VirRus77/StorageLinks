@@ -6,6 +6,30 @@ Author: Sotin NU aka VirRus77
 
 Extensions = { }
 
+---@class UnpackStorageInfo
+---@field TypeStores string #
+---@field AmountStored integer #
+---@field Capacity integer #
+---@field StorageType string #
+---@field Successfully boolean #
+Extensions.UnpackStorageInfo = { }
+
+---@class UnpackBuildingRequirementsItem
+---@field Type string #
+---@field Capacity number #
+---@field Amount number #
+Extensions.UnpackBuildingRequirementsItem = { }
+
+---@class UnpackBuildingRequirementsList
+---@field Successfully boolean #
+---@field Ingredient UnpackBuildingRequirementsItem[]|nil #
+---@field Fuel UnpackBuildingRequirementsItem[]|nil #
+---@field Water UnpackBuildingRequirementsItem[]|nil #
+---@field Heart UnpackBuildingRequirementsItem[]|nil #
+---@field Hay UnpackBuildingRequirementsItem[]|nil #
+Extensions.UnpackBuildingRequirementsList = { }
+
+
 -- Unpack @{ObjectProperties}
 ---@alias UnpackObjectProperties { Type :string, TileX :integer, TileY:integer, Rotation :number, Name :string, Successfully :boolean, [1] :string, [2] :number, [3] :number, [4] :number, [5] :string } #
 ---@param properties ObjectProperties|nil #
@@ -46,7 +70,6 @@ function Extensions.UnpackObjectProperties(properties, normalizeRotation)
 end
 
 -- Unpack @{StorageInfo}
----@alias UnpackStorageInfo { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean } #
 ---@alias UnpackStorageInfoOld { TypeStores :string, AmountStored :integer, Capacity :integer, StorageType :string, Successfully :boolean, [1] :string, [2] :integer, [3] :integer, [4] :string } #
 ---@param properties StorageInfo|nil #
 ---@return UnpackStorageInfoOld #
@@ -79,7 +102,8 @@ function Extensions.UnpackStorageInfo (properties)
 end
 
 --- Unpack @{ConverterProperties}
----@alias UnpackConverterProperties { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string,  [1] : "Idle"|"Converting"|"Creating"|"Cancelling", [2] :integer, [3] :integer, [4] :number, [5] :string, [6] :boolean, [7] :integer, [8] :integer, [9] :integer, [10] :integer, [11] :string|integer, [12] :integer, [13] :integer }
+---@alias UnpackConverterProperties { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string }
+---@alias UnpackConverterPropertiesOld { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string,  [1] : "Idle"|"Converting"|"Creating"|"Cancelling", [2] :integer, [3] :integer, [4] :number, [5] :string, [6] :boolean, [7] :integer, [8] :integer, [9] :integer, [10] :integer, [11] :string|integer, [12] :integer, [13] :integer }
 ---@param properties ConverterProperties|nil
 ---@return UnpackConverterProperties #
 function Extensions.UnpackConverterProperties (properties)
@@ -122,6 +146,23 @@ function Extensions.UnpackConverterProperties (properties)
         [12]                = properties[12],
         [13]                = properties[13],
     }
+
+    return result
+end
+
+--- func desc
+---@param properties BuildingRequirements
+---@return UnpackBuildingRequirementsList
+function Extensions.UnpackBuildingRequirements (properties)
+    local result = { Successfully = properties ~= nil }
+    if (not result.Successfully) then
+        return result
+    end
+
+    for _, value in ipairs(properties) do
+        local group = Tools.Dictionary.GetOrAddValue(result, value[4], { })
+        group[#group + 1] = { Type = value[1], Capacity = value[2], Amount = value[3] }
+    end
 
     return result
 end

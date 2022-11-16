@@ -17,21 +17,10 @@ StorageConsumer = Consumer:extend(StorageConsumer)
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
 ---@return StorageConsumer
-function StorageConsumer.new(id, type, bandwidth, hashTables)
-    if (type == nil) then
-        if (hashTables == nil) then
-            type = type or AccessPoint.GetStorageInfo(id).TypeStores
-        else
-            local getValue = function () return AccessPoint.GetStorageInfo(id) end
-            type = type or AccessPoint.GetOrAddValueByHashTableStatic(hashTables, "StorageInfo", id, getValue).TypeStores
-        end
-    end
-
-    if (hashTables == nil) then
-        type = type or UnpackStorageInfo(ModStorage.GetStorageInfo(id)).TypeStores
-    end
-    local instance = StorageConsumer:make(id, type, bandwidth, hashTables)
-    instance._freeSpace = 0
+function StorageConsumer.new(id, bandwidth, hashTables)
+    local type = AccessPoint.GetStorageInfo(id).TypeStores
+    local instance = StorageConsumer:make(id, bandwidth, hashTables)
+    instance.type = type
     return instance
 end
 
@@ -40,9 +29,10 @@ function StorageConsumer:GetRequire()
 end
 
 function StorageConsumer:Update()
-    ---@type fun() :UnpackStorageInfo
-    local getValue = function () return AccessPoint.GetStorageInfo(self.Id) end
-    local storageInfo = self:GetOrAddValueByHashTable("StorageInfo", self.Id, getValue)
+    ---@type RequireItem[]
+    self._requires = { }
+    ---@type UnpackStorageInfo
+    local storageInfo = self:GetStorageInfoSelf()
     if (storageInfo == nil or (not storageInfo.Successfully)) then
         self._freeSpace = 0
         Logging.LogWarning("StorageConsumer:Update StorageInfo not readed %d", self.Id)
@@ -53,8 +43,16 @@ function StorageConsumer:Update()
         Logging.LogWarning("StorageConsumer:Update change Type %s ==> %s", self.Type, storageInfo.TypeStores)
         self.Type = storageInfo.TypeStores
     end
-    local getFreeSpace = function () return AccessPoint.GetStorageFreeSpace(self.Id, storageInfo) end
-    local freeSpace = self:GetOrAddValueByHashTable("Storage.FreeSpace", self.Id, getFreeSpace)
-    self._freeSpace = freeSpace or 0
+    local freeSpace = self:GetStorageFreeSpaceSelf(storageInfo)
+    freeSpace = freeSpace or 0
+    self._freeSpace = freeSpace
+    local require = { }
+    require.Id = self.Id
+    require.Requires = freeSpace
+    require.Type = storageInfo.TypeStores
+    require.Bandwidth = ReferenceValue.new(self._bandwidth)
+    require.RequirementType = "Storage"
+
+    self._requires[1] = require
     self._updated = true
 end
