@@ -19,6 +19,15 @@ AccessPoint = {
 ---@type AccessPoint
 AccessPoint = Object:extend(AccessPoint)
 
+---@enum
+AccessPoint.HashTableGroups = {
+    "StorageInfo",
+    "Storage.FreeSpace",
+    "ConverterProperties",
+    "BuildingRequirements",
+    "BuildingRequirements"
+}
+
 function AccessPoint:initialize(id, type, bandwidth, hashTables)
     self._bandwidth = bandwidth
     self._updated = false
@@ -40,7 +49,7 @@ end
 
 --- func desc
 ---@param hashTable table
----@alias HashTableGroups "StorageInfo"|"Storage.FreeSpace"|"ConverterProperties"|"BuildingRequirements"
+---@alias HashTableGroups "StorageInfo"|"Storage.FreeSpace"|"Storage.Amount"|"ConverterProperties"|"BuildingRequirements"
 ---@param hashTableGroup HashTableGroups
 ---@return table
 function AccessPoint.GetHashGroup(hashTable, hashTableGroup)
@@ -69,6 +78,22 @@ function AccessPoint:GetBuildingRequirementsSelf()
         return AccessPoint.GetBuildingRequirements(self.Id, hashTable)
     end
     return AccessPoint.GetBuildingRequirements(self.Id)
+end
+
+--- func desc
+---@param storageInfo UnpackStorageInfo|nil
+---@return integer
+function AccessPoint:GetStorageAmountSelf(storageInfo)
+    storageInfo = storageInfo or self:GetStorageInfoSelf()
+    if (not storageInfo.Successfully) then
+        Logging.LogWarning("AccessPoint:GetStorageFreeSpaceSelf ~storageInfo.Successfully")
+        return 0
+    end
+    if (self.HashTables ~= nil) then
+        local hashTable = AccessPoint.GetHashGroup(self.HashTables, "Storage.Amount")
+        return AccessPoint.GetStorageAmount(self.Id, storageInfo, hashTable)
+    end
+    return AccessPoint.GetStorageAmount(self.Id, storageInfo)
 end
 
 --- func desc
@@ -107,6 +132,18 @@ function AccessPoint.GetBuildingRequirements(id, hashTable)
         return Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(id))
     end
     return Tools.Dictionary.GetOrAddValueLazyVariable(hashTable, id, AccessPoint._getBuildingRequirements)
+end
+
+--- func desc
+---@param id integer
+---@param hashTable table|nil
+---@return integer
+function AccessPoint.GetStorageAmount(id, storageInfo, hashTable)
+    if (hashTable == nil) then
+        return StorageTools.GetAmount(id, storageInfo, OBJECTS_IN_FLIGHT)
+    end
+    local getValue = function () return StorageTools.GetAmount(id, storageInfo, OBJECTS_IN_FLIGHT) end
+    return Tools.Dictionary.GetOrAddValueLazy(hashTable, id, getValue)
 end
 
 --- func desc

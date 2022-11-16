@@ -2,6 +2,7 @@
 ---@field Id integer # BuildingId
 ---@field Type string #
 ---@field Requires ReferenceValue #
+---@field Amount integer #
 ---@field Bandwidth ReferenceValue #
 ---@field RequirementType RequirementType|"Storage" #
 RequireItem = { }

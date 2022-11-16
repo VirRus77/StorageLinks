@@ -407,42 +407,33 @@ end
 function Buildings.CreateAll ()
     Logging.LogInformation("Buildings.CreateAll")
 
-    -- Magnet
     Buildings.Create (Buildings.MagnetCrude)
-    Buildings.Create (Buildings.MagnetGood)
-    Buildings.Create (Buildings.MagnetSuper)
-
-    -- Pump
+    Buildings.Create (Buildings.TransmitterCrude)
+    Buildings.Create (Buildings.ReceiverCrude)
     Buildings.Create (Buildings.PumpCrude)
+    Buildings.Create (Buildings.OverflowPumpCrude)
+    Buildings.Create (Buildings.BalancerCrude)
+
+    Buildings.Create (Buildings.MagnetGood)
     Buildings.Create (Buildings.PumpGood)
+    Buildings.Create (Buildings.OverflowPumpGood)
+    Buildings.Create (Buildings.BalancerGood)
+    Buildings.Create (Buildings.TransmitterGood)
+    Buildings.Create (Buildings.ReceiverGood)
+
+    Buildings.Create (Buildings.MagnetSuper)
     Buildings.Create (Buildings.PumpSuper)
     Buildings.Create (Buildings.PumpSuperLong)
-
-    -- Overflow Pump
-    Buildings.Create (Buildings.OverflowPumpCrude)
-    Buildings.Create (Buildings.OverflowPumpGood)
     Buildings.Create (Buildings.OverflowPumpSuper)
-
-    -- Balancer
-    Buildings.Create (Buildings.BalancerCrude)
-    Buildings.Create (Buildings.BalancerGood)
     Buildings.Create (Buildings.BalancerSuper)
     Buildings.Create (Buildings.BalancerSuperLong)
-
-    -- Transmitter
-    Buildings.Create (Buildings.TransmitterCrude)
-    Buildings.Create (Buildings.TransmitterGood)
     Buildings.Create (Buildings.TransmitterSuper)
-
-    -- Receiver
-    Buildings.Create (Buildings.ReceiverCrude)
-    Buildings.Create (Buildings.ReceiverGood)
     Buildings.Create (Buildings.ReceiverSuper)
 
-    -- Switch
     Buildings.Create (Buildings.SwitchSuper)
-    Buildings.CreateDecorative (Decoratives.SwitchOnSymbol)
 
+    -- Switch
+    Buildings.CreateDecorative (Decoratives.SwitchOnSymbol)
     -- Misc Symbols
     Buildings.CreateDecorative (Decoratives.SymbolBroken)
 end

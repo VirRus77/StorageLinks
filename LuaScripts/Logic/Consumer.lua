@@ -84,7 +84,7 @@ end
 ---@param requireItems RequireItem[]
 ---@return RequireItem[]
 function Consumer.Aggregate(requireItems)
-    Logging.LogDebug("Consumer.Aggregate requireItems: %d\n%s", #requireItems, requireItems)
+    Logging.LogDebug("Consumer.Aggregate requireItems: %d", #requireItems)
     if (#requireItems <= 1) then
         return requireItems
     end
@@ -94,7 +94,7 @@ function Consumer.Aggregate(requireItems)
     ---@param v RequireItem
     ---@type table<integer, RequireItem[]>
     local groupId = Tools.GroupBy(requireItems, function (v) return v.Id end)
-    Logging.LogDebug("Consumer.Aggregate groupId: %d", #groupId)
+    -- Logging.LogDebug("Consumer.Aggregate groupId: %d", #groupId)
     for _, groupValues in pairs(groupId) do
         if (#groupValues == 1) then
             list[#list + 1] = groupValues[1]
@@ -103,7 +103,7 @@ function Consumer.Aggregate(requireItems)
             ---@type table<ReferenceValue, RequireItem[]>
             ---@param v RequireItem
             local bandwidths = Tools.SelectDistinctValues(groupValues, function (v) return v.Bandwidth end)
-            Logging.LogDebug("Consumer.Aggregate bandwidths: %d", #bandwidths)
+            -- Logging.LogDebug("Consumer.Aggregate bandwidths: %d", #bandwidths)
             local bandwidthAll = ReferenceValue.new(0)
             -- Logging.LogDebug("Consumer.Aggregate (b) bandwidths:\n%s", bandwidths)
             for key, _ in pairs(bandwidths) do
@@ -120,7 +120,7 @@ function Consumer.Aggregate(requireItems)
         end
     end
 
-    Logging.LogDebug("Consumer.Aggregate (end) \n%s\n%s", requireItems, list)
-    Logging.LogDebug("Consumer.Aggregate (end) list: %d", #list)
+    -- Logging.LogDebug("Consumer.Aggregate (end) \n%s\n%s", requireItems, list)
+    Logging.LogDebug("Consumer.Aggregate (end) #requireItems: %d #list: %d", #requireItems, #list)
     return list
 end

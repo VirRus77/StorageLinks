@@ -4,8 +4,6 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
-
-
 ---@class Tools
 ---@function  GroupBy
 Tools = { }
@@ -30,6 +28,22 @@ function Tools.Durability(hashTable, itemType)
             return ModVariable.GetVariableForObjectAsInt(itemType, 'MaxUsage') or -1
         end
     )
+    Logging.LogDebug("Tools.Durability %s: %d", itemType, amount)
+    return amount
+end
+
+--- func desc
+---@param hashTable table<string, integer> # HashTable Fuel
+---@param itemType string # Type of item
+---@return number|nil
+function Tools.FuelAmount(hashTable, itemType)
+    local amount = Tools.Dictionary.GetOrAddValueLazy(
+        hashTable,
+        itemType,
+        function ()
+            return ModVariable.GetVariableForObjectAsFloat(itemType, "Fuel") or -1
+        end
+    )
     return amount
 end
 
@@ -37,26 +51,15 @@ end
 ---@param hashTable table<string, integer> # HashTable Durability
 ---@param itemType string # Type of item
 ---@return integer|nil
-function Tools.FuelAmount(hashTable, itemType)
-    local amount = hashTable[itemType]
-    if (amount == nil) then
-        ---@type integer
-        amount = ModVariable.GetVariableForObjectAsInt(itemType, "Fuel") or -1
-        hashTable[itemType] = amount
-    end
-end
-
---- func desc
----@param hashTable table<string, integer> # HashTable Durability
----@param itemType string # Type of item
----@return integer|nil
 function Tools.WaterCapacity(hashTable, itemType)
-    local amount = hashTable[itemType]
-    if (amount == nil) then
-        ---@type integer
-        amount = ModVariable.GetVariableForObjectAsInt(itemType, "WaterCapacity") or -1
-        hashTable[itemType] = amount
-    end
+    local amount = Tools.Dictionary.GetOrAddValueLazy(
+        hashTable,
+        itemType,
+        function ()
+            return ModVariable.GetVariableForObjectAsInt(itemType, "WaterCapacity") or -1
+        end
+    )
+    return amount
 end
 
 --- Get building by location. Excludes floor, walls, and entrence, exits.

@@ -5,7 +5,6 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class StorageConsumer :Consumer # consumer потребитель
----@field _freeSpace integer #
 StorageConsumer = {
 }
 ---@type StorageConsumer
@@ -13,7 +12,6 @@ StorageConsumer = Consumer:extend(StorageConsumer)
 
 --- func desc
 ---@param id integer # Provider Id. Ex. StorageId.
----@param type string|nil  # Items type
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
 ---@return StorageConsumer
@@ -44,11 +42,11 @@ function StorageConsumer:Update()
         self.Type = storageInfo.TypeStores
     end
     local freeSpace = self:GetStorageFreeSpaceSelf(storageInfo)
-    freeSpace = freeSpace or 0
-    self._freeSpace = freeSpace
+    ---@type RequireItem
     local require = { }
     require.Id = self.Id
-    require.Requires = freeSpace
+    require.Amount = self:GetStorageAmountSelf(storageInfo)
+    require.Requires = ReferenceValue.new(freeSpace)
     require.Type = storageInfo.TypeStores
     require.Bandwidth = ReferenceValue.new(self._bandwidth)
     require.RequirementType = "Storage"

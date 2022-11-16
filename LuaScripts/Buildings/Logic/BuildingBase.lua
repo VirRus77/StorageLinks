@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@enum BuildingEditType #
+---@enum #
 BuildingEditType = {
     Rotate = "Rotate",
     Move = "Move",

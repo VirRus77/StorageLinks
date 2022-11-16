@@ -1,5 +1,6 @@
 # The order in which the files are combined.
 Tools/Object.lua
+Tools/Stopwatch.lua
 Tools/ReferenceValue.lua
 GameValues/SubCategory.lua
 Models/Point.lua

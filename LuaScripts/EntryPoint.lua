@@ -98,15 +98,14 @@ function Creation()
     Converters:UpdateTypeByUniq()
     Buildings.CreateAll()
     Converters.CreateAll()
-    BuildingsDependencyTree.SwitchAllLockState()
 
-    if (Settings.ReplaceOldBuildings.Value) then
-        Buildings.CreateOldTypes()
-    end
+    -- if (Settings.ReplaceOldBuildings.Value) then
+    --     Buildings.CreateOldTypes()
+    -- end
 
     -- Set some overall globals that determine if we want to use a TIMER, or callbacks.
-    USE_EVENT_STYLE = ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) and
-        ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRenamedCallback')
+    -- USE_EVENT_STYLE = ModBase.IsGameVersionGreaterThanEqualTo(VERSION_WITH_CLASSMETHODCHECK_FUNCTION) and
+    --     ModBase.ClassAndMethodExist('ModBuilding','RegisterForBuildingRenamedCallback')
 
 end
 
@@ -117,7 +116,8 @@ function BeforeLoad()
         return
     end
 
-    Translates.SetNames()
+    -- BuildingsDependencyTree.SwitchAllLockState()
+
     -- -- Pump
     -- ModVariable.SetVariableForBuildingUpgrade("Crude Pump (SL)", "Good Pump (SL)" )
     -- ModVariable.SetVariableForBuildingUpgrade("Good Pump (SL)" , "Super Pump (SL)")
@@ -169,6 +169,8 @@ function AfterLoad_LoadedWorld()
         return
     end
 
+    Translates.SetNames()
+
     -- Reset caches
     LINK_UIDS = { }
     STORAGE_UIDS = { }
@@ -194,20 +196,20 @@ function AfterLoad()
     -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
     TimersStack.AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 
-    if (Settings.ReplaceOldBuildings.Value) then
-        for _, value in ipairs(Buildings.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-        for _, value in ipairs(Decoratives.MappingOldTypes) do
-            ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-        end
-    end
+    -- if (Settings.ReplaceOldBuildings.Value) then
+    --     for _, value in ipairs(Buildings.MappingOldTypes) do
+    --         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+    --     end
+    --     for _, value in ipairs(Decoratives.MappingOldTypes) do
+    --         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
+    --     end
+    -- end
 
     Converters.UpdateState()
 
     BuildingsDependencyTree.SwitchAllLockState()
     BuildingController.Initialize()
-    ReplaceOldBuildings()
+    -- ReplaceOldBuildings()
 
     --swapOldNamesToNew()
 end

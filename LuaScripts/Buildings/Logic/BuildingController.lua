@@ -16,7 +16,7 @@ BuildingController = {
 
 ---@param newBuilding BuildingBase
 function BuildingController.Add(newBuilding)
-    Logging.LogError("BuildingController.Add")
+    Logging.LogDebug("BuildingController.Add")
     local buildingId = newBuilding.Id
     if(BuildingController.Buildings[buildingId] ~= nil) then
         Logging.LogError("BuildingController contains %d", buildingId)

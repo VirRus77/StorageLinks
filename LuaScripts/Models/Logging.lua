@@ -20,21 +20,17 @@ Logging = {
     ---@private
     _minimalLevel = 3,
     --- List show log levels.
-    ---@type table<string, number>
     ---@private
-    _logLevelToOrder = { }
+    ---@type table<string, number>
+    _logLevelToOrder = {
+        [LogLevel.Trace]       = 1,
+        [LogLevel.Debug]       = 2,
+        [LogLevel.Information] = 3,
+        [LogLevel.Warning]     = 4,
+        [LogLevel.Error]       = 5,
+        [LogLevel.Fatal]       = 6,
+    }
 }
-
-function Logging.FillOrder()
-    Logging._logLevelToOrder = { }
-    Logging._logLevelToOrder[LogLevel.Trace]       = 1
-    Logging._logLevelToOrder[LogLevel.Debug]       = 2
-    Logging._logLevelToOrder[LogLevel.Information] = 3
-    Logging._logLevelToOrder[LogLevel.Warning]     = 4
-    Logging._logLevelToOrder[LogLevel.Error]       = 5
-    Logging._logLevelToOrder[LogLevel.Fatal]       = 6
-end
-Logging.FillOrder()
 
 --- Set minimal level write log.
 ---@param logLevel LoggingLevel #
@@ -46,7 +42,12 @@ end
 ---@param ... any
 ---@private
 function Logging.Log(...)
-    ModDebug.Log(os.date("%d.%m.%Y %X"), ...)
+    local a, b = math.modf(os.clock())
+    local ms = "000"
+    if (b ~= 0) then
+        ms = tostring(b):sub(3,5)
+    end
+    ModDebug.Log(os.date("%d.%m.%Y %X") .. "." .. ms, ...)
 end
 
 --- func desc
@@ -118,4 +119,10 @@ end
 ---@param ... any
 function Logging.LogFatal (formatString, ...)
     Logging.LogLevel(LogLevel.Fatal, formatString, ...)
+end
+
+---@param value any
+---@return string
+function Logging.ValueType(value)
+    return tostring(value) .. " :" .. type(value)
 end

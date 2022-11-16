@@ -61,6 +61,7 @@ Buildings.MappingOldTypes = {
     { OldType = "Super Switch (SL)", NewItem = Buildings.SwitchSuper },
 }
 
+---@obsolete
 function Buildings.CreateOldTypes()
     for _, value in ipairs(Buildings.MappingOldTypes) do
         Buildings.Create (value.NewItem, value.OldType)
@@ -71,6 +72,7 @@ function Buildings.CreateOldTypes()
     end
 end
 
+---@obsolete
 function ReplaceOldBuildings()
     if (not Settings.ReplaceOldBuildings.Value) then
         return

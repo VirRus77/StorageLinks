@@ -31,6 +31,7 @@ Creates a new instance and calls `obj:initialize(...)` if it exists.
     local rect = Rectangle:new(3, 4)
     p(rect:getArea())
 ]]
+---@param ... any # Argumets method "initialize".
 ---@return Object|any
 function Object:make(...)
   local instance = self:create()

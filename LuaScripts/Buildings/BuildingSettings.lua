@@ -233,8 +233,6 @@ function BuildingSettings.GetSettingsByType(buildingType)
     return nil
 end
 
-
-
 --- GetSettings by building type.
 ---@param buildingType { Type :string } # Builfing type.
 ---@return table|nil

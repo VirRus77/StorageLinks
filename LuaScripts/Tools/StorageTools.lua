@@ -1,3 +1,9 @@
+--[[
+Copyright (C) Sotin NU aka VirRus77
+Author: Sotin NU aka VirRus77
+--]]
+
+
 ---@class StorageTools
 StorageTools = {}
 
@@ -9,25 +15,114 @@ StorageTools = {}
 ---@param storageDestInfo UnpackStorageInfo
 ---@param count integer # Count transfer.
 function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
+    Logging.LogDebug("StorageTools.TransferItems")
     local isDurability = Tools.IsDurability(HASH_TABLES.Durability, storesType)
-    -- Logging.LogDebug("StorageTools.TransferItems %d ==%d==> %d", storageSourceId, count, storageDestId)
+    Logging.LogDebug("StorageTools.TransferItems %d == %d x %s ==> %d", storageSourceId, count, storesType, storageDestId)
+    Logging.LogDebug("StorageTools.TransferItems storageSourceInfo\n%s", storageSourceInfo)
+    Logging.LogDebug("StorageTools.TransferItems storageDestInfo\n%s", storageDestInfo)
     if (not isDurability) then
-        local outputCount = storageSourceInfo.AmountStored - count
-        ModStorage.SetStorageQuantityStored(storageSourceId, outputCount)
-        storageSourceInfo.AmountStored = outputCount
-        local inputCount = storageDestInfo.AmountStored + count
-        ModStorage.SetStorageQuantityStored(storageDestId, inputCount)
-        storageSourceInfo.AmountStored = inputCount
+        local sourceAmount = storageSourceInfo.AmountStored - count
+        if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then
+            Logging.LogError("StorageTools.TransferItems not change Sourve storage amount [%d] %s => %s\nstorageSourceInfo = %s", storageSourceId, Logging.ValueType(storageSourceInfo.AmountStored),  Logging.ValueType(sourceAmount), storageSourceInfo)
+        end
+        storageSourceInfo.AmountStored = sourceAmount
+
+        local destinationAmount = storageDestInfo.AmountStored + count
+        if (not ModStorage.SetStorageQuantityStored(storageDestId, destinationAmount)) then
+            Logging.LogError("StorageTools.TransferItems not change Destination storage amount [%d] %d => %d\nstorageSourceInfo = %s", storageDestId, storageDestInfo.AmountStored, destinationAmount, storageDestInfo)
+        end
+        storageSourceInfo.AmountStored = destinationAmount
         return
     end
 
     local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
     for _, itemId in ipairs(itemIds) do
-        ModStorage.AddToStorage(storageDestId, itemId)
+        if (ModStorage.AddToStorage(storageDestId, itemId)) then
+            Logging.LogError("StorageTools.TransferItems cant add item: %d", itemId)
+        end
         if (ModObject.IsValidObjectUID(itemId)) then
             Logging.LogError("StorageTools.TransferItems Destory object: %d", itemId)
             ModObject.DestroyObject(itemId)
         end
+    end
+end
+
+--- func desc
+---@param storesType string # Type store items.
+---@param storageSourceId integer # Source storage Id.
+---@param storageSourceInfo UnpackStorageInfo
+---@param destinationId integer # Destination storage.
+---@param count integer # Count transfer.
+function StorageTools.TransferFuel(storesType, storageSourceId, storageSourceInfo, destinationId, count)
+    local fuelAmount = Tools.FuelAmount(HASH_TABLES.Fuel, storesType)
+    -- Logging.LogWarning("StorageTools.TransferFuel %d x %s: %s", count, storesType, tostring(fuelAmount))
+    -- local buildingInfo = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(destinationId))
+    -- Logging.LogWarning("StorageTools.TransferFuel destInfo\n%s:", buildingInfo)
+
+    if (fuelAmount <= 0) then
+        Logging.LogWarning("StorageTools.TransferFuel There fuel? %s: %d", storesType, fuelAmount)
+        return
+    end
+
+    if (not ModBuilding.AddFuel(destinationId, fuelAmount * count)) then
+        Logging.LogDebug("StorageTools.TransferFuel. Fuel not added. [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
+        if(not ModConverter.AddFuelToSpecifiedConverter(destinationId, fuelAmount * count)) then
+            Logging.LogWarning("StorageTools.AddFuelToSpecifiedConverter. Fuel not added. [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
+            return
+        end
+        Logging.LogDebug("StorageTools.TransferFuel. Fuel added (AddFuelToSpecifiedConverter). [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
+    end
+
+    local sourceAmount = storageSourceInfo.AmountStored - count
+    if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then
+        Logging.LogError("StorageTools.TransferItems not change Source storage amount [%d] %d => %d\nstorageSourceInfo = %s", storageSourceId, storageSourceInfo.AmountStored, sourceAmount, storageSourceInfo)
+    end
+end
+
+--- func desc
+---@param storesType string # Type store items.
+---@param storageSourceId integer # Source storage Id.
+---@param storageSourceInfo UnpackStorageInfo
+---@param destinationId integer # Destination storage.
+---@param count integer # Count transfer.
+function StorageTools.TransferWater(storesType, storageSourceId, storageSourceInfo, destinationId, count)
+    if (not ModBuilding.AddWater(destinationId, count)) then
+        Logging.LogError("StorageTools.TransferWater. Water not added. [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
+        return
+    end
+
+    local sourceAmount = storageSourceInfo.AmountStored - count
+    if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then
+        Logging.LogError("StorageTools.TransferWater not change Source storage amount [%d] %d => %d\nstorageSourceInfo = %s", storageSourceId, storageSourceInfo.AmountStored, sourceAmount, storageSourceInfo)
+    end
+end
+
+--- func desc
+---@param storesType string # Type store items.
+---@param storageSourceId integer # Source storage Id.
+---@param storageSourceInfo UnpackStorageInfo
+---@param destinationId integer # Destination storage.
+---@param count integer # Count transfer.
+function StorageTools.TransferIngredient(storesType, storageSourceId, storageSourceInfo, destinationId, count)
+    -- Logging.LogWarning("StorageTools.TransferFuel %d x %s: %s", count, storesType, tostring(fuelAmount))
+    -- local buildingInfo = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(destinationId))
+    -- Logging.LogWarning("StorageTools.TransferFuel destInfo\n%s:", buildingInfo)
+
+    local countAdded = 0
+    for i = 1, count, 1 do
+        if(not ModConverter.AddIngredientToSpecifiedConverter(destinationId, storesType)) then
+            Logging.LogWarning("StorageTools.TransferIngredient not added: [%d] %d x %s", destinationId, count - countAdded, storesType)
+            break
+        end
+        countAdded = countAdded + 1
+    end
+    if (countAdded == 0) then
+        return
+    end
+
+    local sourceAmount = storageSourceInfo.AmountStored - countAdded
+    if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then
+        Logging.LogError("StorageTools.TransferIngredient not change Source storage amount [%d] %d => %d\nstorageSourceInfo = %s", storageSourceId, storageSourceInfo.AmountStored, sourceAmount, storageSourceInfo)
     end
 end
 
@@ -37,12 +132,12 @@ end
 ---@param objectInFlight? FlightObjectsList
 ---@return integer
 function StorageTools.GetAmount(storageId, storageInfo, objectInFlight)
-    if (storageInfo.Capacity == nil or storageInfo.AmountStored == nil) then
-        Logging.LogWarning("StorageTools.GetAmount storageInfo.Capacity == nil or storageInfo.AmountStored == nil\n%s", storageInfo)
+    if (storageInfo.AmountStored == nil) then
+        Logging.LogWarning("StorageTools.GetAmount storageInfo.AmountStored == nil\n%s", storageInfo)
     end
-    local amount = storageInfo.AmountStored;
+    local amount = storageInfo.AmountStored or 0;
     if (objectInFlight ~= nil) then
-        amount = amount + #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
+        amount = amount + #objectInFlight:FlightObjectByTarget(storageId)
     end
 
     return amount
@@ -55,16 +150,14 @@ end
 ---@return integer
 function StorageTools.GetFreeSpace(storageId, storageInfo, objectInFlight)
     if (not storageInfo.Successfully) then
-        Logging.LogWarning("StorageTools.GetAmount GetFreeSpace ~storageInfo.Successfully")
+        Logging.LogWarning("StorageTools.GetFreeSpace GetFreeSpace ~storageInfo.Successfully")
         return 0
     end
-    if (storageInfo.Capacity == nil or storageInfo.AmountStored == nil) then
-        Logging.LogWarning("StorageTools.GetAmount storageInfo.Capacity == nil or storageInfo.AmountStored == nil\n%s", storageInfo)
+    if (storageInfo.Capacity == nil) then
+        Logging.LogWarning("StorageTools.GetFreeSpace storageInfo.Capacity == nil\n%s", storageInfo)
+        return 0
     end
-    local freeSpace = storageInfo.Capacity - storageInfo.AmountStored
-    if (objectInFlight ~= nil) then
-        freeSpace = freeSpace - #OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
-    end
+    local freeSpace = storageInfo.Capacity - StorageTools.GetAmount(storageId, storageInfo, objectInFlight)
 
     return freeSpace
 end

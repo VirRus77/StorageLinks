@@ -84,9 +84,9 @@ function Transmitter:OnTimerCallback()
         return
     end
 
-    if(building ~= nil)then
-        Logging.LogDebug("Transmitter:OnTimerCallback BuildingRequirements:\n%s", ModBuilding.GetBuildingRequirements(building))
-    end
+    --  if(building ~= nil)then
+         -- Logging.LogDebug("Transmitter:OnTimerCallback BuildingRequirements:\n%s", ModBuilding.GetBuildingRequirements(building))
+    --  end
 
     self:RemoveLink()
     self.LinkedBuildingId = building

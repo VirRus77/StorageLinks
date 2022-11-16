@@ -71,10 +71,18 @@ function BuildingConsumer:Update()
         Logging.LogWarning("BuildingConsumer:Update() ~storageInfo.Successfully")
         return requires
     end
-    local freeSpace = AccessPoint:GetStorageFreeSpaceSelf(storageInfo)
+    local freeSpace = self:GetStorageFreeSpaceSelf(storageInfo)
+    local amount = self:GetStorageAmount(storageInfo)
     if (freeSpace > 0) then
         ---@type RequireItem
-        requires[#requires + 1] = { Id = self.Id, Type = storageInfo.TypeStores, Requires = ReferenceValue.new(freeSpace), Bandwidth = bandwidth, RequirementType = "Storage" }
+        requires[#requires + 1] = {
+            Id = self.Id,
+            Type = storageInfo.TypeStores,
+            Amount = amount,
+            Requires = ReferenceValue.new(freeSpace),
+            Bandwidth = bandwidth,
+            RequirementType = "Storage"
+        }
     end
 
     return requires
@@ -93,15 +101,19 @@ function BuildingConsumer.MakeRequirements(id, list, requireType, bandwidth, sor
     if(list == nil) then
         return result
     end
-    if(sortToBig ~= nil) then
+    if (sortToBig ~= nil) then
         table.sort(list, function (a, b)
             if (sortToBig) then
                 return a.Capacity < b.Capacity
             else
                 return a.Capacity > b.Capacity
             end
-            --((sortToBig and ()) or ((not sortToBig) and (a.Capacity > b.Capacity)));
         end)
+    end
+    if (requireType == "Fuel") then
+        if (not BuildingConsumer.NeedFuel(list)) then
+            return result
+        end
     end
     --- func desc
     ---@param item UnpackBuildingRequirementsItem
@@ -113,7 +125,14 @@ function BuildingConsumer.MakeRequirements(id, list, requireType, bandwidth, sor
         local require = math.floor(item.Capacity - item.Amount)
         if (require > 0) then
             ---@type RequireItem
-            return { Id = id, RequirementType = requireType, Requires = ReferenceValue.new(require), Type = item.Type, Bandwidth = bandwidth }
+            return {
+                Id = id,
+                Amount = -1,
+                RequirementType = requireType,
+                Requires = ReferenceValue.new(require),
+                Type = item.Type,
+                Bandwidth = bandwidth
+            }
         end
     end
     if (takeFirst) then
@@ -137,4 +156,23 @@ function BuildingConsumer.MakeRequirements(id, list, requireType, bandwidth, sor
     end
 
     return result
+end
+
+---@param list UnpackBuildingRequirementsItem[]
+---@return boolean
+function BuildingConsumer.NeedFuel(list)
+    ---@type table<string, UnpackBuildingRequirementsItem[]>
+    local groupByType = Tools.GroupBy(list, function (v) return v.Type end)
+    for key, _ in pairs(OrderFuel) do
+        local valueByType = groupByType[key]
+        if (valueByType ~= nil) then
+            local firstValue = valueByType[1]
+            -- Logging.LogDebug("BuildingConsumer.NeedFuel Capacity: %f firstValue.Amount: %f  floor: %f", firstValue.Capacity, firstValue.Amount, math.floor(firstValue.Capacity - firstValue.Amount))
+            local freeSpace = math.floor(firstValue.Capacity - firstValue.Amount)
+            return freeSpace >= 1
+        end
+    end
+
+    Logging.LogError("BuildingConsumer.NeedFuel fuelNotFound")
+    return false
 end

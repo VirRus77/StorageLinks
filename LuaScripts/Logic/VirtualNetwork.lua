@@ -69,56 +69,9 @@ function VirtualNetwor:RemoveConsumer(consumerId)
 end
 
 function VirtualNetwor:TimeCallback()
+    local sw = Stopwatch.Start()
     self:ChainProcess()
-
-    -- local consumersCount = 0
-    -- ---@type table<integer, RequireItem[]>
-    -- local consumersById = { }
-    -- for _, consumer in pairs(self.Consumers) do
-    --     consumer:BeginRead(self.HashTables)
-    --     local requires = consumer:Requires()
-    --     local aggregateConsumersById = Tools.Dictionary.GetOrAddValue(consumersById, consumer.Id, { })
-    --     Tools.TableConcat(aggregateConsumersById, requires)
-    --     consumersCount = consumersCount + #requires
-    -- end
-    -- Logging.LogDebug("VirtualNetwor:TimeCallback consumersCount: %d", consumersCount)
-    -- if(consumersCount == 0)then
-    --     return
-    -- end
-
-    -- for id, value in pairs(consumersById) do
-    --    local consumerAggreagated = Consumer.Aggregate(value)
-    --    for key, value in pairs(consumerAggreagated) do
-    --        local consumersGroupItemType = Tools.Dictionary.GetOrAddValue(aggregateHash, value.Type, { })
-    --        local consumersGroup = Tools.Dictionary.GetOrAddValue(consumersGroupItemType, "Consumers", { })
-    --        local consumersGroupById = Tools.Dictionary.GetOrAddValue(consumersGroup, value.Id, { })
-    --        consumersGroupById[#consumersGroupById + 1] = value
-    --    end
-    -- end
-
-    -- local providersCount = 0
-    -- for _, provider in pairs(self.Providers) do
-    --     provider:BeginRead(self.HashTables)
-    --     local aggregateConsumerType = aggregateHash[provider.Type]
-    --     if(aggregateConsumerType == nil)then
-    --         return
-    --     end
-    --     if(provider:Amount() > 0) then
-    --         providersCount = providersCount + 1
-    --         local aggregateProviders = Tools.Dictionary.GetOrAddValue(aggregateConsumerType, "Providers", { })
-    --         local aggregateProvidersId = Tools.Dictionary.GetOrAddValue(aggregateProviders, provider.Id, { })
-    --         aggregateProvidersId[#aggregateProvidersId + 1] = provider
-    --     end
-    -- end
-
-    -- Logging.LogDebug("VirtualNetwor:TimeCallback providersCount: %d", providersCount)
-    -- if (providersCount == 0) then
-    --     return
-    -- end
-
-    -- local chains = self.MakeChain(aggregateHash)
-    -- Logging.LogDebug("VirtualNetwor:TimeCallback chainsCount: %d", #chains)
-    -- self.ExecuteChains(chains)
+    Logging.LogDebug("VirtualNetwor duration: %f", sw:Elapsed())
 end
 
 function VirtualNetwor:ClearHashTables()
@@ -177,18 +130,10 @@ function VirtualNetwor:ChainProcess()
         consumer:BeginRead(self.HashTables)
         Tools.TableConcat(requires, consumer:Requires())
     end
-    Logging.LogDebug("VirtualNetwor:ChainProcess countRequires: %d\n%s", #requires, requires)
-    Logging.LogDebug("VirtualNetwor:ChainProcess self.HashTables: \n%s", self.HashTables)
     if (#requires == 0) then
+        Logging.LogDebug("VirtualNetwor:ChainProcess #requires 0. Exit.")
         return
     end
-
-    -- local groupIdRequires = Tools.GroupBy(requires, function (a) return a.Id end)
-    -- Logging.LogDebug("VirtualNetwor:ChainProcess groupId=\n%s", groupIdRequires)
-    requires = Consumer.Aggregate(requires)
-    -- for _, value in pairs(groupIdRequires) do
-    --     Tools.TableConcat(requires, )
-    -- end
 
     ---@type ProviderItem[]
     local providers = { }
@@ -200,16 +145,23 @@ function VirtualNetwor:ChainProcess()
             providers[#providers + 1] = providerItem
         end
     end
-    providers = Provider.Aggregate(providers)
-    Logging.LogDebug("VirtualNetwor:ChainProcess providers: %d\n%s", #providers, providers)
     if (#providers == 0) then
+        Logging.LogDebug("VirtualNetwor:ChainProcess #providers 0. Exit.")
         return
     end
-    Logging.LogDebug("VirtualNetwor:ChainProcess (end) requires: %d\n%s", #requires, requires)
-    Logging.LogDebug("VirtualNetwor:ChainProcess (end) self.HashTables: \n%s", self.HashTables)
+
+    -- Aggregates
+    Logging.LogDebug("VirtualNetwor:ChainProcess requires: %d", #requires)
+    requires = Consumer.Aggregate(requires)
+    Logging.LogDebug("VirtualNetwor:ChainProcess after Aggregate requires: %d", #requires)
+
+    Logging.LogDebug("VirtualNetwor:ChainProcess providers: %d", #providers)
+    providers = Provider.Aggregate(providers)
+    Logging.LogDebug("VirtualNetwor:ChainProcess providers after Aggregate: %d", #providers)
+
+    Logging.LogDebug("VirtualNetwor:ChainProcess (make) requires:%d providers:%d", #requires, #providers)
     local chains = VirtualNetwor.MakeChain(requires, providers)
-    Logging.LogDebug("VirtualNetwor:ChainProcess (end) self.HashTables: \n%s", self.HashTables)
-    VirtualNetwor.ExecuteChains(chains, self.HashTables)
+    self:ExecuteChains(chains)
 end
 
 --- func desc
@@ -230,9 +182,13 @@ function VirtualNetwor.MakeChain(requires, provider)
         local requiresByReqType = requiresByRequiredType[key]
         if (requiresByReqType ~= nil) then
             if (key == "Fuel") then
+                -- Logging.LogDebug("VirtualNetwor.MakeChain before sort fuel:\n%s", requiresByReqType)
                 table.sort(requiresByReqType, function (a, b) return (OrderFuel[a.Type] or 999) < (OrderFuel[b.Type] or 999) end)
+                -- Logging.LogDebug("VirtualNetwor.MakeChain after sort fuel:\n%s", requiresByReqType)
             else
-                table.sort(requiresByReqType, function (a, b) return a.Requires.Value < b.Requires.Value end)
+                -- Logging.LogDebug("VirtualNetwor.MakeChain before sort value:\n%s", requiresByReqType)
+                table.sort(requiresByReqType, function (a, b) return a.Amount < b.Amount end)
+                -- Logging.LogDebug("VirtualNetwor.MakeChain after sort value:\n%s", requiresByReqType)
             end
             for _, consumer in pairs(requiresByRequiredType[key]) do
                 local providersByType = providersGroupType[consumer.Type]
@@ -270,11 +226,40 @@ end
 
 --- func desc
 ---@param chains ChainItem[]
-function VirtualNetwor.ExecuteChains(chains, hashTable)
-    Logging.LogDebug("VirtualNetwor:ExecuteChains chains: %s", chains)
-    local storageInfoGroup = AccessPoint.GetHashGroup(hashTable, "StorageInfo")
+function VirtualNetwor:ExecuteChains(chains)
+    -- Logging.LogDebug("VirtualNetwor:ExecuteChains chains: %s", chains)
+    local storageInfoGroup = AccessPoint.GetHashGroup(self.HashTables, "StorageInfo")
     for _, chain in pairs(chains) do
-        if(chain.SourceRequireType == "Storage" and chain.DestinationRequireType == "Storage") then
+        if (chain.SourceRequireType ~= "Storage") then
+            Logging.LogWarning("VirtualNetwor.ExecuteChains SourceRequireType ~= \"Storage\": %s", chain.SourceRequireType)
+        elseif (chain.DestinationRequireType == "Fuel") then
+            StorageTools.TransferFuel(
+                chain.Type,
+                chain.SourceId,
+                AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
+                chain.DestinationId,
+                --AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
+                chain.Count
+            )
+        elseif (chain.DestinationRequireType == "Water") then
+            StorageTools.TransferWater(
+                chain.Type,
+                chain.SourceId,
+                AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
+                chain.DestinationId,
+                --AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
+                chain.Count
+            )
+        elseif (chain.DestinationRequireType == "Ingredient") then
+            StorageTools.TransferIngredient(
+                chain.Type,
+                chain.SourceId,
+                AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
+                chain.DestinationId,
+                --AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
+                chain.Count
+            )
+        elseif (chain.DestinationRequireType == "Storage") then
             StorageTools.TransferItems(
                 chain.Type,
                 chain.SourceId,
