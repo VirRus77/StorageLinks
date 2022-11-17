@@ -29,7 +29,6 @@ function Settings:ExposedVariableCallbackSelf(value, name)
     -- }))
     if(self.DebugMode.Name == name) then
         self.DebugMode.Value = value
-        DEBUG_ENABLED = value
     end
     if (self.ReplaceOldBuildings.Name == name) then
         self.ReplaceOldBuildings.Value = value
@@ -47,7 +46,7 @@ function Settings:ExposedKeyCallbackSelf(name)
         return
     end
     if (name == self.DebugMove.Name) then
-        TimersStack.Immediately()
+        TIMERS_STACK:Immediately()
         --locateLinks(BuildingLevels.Crude)
         --locateLinks(BuildingLevels.Good)
         --locateLinks(BuildingLevels.Super)

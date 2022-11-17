@@ -14,6 +14,7 @@ Tools/SerializeTable.lua
 Models/Logging.lua
 Tools/Extensions.lua
 Tools/Tools.lua
+Tools/StringFindPattern.lua
 Tools/StorageTools.lua
 Tools/MakeDevelopMap.lua
 Settings.lua
@@ -24,8 +25,11 @@ Logic/Provider.lua
 Logic/StorageConsumer.lua
 Logic/StorageProvider.lua
 Logic/BuildingConsumer.lua
+Logic/FireWall.lua
 Logic/VirtualNetwork.lua
+Buildings/Logic/BuildingController.lua
 GlobalParameters.lua
+Buildings/Decoratives.lua
 Buildings/Buildings.lua
 Buildings/Buildings.LegacyBuildings.lua
 Buildings/Building.Logic.lua
@@ -37,7 +41,7 @@ Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua
 Buildings/Logic/PumpBase.lua
 Buildings/Logic/Transmitter.lua
-Buildings/Logic/BuildingController.lua
+Buildings/Logic/Switcher.lua
 Translates.lua
 Flight.Logic.lua
 Magnet.Logic.lua

@@ -47,16 +47,17 @@ function Transmitter.new(id, type, callbackRemove)
 end
 
 --- func desc
----@param editType BuildingEditType|nil # nesw = 0123
+---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+---@param oldValue Point|nil
 ---@protected
-function Transmitter:UpdateLogic(editType)
+function Transmitter:UpdateLogic(editType, oldValue)
     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
-    elseif (editType == BuildingEditType.Rename) then
+    elseif (editType == BuildingBase.BuildingEditType.Rename) then
         self:UpdateName()
         return
-    elseif (editType == BuildingEditType.Destroy) then
+    elseif (editType == BuildingBase.BuildingEditType.Destroy) then
         self:RemoveLink()
         return
     end

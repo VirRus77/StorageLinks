@@ -1,4 +1,4 @@
-
+INIT_MATERIALS = false
 -- Wishlist
 -- OVERFLOW PIPE (/pressure relief) -> when source side is full, move one if possible.
 -- Transmitter Priority by name "Priority 1", "Priority 2"... 1 being most important.
@@ -10,8 +10,7 @@ function SteamDetails()
     ModDebug.ClearLog()
     Logging.LogInformation("SteamDetails")
 
-    -- Setting of Steam details
-    ModBase.SetSteamWorkshopDetails("Storage Links 2.0", [[
+    local description = [[
 A set of links that can hook storages together. This is a great minimal mod.
 
 === Crude, Good, Super ===
@@ -55,14 +54,17 @@ A set of links that can hook storages together. This is a great minimal mod.
 ~= Enjoy =~
 
 Fork: https://steamcommunity.com/sharedfiles/filedetails/?id=2087715431
-https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
-      
+and https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
+
 Source mod: https://github.com/VirRus77/StorageLinks
 
-    ]],
-    { "transport", "storage", "move", "transmitter", "receiver", "magnet", "ejector" },
-    "logo2.jpg"
-)
+]]
+    -- Setting of Steam details
+    ModBase.SetSteamWorkshopDetails("Storage Links 2.0",
+        description,
+        { "transport", "storage", "move", "transmitter", "receiver", "magnet", "ejector" },
+        "logo2.jpg"
+    )
 
 --~~ Future ~~
 -- - Be able to transfer to/from train carriages. As of 136.24, the Modding API does not support interacting with train carriages.
@@ -98,6 +100,14 @@ function Creation()
     Converters:UpdateTypeByUniq()
     Buildings.CreateAll()
     Converters.CreateAll()
+
+    -- ModObject.AddMaterialsToCache("Material")
+
+
+    -- if(not INIT_MATERIALS) then
+    --     ModObject.AddMaterialsToCache("Switch")
+    --     INIT_MATERIALS = true
+    -- end
 
     -- if (Settings.ReplaceOldBuildings.Value) then
     --     Buildings.CreateOldTypes()
@@ -172,9 +182,11 @@ function AfterLoad_LoadedWorld()
     Translates.SetNames()
 
     -- Reset caches
+    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
+
     LINK_UIDS = { }
     STORAGE_UIDS = { }
-    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
+
     --DiscoveredAllMap:Go()
     --MakeDevelopMap:Make()
 
@@ -189,12 +201,13 @@ function AfterLoad()
         return
     end
 
-    TimersStack.Clear()
-    TimersStack.AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
+    TIMERS_STACK:Clear()
+    TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
+    TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
+
     -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
     -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
     -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
-    TimersStack.AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 
     -- if (Settings.ReplaceOldBuildings.Value) then
     --     for _, value in ipairs(Buildings.MappingOldTypes) do
@@ -206,9 +219,15 @@ function AfterLoad()
     -- end
 
     Converters.UpdateState()
-
     BuildingsDependencyTree.SwitchAllLockState()
-    BuildingController.Initialize()
+    BUILDING_CONTROLLER:RegistryTypes({
+        BasicExtractor,
+        Magnet,
+        PumpBase,
+        Transmitter,
+        Switcher
+    })
+    -- BuildingController.Initialize()
     -- ReplaceOldBuildings()
 
     --swapOldNamesToNew()
@@ -233,7 +252,7 @@ function OnUpdate(timeDelta)
 
     if (not Settings.DebugMode.Value) then
         if(ModBase.GetGameState() == "Normal") then
-            TimersStack:AppendDelta(timeDelta)
+            TIMERS_STACK:AppendDelta(timeDelta)
         end
     end
 end

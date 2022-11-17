@@ -304,45 +304,6 @@ Buildings.AllTypes = {
         Buildings.SwitchSuper,
 }
 
-Decoratives = {
-    ---@alias DecorativeItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, Scale? :number, Rotation? :Point3, CustomModel :boolean }
-    ---@type DecorativeItem #
-    SwitchOnSymbol = {
-        Type = "SwitchOnSymbol",
-        Name = "Switch On Symbol (SL)",
-        Ingridients = { "TreeSeed", },
-        IngridientsAmount = { 1 },
-        ModelName = "SwitchOn",
-        CustomModel = true,
-    },
-
-    -- Misc Symbols
-    ---@type DecorativeItem #
-    SymbolBroken = {
-        Type = "SymbolBroken",
-        Name = "Broken Symbol (SL)",
-        Ingridients = { "TreeSeed" },
-        IngridientsAmount = { 1 },
-        ModelName = "BrokenSymbol",
-        CustomModel = true,
-    },
-}
-
----@type DecorativeItem[]
-Decoratives.AllTypes = {
-    Decoratives.SwitchOnSymbol,
-
-    -- Misc Symbols
-    Decoratives.SymbolBroken,
-}
-
---- UpdateType by uniq.
-function Decoratives:UpdateTypeByUniq()
-    for _, buildingValue in ipairs(self.AllTypes) do
-        buildingValue.Type = Constants.UniqueName(buildingValue.Type)
-    end
-end
-
 ---@type BuildingItem[]
 Buildings.CrudeTypes = {
     Buildings.PumpCrude,
@@ -433,9 +394,9 @@ function Buildings.CreateAll ()
     Buildings.Create (Buildings.SwitchSuper)
 
     -- Switch
-    Buildings.CreateDecorative (Decoratives.SwitchOnSymbol)
+    Decoratives.CreateDecorative (Decoratives.SwitchOnSymbol)
     -- Misc Symbols
-    Buildings.CreateDecorative (Decoratives.SymbolBroken)
+    Decoratives.CreateDecorative (Decoratives.SymbolBroken)
 end
 
 --- UpdateType by uniq.
@@ -455,6 +416,7 @@ function Buildings.Create (building, replaceType)
         type = replaceType
     end
 
+    Logging.LogDebug("Buildings.Create: %s", type)
     ModBuilding.CreateBuilding (
         type,
         building.Ingridients,
@@ -465,6 +427,8 @@ function Buildings.Create (building, replaceType)
         building.AccessPoint,
         building.CustomModel or false
     )
+
+    Logging.LogDebug("Buildings.Create (complete): %s", type)
 
     if (building.Scale) then
         ModBuilding.UpdateModelScale (type, building.Scale)
@@ -479,36 +443,5 @@ function Buildings.Create (building, replaceType)
     end
     if (building.Walkable) then
         ModBuilding.SetBuildingWalkable (type, building.Walkable)
-    end
-end
-
---- func desc
----@param decorative DecorativeItem
----@param replaceType string?
-function Buildings.CreateDecorative (decorative, replaceType)
-    ---@type string
-    local type = decorative.Type
-    if (replaceType ~= nil) then
-        type = replaceType
-    end
-
-    ModDecorative.CreateDecorative (
-        type,
-        decorative.Ingridients,
-        decorative.IngridientsAmount,
-        decorative.ModelName,
-        decorative.CustomModel or false
-    )
-
-    if (decorative.Scale) then
-        ModDecorative.UpdateModelScale (type, decorative.Scale)
-    end
-    if (decorative.Rotation) then
-        ---@type Point3
-        local rotation = decorative.Rotation
-        rotation.X = rotation.X or 0.0
-        rotation.Y = rotation.Y or 0.0
-        rotation.Z = rotation.Z or 0.0
-        ModDecorative.UpdateModelRotation (type, rotation.X, rotation.Y, rotation.Z)
     end
 end

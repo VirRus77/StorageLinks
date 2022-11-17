@@ -9,23 +9,27 @@ Author: Sotin NU aka VirRus77
 ---@field Providers table<string, Provider> #
 ---@field Consumers table<string, Consumer> #
 ---@field HashTables table #
+---@field FireWall FireWall|nil #
 VirtualNetwor = { }
 
 ---@type VirtualNetwor
 VirtualNetwor = Object:extend(VirtualNetwor)
 
 --- func desc
+---@param fireWall FireWall|nil
 ---@return VirtualNetwor
-function VirtualNetwor.new()
-    local instance = VirtualNetwor:make()
+function VirtualNetwor.new(fireWall)
+    local instance = VirtualNetwor:make(fireWall)
     return instance
 end
 
-function VirtualNetwor:initialize()
+---@private
+function VirtualNetwor:initialize(fireWall)
     self._index = 1
     self.Providers = { }
     self.Consumers = { }
     self.HashTables = { }
+    self.FireWall = fireWall
 end
 
 --- func desc
@@ -127,8 +131,10 @@ function VirtualNetwor:ChainProcess()
     local requires = { }
 
     for _, consumer in pairs(self.Consumers) do
-        consumer:BeginRead(self.HashTables)
-        Tools.TableConcat(requires, consumer:Requires())
+        if(self.FireWall == nil or not self.FireWall:Skip(consumer.Id)) then
+            consumer:BeginRead(self.HashTables)
+            Tools.TableConcat(requires, consumer:Requires())
+        end
     end
     if (#requires == 0) then
         Logging.LogDebug("VirtualNetwor:ChainProcess #requires 0. Exit.")

@@ -1,6 +1,6 @@
 # Blender v2.83.0 OBJ File: 'SwitchOn.blend'
 # www.blender.org
-mtllib SwitchOn.mtl
+mtllib Switch.mtl
 o Cube_Cube.003
 v 1.127977 0.227977 1.272023
 v 1.127977 0.372023 1.272023

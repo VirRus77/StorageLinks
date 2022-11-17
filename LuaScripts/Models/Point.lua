@@ -58,3 +58,9 @@ end
 function Point:__tostring()
     return string.format("%d:%d", self.X, self.Y)
 end
+
+--- func desc
+---@param point Point
+function Point:Equals(point)
+    return self.X == point.X and self.Y == point.Y
+end

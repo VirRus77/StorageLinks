@@ -1,10 +1,4 @@
---
 Logging.SetMinimalLevel(LogLevel.Trace)
-ManualDebug = true
-
--- Static
-FRAMES_BETWEEN_CHECK = 10
-LAST_TIME_DELTA = 0
 
 VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before uploading to steam!!
 
@@ -12,19 +6,17 @@ VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before 
 --  ---@alias OBJECTS_IN_FLIGHT_Item { arch :boolean, wobble :boolean, storageUID :integer, onFlightComplete :fun( id :integer, objectInFlight :OBJECTS_IN_FLIGHT_Item) }
 --  ---@type OBJECTS_IN_FLIGHT_Item[] #
 --  OBJECTS_IN_FLIGHT = {}
+
+---@type FireWall
+FIRE_WALL = FireWall.new()
+---@type VirtualNetwor
+VIRTUAL_NETWORK = VirtualNetwor.new(FIRE_WALL)
 ---@type FlightObjectsList #
 OBJECTS_IN_FLIGHT = FlightObjectsList.new()
-
-SWITCHES_TURNED_OFF = {} -- key = '>some name'. use pairs().
-
--- Internal Caching
----@alias LINK_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation: integer, name :string, linkUID? :integer, storageUIDs? :integer[], buildingLevel :BuildingLevels, connectToXY :integer[], storageUID? :integer, area :{ left :integer, top :integer, right :integer, bottom :integer } }
----@type LINK_UIDS_Item[] #
-LINK_UIDS = {}
----@alias STORAGE_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation :integer, name :string, sType :string, linkUIDs? :integer[], linkUID? :integer }
----@type STORAGE_UIDS_Item[]
-STORAGE_UIDS = {}
-
+---@type TimersStack
+TIMERS_STACK = TimersStack.new()
+---@type BuildingController
+BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK)
 
 HASH_TABLES = {
     --- HashTable Durability
@@ -38,11 +30,30 @@ HASH_TABLES = {
     Water = { },
 }
 
-VIRTUAL_NETWORK = VirtualNetwor.new()
+
+----- LEGACY -----
+
+-- Static
+FRAMES_BETWEEN_CHECK = 10
+LAST_TIME_DELTA = 0
+
+
+SWITCHES_TURNED_OFF = {} -- key = '>some name'. use pairs().
+
+-- Internal Caching
+---@alias LINK_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation: integer, name :string, linkUID? :integer, storageUIDs? :integer[], buildingLevel :BuildingLevels, connectToXY :integer[], storageUID? :integer, area :{ left :integer, top :integer, right :integer, bottom :integer } }
+---@type LINK_UIDS_Item[] #
+LINK_UIDS = {}
+---@alias STORAGE_UIDS_Item { bType :string, tileX :integer, tileY :integer, rotation :integer, name :string, sType :string, linkUIDs? :integer[], linkUID? :integer }
+---@type STORAGE_UIDS_Item[]
+STORAGE_UIDS = {}
+
+
 
 --- func desc
 ---@param buildingLevel BuildingLevels #
 ---@return Timer[] # 
+---@obsolete
 function MakeTimers (buildingLevel)
     local checkPeriod = 1
     if(buildingLevel == BuildingLevels.Crude) then
@@ -68,5 +79,6 @@ end
 
 -- Variables that can change
 FRAME_COUNTER = 0
+---@obsolete
 DEBUG_ENABLED = false
 USE_EVENT_STYLE = false

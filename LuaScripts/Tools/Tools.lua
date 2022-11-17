@@ -286,9 +286,6 @@ function GetTypedUidsByTypesOnMap(buildingTypes)
         --local uidsByType = ModTiles.GetObjectUIDsOfType
         local uidsByType = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         uids[buildingType] = uidsByType
-        --for _, uid in ipairs(tempUids) do
-        --    uids[#uids + 1] = uid
-        --end
     end
     return uids
 end

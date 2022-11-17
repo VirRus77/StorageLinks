@@ -27,6 +27,8 @@ function Magnet.new(id, type, callbackRemove)
     Logging.LogInformation("Magnet.new %d, %s", id, callbackRemove)
     ---@type MagnetSettingsItem2
     local settings = BuildingSettings.GetSettingsByType(type) or error("Magnet Settings not found", 666) or { }
+
+    ---@type Magnet
     local instance = Magnet:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
     instance.Settings = settings
     local area = instance.Settings.Area
@@ -36,13 +38,14 @@ function Magnet.new(id, type, callbackRemove)
 end
 
 --- func desc
----@param editType BuildingEditType # nesw = 0123
+---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+---@param oldValue Point|nil
 ---@protected
-function Magnet:UpdateLogic(editType)
+function Magnet:UpdateLogic(editType, oldValue)
     Logging.LogInformation("Magnet:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
-    elseif (editType == BuildingEditType.Rename) then
+    elseif (editType == BuildingBase.BuildingEditType.Rename) then
         self:UpdateName()
         return
     end
@@ -114,37 +117,17 @@ function Magnet:UpdateName()
     Logging.LogInformation("Magnet:UpdateName %s", self.Name)
     ---@type integer
     local limit = 1
-    ---@type integer
-    local width = self.WorkArea:Width()
-    local height = self.WorkArea:Height()
+    local areaByName = self:GetAreaByName()
+    local positionAreaByName = self:GetPositionAreaByName()
 
-    local startStringWidth, endStringWidth = string.find(self.Name, '%d+x')
-    local startStringHeight, endStringHeight = string.find(self.Name, 'x%d+')
-    if (startStringWidth ~= nil and endStringWidth ~= nil) then
-        ---@type integer
-        width = tonumber(string.sub(self.Name, startStringWidth, endStringWidth - 1)) or width
-        ---@type integer
-        height = tonumber(string.sub(self.Name, startStringHeight + 1, endStringHeight)) or height
+    if (areaByName ~= nil) then
+        self.WorkArea = areaByName
+    elseif (positionAreaByName ~= nil) then
+        self.WorkArea = positionAreaByName
+    else
+        self.WorkArea = self:GetAreaByPosition(self.Settings.Area:Width(), self.Settings.Area:Height())
     end
-    Logging.LogInformation("BasicExtractor:UpdateName limit %d", limit)
-    self.WorkArea = self:GetAreaByPosition(width, height)
-end
-
---- func desc
----@param width integer
----@param height integer
-function Magnet:GetAreaByPosition(width, height)
-    local left = self.Location.X - math.floor(width / 2)
-    local top = self.Location.Y - math.floor(height / 2)
-    local right = left + width
-    local bottom = top + height
-
-    left = math.min(WORLD_LIMITS.Width, math.max(0, left))
-    top = math.min(WORLD_LIMITS.Height, math.max(0, top))
-    right = math.min(WORLD_LIMITS.Width, math.max(0, right))
-    bottom = math.min(WORLD_LIMITS.Height, math.max(0, bottom))
-
-    return Area.new(left, top, right, bottom)
+    Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
 end
 
 --- func desc
@@ -195,4 +178,67 @@ function Magnet.OnFlightComplete(flyingObject, successfully)
     end
 
     StorageTools.AddItemToStorage(storageId, flyingId)
+end
+
+---@return Area|nil
+function Magnet:GetPositionAreaByName()
+    local findPattern = StringFindPattern.new("%d+x%d+")
+    findPattern:AddChild("%d+")
+    ---@type integer
+    local width = self.WorkArea:Width()
+    ---@type integer
+    local height = self.WorkArea:Height()
+
+    local found = findPattern:Find(self.Name, 1)
+    if(found == nil or #found ~= 2)then
+        return nil
+    end
+    if (found ~= nil and #found == 2) then
+       width = tonumber(found[1]) or error("cant parse to number: " .. found[1], 666) or width
+       height = tonumber(found[2]) or error("cant parse to number: " .. found[2], 666) or width
+    end
+    -- Logging:LogDebug("Magnet:GetPositionAreaByName: %d %d", width, height)
+    return self:GetAreaByPosition(width, height)
+end
+
+--- func desc
+---@param width integer
+---@param height integer
+---@return Area
+function Magnet:GetAreaByPosition(width, height)
+    local left = self.Location.X - math.floor(width / 2)
+    local top = self.Location.Y - math.floor(height / 2)
+    local right = left + width
+    local bottom = top + height
+
+    local area = Area.new(left, top, right, bottom)
+    WORLD_LIMITS:ApplyLimits(area)
+
+    return area
+end
+
+--- func desc
+---@return Area|nil
+function Magnet:GetAreaByName()
+    local findPattern = StringFindPattern.new("{%s*%d+%s*,%s*%d+%s*;%s*%d+%s*,%s*%d+%s*}")
+    findPattern:AddChild("%d+")
+    ---@type integer
+
+    ---@type string[]|nil
+    local found = findPattern:Find(self.Name, 1)
+    --Logging.LogDebug("Magnet:GetAreaByName #found: %d found: %s", #found, found)
+
+    if (found == nil or #found ~= 4) then
+        return nil
+    end
+
+    ---@type integer[]
+    local values = { }
+    for i = 1, 4, 1 do
+        values[#values + 1] = tonumber(found[i]) or error("cant parse to number: " .. found[i], 666) or 0
+    end
+    -- Logging.LogDebug("Magnet:GetAreaByName values: %s", values)
+    local area = Area.new(table.unpack(values))
+    WORLD_LIMITS:ApplyLimits(area)
+    return area
 end

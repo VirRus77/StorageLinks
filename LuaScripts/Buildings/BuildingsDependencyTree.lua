@@ -72,7 +72,9 @@ function BuildingsDependencyTree.IsAllBuildingUnlocked(buildingTable)
     end
 
     for _, value in ipairs(buildingTable) do
-        if (not (ModVariable.GetVariableForObjectAsInt(value, "Unlocked") > 0)) then
+        local lockValue = (ModVariable.GetVariableForObjectAsInt(value, "Unlocked"))
+        if (not (lockValue > 0)) then
+            Logging.LogDebug("BuildingsDependencyTree.IsAllBuildingUnlocked %s %d",value, lockValue)
             return false
         end
     end
@@ -93,12 +95,15 @@ end
 function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
     local stateUnlock = BuildingsDependencyTree.IsAllBuildingUnlocked(dependecy.DependencyOn)
     local invertBuildings = BuildingsDependencyTree.GetBuildingsUnlockedState(dependecy.Buildings, not stateUnlock)
+    -- Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings invertBuildings:\n%s", invertBuildings)
+
+    ---@type integer
     local stateValue = 0;
     if (stateUnlock) then
         stateValue = 1;
     end
 
-    if (Settings.DebugMode.Value and (Tools.GetTableLength(invertBuildings) > 0)) then
+    if (Settings.DebugMode.Value and (#invertBuildings > 0)) then
         Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings\n%s",
             serializeTable({
                 stateUnlock = stateUnlock,
@@ -108,8 +113,9 @@ function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
         )
     end
 
-    for _, value in ipairs(invertBuildings) do
+    for _, value in pairs(invertBuildings) do        
         ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", stateValue)
+        -- Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings %s %d == %d", value.Type, stateValue, ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked"))
     end
 end
 
@@ -120,9 +126,10 @@ end
 function BuildingsDependencyTree.GetBuildingsUnlockedState(buildings, state)
     local result = { }
     for _, value in ipairs(buildings) do
-        local flag = (ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked") > 0) == state
+        local lockState = ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked")
+        local flag = (lockState > 0) == state
         if (flag) then
-            table.insert( result, value )
+            result[#result + 1] = value
         end
     end
     return result

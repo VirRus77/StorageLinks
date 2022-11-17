@@ -212,6 +212,18 @@ BuildingSettings = {
             },
         },
     },
+
+    ---@type SwittcherSettingsItem[]
+    Switcher = {
+        {
+            Type = Buildings.SwitchSuper,
+            ---@alias SwittcherSettingsItem { UpdatePeriod :number, SwitchState :boolean } #
+            Settings = {
+                UpdatePeriod = 1 / 4,
+                SwitchState = true
+            }
+        }
+    }
 }
 
 --- GetSettings by building type.

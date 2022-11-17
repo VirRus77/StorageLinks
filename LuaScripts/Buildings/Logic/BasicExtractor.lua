@@ -30,13 +30,14 @@ function BasicExtractor.new(id, type, callbackRemove)
 end
 
 --- func desc
----@param editType BuildingEditType|nil # nesw = 0123
+---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+---@param oldValue Point|nil
 ---@protected
-function BasicExtractor:UpdateLogic(editType)
+function BasicExtractor:UpdateLogic(editType, oldValue)
     Logging.LogInformation("BasicExtractor:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
-    elseif (editType == BuildingEditType.Rename) then
+    elseif (editType == BuildingBase.BuildingEditType.Rename) then
         self:UpdateName()
         return
     end

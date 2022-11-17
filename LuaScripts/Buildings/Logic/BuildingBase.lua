@@ -4,14 +4,6 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@enum #
-BuildingEditType = {
-    Rotate = "Rotate",
-    Move = "Move",
-    Rename = "Rename",
-    Destroy = "Destroy"
- }
-
 DirectionDeltaPoint = {
     ---@type Point # n
     [0] = Point.new( 0, -1),
@@ -53,6 +45,14 @@ BuildingBase = {
     _callbackRemove = nil,
     ---@type { Type :string }[] #
     SupportTypes = { },
+
+    ---@enum BuildingBase.BuildingEditType #
+    BuildingEditType = {
+        Rotate = "Rotate",
+        Move = "Move",
+        Rename = "Rename",
+        Destroy = "Destroy"
+    }
 }
 ---@type BuildingBase
 BuildingBase = Object:extend(BuildingBase)
@@ -73,7 +73,7 @@ function BuildingBase.new(id, type, callbackRemove, location, rotation, logicPer
 end
 
 function BuildingBase:initialize(id, type, callbackRemove, location, rotation, logicPeriod)
-    -- Logging.LogInformation("BuildingBase:initialize %d, %s, R:%s, T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
+    Logging.LogInformation("BuildingBase:initialize %d, %s, R:%s, T:%s", id, callbackRemove, tostring(rotation), tostring(logicPeriod))
     self._logicPeriod = logicPeriod
     self.Id = id
     self.Type = type
@@ -106,9 +106,9 @@ end
 ---@param newValue any
 function BuildingBase:OnEditedCallback(buildingUID, editType, newValue)
     Logging.LogInformation("BuildingBase.OnEditedCallback(%d, %s, %s)", buildingUID, editType, serializeTable(newValue))
-    if (editType == BuildingEditType.Rotate) then
+    if (editType == BuildingBase.BuildingEditType.Rotate) then
         self:OnRotate(newValue)
-    elseif (editType == BuildingEditType.Move) then
+    elseif (editType == BuildingBase.BuildingEditType.Move) then
         local pointValues = { }
         --string.gmatch(newValue, "(%d+):(%d+)")
         for value in string.gmatch(newValue, "%d+") do
@@ -116,9 +116,9 @@ function BuildingBase:OnEditedCallback(buildingUID, editType, newValue)
         end
         -- Logging.LogDebug("BuildingEditType.Move %s", serializeTable(pointValues))
         self:OnMove(Point.new(table.unpack(pointValues)))
-    elseif (editType == BuildingEditType.Rename) then
+    elseif (editType == BuildingBase.BuildingEditType.Rename) then
         self:OnRename(newValue)
-    elseif (editType == BuildingEditType.Destroy) then
+    elseif (editType == BuildingBase.BuildingEditType.Destroy) then
         self:OnDestroy()
     end
 end
@@ -130,9 +130,10 @@ function BuildingBase:OnStateChangedCallback(buildingUID, newState)
 end
 
 --- func desc
----@param editType BuildingEditType|nil # nesw = 0123
+---@param editType BuildingBase.BuildingEditType|nil #
+---@param oldValue Point|nil
 ---@protected
-function BuildingBase:UpdateLogic(editType)
+function BuildingBase:UpdateLogic(editType, oldValue)
     Logging.LogInformation("BuildingBase:UpdateLogic")
 end
 
@@ -142,7 +143,7 @@ end
 function BuildingBase:OnRotate(direction)
     Logging.LogInformation("BuildingBase:OnRotate %d", direction)
     self.Rotation = direction
-    self:UpdateLogic(BuildingEditType.Move)
+    self:UpdateLogic(BuildingBase.BuildingEditType.Move)
 end
 
 --- func desc
@@ -150,8 +151,9 @@ end
 ---@protected
 function BuildingBase:OnMove(newLocation)
     Logging.LogInformation("BuildingBase:OnMove %s", newLocation)
+    local oldValue = self.Location
     self.Location = newLocation
-    self:UpdateLogic(BuildingEditType.Move)
+    self:UpdateLogic(BuildingBase.BuildingEditType.Move, oldValue)
 end
 
 --- func desc
@@ -160,7 +162,7 @@ end
 function BuildingBase:OnRename(newName)
     Logging.LogInformation("BuildingBase:OnRename %s", newName)
     self.Name = newName
-    self:UpdateLogic(BuildingEditType.Rename)
+    self:UpdateLogic(BuildingBase.BuildingEditType.Rename)
 end
 
 --- func desc
@@ -171,7 +173,7 @@ function BuildingBase:OnDestroy()
     ---@note Not exist unsubscrible RegisterForBuildingStateChangedCallback
     -- ModBuilding.RegisterForBuildingStateChangedCallback(id, function (buildingUID, newState) self:OnStateChangedCallback(buildingUID, newState); end )
     self:_callbackRemove()
-    self:UpdateLogic(BuildingEditType.Destroy)
+    self:UpdateLogic(BuildingBase.BuildingEditType.Destroy)
 end
 
 function BuildingBase:OnTimerCallback()

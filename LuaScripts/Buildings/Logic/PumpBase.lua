@@ -47,13 +47,14 @@ function PumpBase.new(id, type, callbackRemove)
 end
 
 --- func desc
----@param editType BuildingEditType # nesw = 0123
+---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+---@param oldValue Point|nil
 ---@protected
-function PumpBase:UpdateLogic(editType)
+function PumpBase:UpdateLogic(editType, oldValue)
     Logging.LogInformation("PumpBase:UpdateLogic %s", editType)
     if (editType == nil) then
         --self:UpdateName()
-    elseif (editType == BuildingEditType.Rename) then
+    elseif (editType == BuildingBase.BuildingEditType.Rename) then
         return
     end
 end

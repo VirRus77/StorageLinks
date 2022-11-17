@@ -36,6 +36,19 @@ $files | ForEach-Object {
   Copy-Item -Path $_ -Destination $destinationFile
 }
 
+# models/textures (*.png, *.jpg)
+Write-Host "Copy models"
+[string] $destDirectory = "models/textures"
+[string] $destination = [System.IO.Path]::Combine($publishPath, $destDirectory)
+[string[]] $files = [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.png") + [System.IO.Directory]::GetFiles("$RootPath/$destDirectory", "*.jpg")
+Write-Host "Make: $destination"
+New-Item -Path $destination -ItemType "directory" | Out-Null
+$files | ForEach-Object { 
+  [string] $destinationFile = [System.IO.Path]::Combine($destination, [System.IO.Path]::GetFileName($_) )
+  Write-Host "Copy: $_ to $destinationFile"
+  Copy-Item -Path $_ -Destination $destinationFile
+}
+
 # textures (*.png, *.jpg)
 Write-Host "Copy textures"
 [string] $destDirectory = "textures"
@@ -59,7 +72,7 @@ Copy-Item -Path "$RootPath/$destDirectory" -Destination $destination -Recurse
 Write-Host "Join lua files"
 [string] $sourcePath = "$RootPath/LuaScripts";
 [string[]] $fileNames = [System.IO.File]::ReadAllLines("$sourcePath/_Order", [System.Text.Encoding]::UTF8) | Where-Object { -not $_.TrimStart().StartsWith("#") }
-[string] $destination = [System.IO.Path]::Combine($publishPath, "Storage Link 2.0.lua")
+[string] $destination = [System.IO.Path]::Combine($publishPath, "Storage Links 2.0.lua")
 $fileNames | Where-Object { -not [string]::IsNullOrEmpty($_) } | ForEach-Object {
   [string] $fileContent = [System.IO.File]::ReadAllText("$sourcePath/$_")
   $fileContent = "----- $([System.IO.Path]::GetFileName($_)) -----`n`n" + $fileContent + "`n"
