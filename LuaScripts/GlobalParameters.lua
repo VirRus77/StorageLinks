@@ -16,7 +16,7 @@ OBJECTS_IN_FLIGHT = FlightObjectsList.new()
 ---@type TimersStack
 TIMERS_STACK = TimersStack.new()
 ---@type BuildingController
-BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK)
+BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
 
 HASH_TABLES = {
     --- HashTable Durability

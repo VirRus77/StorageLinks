@@ -402,10 +402,10 @@ end
 
 function ToTypedString(value)
     local typeValue = type(value)
-    local localValue = value
+    local localValue = tostring(value)
     if (typeValue == "boolean") then
         localValue = tostring(value)
-    elseif (typeValue =="table" and type(value.__tostring) == "function") then
+    elseif (typeValue == "table" and type(value.__tostring) == "function") then
         localValue = tostring(value)
     end
 

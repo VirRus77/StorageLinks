@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class PumpBase :BuildingBase #
+---@class PumpBase :BuildingStorageLinksBase #
 ---@field WorkArea Area #
 ---@field InputPoint Point # Direction default rotation
 ---@field OutputPoint Point # Direction default rotation
@@ -28,17 +28,21 @@ PumpBase = {
     InputPoint  = Point.new(0, -1),
     OutputPoint = Point.new(0,  1),
 }
-PumpBase = BuildingBase:extend(PumpBase)
+---@type PumpBase
+PumpBase = BuildingStorageLinksBase:extend(PumpBase)
 
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
+---@param fireWall FireWall #
 ---@return PumpBase
-function PumpBase.new(id, type, callbackRemove)
+function PumpBase.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("PumpBase.new %d, %s", id, callbackRemove)
     ---@type PumpSettingsItem
     local settings = BuildingSettings.GetSettingsByType(type) or error("PumpBase Settings not found", 666) or { }
-    local instance = PumpBase:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
+
+    ---@type PumpBase
+    local instance = PumpBase:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
     instance.Settings = settings
     instance.InputPoint = settings.InputPoint or instance.InputPoint
     instance.OutputPoint = settings.OutputPoint or instance.OutputPoint
@@ -53,13 +57,20 @@ end
 function PumpBase:UpdateLogic(editType, oldValue)
     Logging.LogInformation("PumpBase:UpdateLogic %s", editType)
     if (editType == nil) then
-        --self:UpdateName()
-    elseif (editType == BuildingBase.BuildingEditType.Rename) then
+        self:UpdateGroup()
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
+        self:UpdateGroup()
+        return
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
+        self:RemoveFromFireWall()
         return
     end
 end
 
 function PumpBase:OnTimerCallback()
+    if (self.FireWall:Skip(self.Id)) then
+        return
+    end
     -- Logging.LogInformation("PumpBase:OnTimerCallback \"%s\" (%s) R:%s", self.Name, self.Location, self.Rotation)
     local location = self.Location
     local inputRotate = Point.Rotate(self.InputPoint, self.Rotation)

@@ -3,15 +3,16 @@ Copyright (C) Sotin NU aka VirRus77
 Author: Sotin NU aka VirRus77
 --]]
 
----@class ReferenceValue :Object #
----@field Value any #
+---@class ReferenceValue<T> :Object, { Value: T } #
+----@field Value T #
 ReferenceValue = { }
 ---@type ReferenceValue
 ReferenceValue = Object:extend(ReferenceValue)
 
 --- func desc
----@param value any|nil
----@return ReferenceValue
+---@generic T :any
+---@param value T|nil
+---@return ReferenceValue<T>
 function ReferenceValue.new(value)
     ---@type ReferenceValue
     local instance = ReferenceValue:make(value)

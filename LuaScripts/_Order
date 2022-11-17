@@ -1,20 +1,20 @@
 # The order in which the files are combined.
-Tools/Object.lua
-Tools/Stopwatch.lua
-Tools/ReferenceValue.lua
+Core/Object.lua
+Core/Point.lua
+Core/Area.lua
+Core/ReferenceValue.lua
+Core/Tools/Stopwatch.lua
+Core/Tools/SerializeTable.lua
+Core/Tools/Logging.lua
+Core/Tools/StringFindPattern.lua
 GameValues/SubCategory.lua
-Models/Point.lua
-Models/Area.lua
 Models/FlightObject.lua
 Models/FlightObjectsList.lua
 Models/Timer.lua
 Models/TimersStack.lua
 Models/WorldLimits.lua
-Tools/SerializeTable.lua
-Models/Logging.lua
 Tools/Extensions.lua
 Tools/Tools.lua
-Tools/StringFindPattern.lua
 Tools/StorageTools.lua
 Tools/MakeDevelopMap.lua
 Settings.lua
@@ -25,6 +25,7 @@ Logic/Provider.lua
 Logic/StorageConsumer.lua
 Logic/StorageProvider.lua
 Logic/BuildingConsumer.lua
+Logic/FilterGroup.lua
 Logic/FireWall.lua
 Logic/VirtualNetwork.lua
 Buildings/Logic/BuildingController.lua
@@ -37,6 +38,7 @@ Buildings/Converters.lua
 Buildings/BuildingSettings.lua
 Buildings/BuildingsDependencyTree.lua
 Buildings/Logic/BuildingBase.lua
+Buildings/Logic/BuildingStorageLinksBase.lua
 Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua
 Buildings/Logic/PumpBase.lua

@@ -5,12 +5,13 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class BuildingController :Object #
----@field _timersStack TimersStack
----@field Buildings table<integer, BuildingBase>
----@field BuildingsTypes BuildingBase[]
----@field Timers table<integer, string>
+---@field _timersStack TimersStack #
+---@field Buildings table<integer, BuildingStorageLinksBase> #
+---@field BuildingsTypes BuildingStorageLinksBase[] #
+---@field Timers table<integer, string> #
+---@field FireWall FireWall #
 BuildingController = {
-    ---@type table<integer, BuildingBase>
+    ---@type table<integer, BuildingStorageLinksBase>
     Buildings = {},
     Timers = {}
 }
@@ -18,40 +19,44 @@ BuildingController = {
 BuildingController = Object:extend(BuildingController)
 
 ---@param timersStack TimersStack
+---@param fireWall FireWall
 ---@return BuildingController
-function BuildingController.new(timersStack)
-    local instance = BuildingController:make(timersStack)
+function BuildingController.new(timersStack, fireWall)
+    local instance = BuildingController:make(timersStack, fireWall)
     return instance
 end
 
-function BuildingController:initialize(timersStack)
+function BuildingController:initialize(timersStack, fireWall)
     self._timersStack = timersStack
     self.Buildings = { }
     self.Timer = { }
     self.BuildingsTypes = { }
+    self.FireWall = fireWall
 end
 
 --- func desc
----@param buildingBase BuildingBase
+---@param buildingBase BuildingStorageLinksBase
 function BuildingController:AddBuildingsType(buildingBase)
     self.BuildingsTypes[#self.BuildingsTypes + 1] = buildingBase
 end
 
 --- func desc
----@param typesList BuildingBase[]|nil
+---@param typesList BuildingStorageLinksBase[]|nil
 function BuildingController:RegistryTypes(typesList)
     if (typesList ~= nil and #typesList > 0) then
         for _, value in pairs(typesList) do
+            local removeFunction = function (removedBuildingBase)
+                self:Remove(removedBuildingBase)
+            end
             self:InitializeTypes(
                 value.SupportTypes,
                 function (buildingId, buildingType, isBlueprint, isDragging)
-                    ---@type BuildingBase
+                    ---@type BuildingStorageLinksBase
                     local building = value.new(
                         buildingId,
                         buildingType,
-                        function (removedBuildingBase)
-                            self:Remove(removedBuildingBase)
-                        end
+                        removeFunction,
+                        self.FireWall
                     )
                     self:Add(building)
                 end
@@ -60,16 +65,18 @@ function BuildingController:RegistryTypes(typesList)
     end
 
     for _, value in pairs(self.BuildingsTypes) do
+        local removeFunction = function (removedBuildingBase)
+            self:Remove(removedBuildingBase)
+        end
         self:InitializeTypes(
             value.SupportTypes,
             function (buildingId, buildingType, isBlueprint, isDragging)
-                ---@type BuildingBase
+                ---@type BuildingStorageLinksBase
                 local building = value.new(
                     buildingId,
                     buildingType,
-                    function (removedBuildingBase)
-                        self:Remove(removedBuildingBase)
-                    end
+                    removeFunction,
+                    self.FireWall
                 )
                 self:Add(building)
             end
@@ -78,9 +85,9 @@ function BuildingController:RegistryTypes(typesList)
 end
 
 ---@private
----@param newBuilding BuildingBase
+---@param newBuilding BuildingStorageLinksBase
 function BuildingController:Add(newBuilding)
-    Logging.LogDebug("BuildingController.Add")
+    Logging.LogDebug("BuildingController.Add (start)")
     local buildingId = newBuilding.Id
     if(self.Buildings[buildingId] ~= nil) then
         Logging.LogError("BuildingController contains %d", buildingId)
@@ -95,9 +102,10 @@ function BuildingController:Add(newBuilding)
        Logging.LogDebug("BuildingController.Add MakeTimer timerId=%s", timerId)
        self.Timers[buildingId] = timerId
     end
+    Logging.LogDebug("BuildingController.Add (end)")
 end
 
----@param oldBuilding BuildingBase
+---@param oldBuilding BuildingStorageLinksBase
 function BuildingController:Remove(oldBuilding)
     Logging.LogDebug("BuildingController.Remove")
     local buildingId = oldBuilding.Id

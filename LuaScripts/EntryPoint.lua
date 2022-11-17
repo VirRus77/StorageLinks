@@ -201,6 +201,14 @@ function AfterLoad()
         return
     end
 
+    -- Remove all Decoratives
+    for _, value in pairs(Decoratives.AllTypes) do
+        local symbolIds = ModTiles.GetObjectUIDsOfType(value.Type, WORLD_LIMITS:Unpack())
+        for _, symbolId in pairs(symbolIds) do
+            ModObject.DestroyObject(symbolId)
+        end
+    end
+
     TIMERS_STACK:Clear()
     TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
     TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))

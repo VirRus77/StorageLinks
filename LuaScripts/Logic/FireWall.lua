@@ -2,15 +2,14 @@
 Copyright (C) Sotin NU aka VirRus77
 Author: Sotin NU aka VirRus77
 --]]
----@alias FilterGroupItem { Filtering :boolean, Elements: table<integer, boolean> }
 
 
 ---@class FireWall :Object
----@field FilterGroup table<string, FilterGroupItem>
----@field ItemToGroup table<integer, string>
+---@field _filterGroup table<string, FilterGroup>
+---@field _itemToGroup table<integer, string>
 FireWall = { }
 ---@type Provider
-FireWall = AccessPoint:extend(FireWall)
+FireWall = Object:extend(FireWall)
 
 ---@return FireWall
 function FireWall.new()
@@ -21,42 +20,81 @@ end
 
 ---@private
 function FireWall:initialize()
-    self.FilterGroup = { }
-    self.ItemToGroup = { }
+    self._filterGroup = { }
+    self._itemToGroup = { }
 end
 
 ---@param id integer
 ---@param groupName string
 function FireWall:Add(id, groupName)
-    if (self.ItemToGroup[id] ~= nil) then
+    if (self._itemToGroup[id] ~= nil) then
         Logging.LogWarning("FireWall:Add contains item %d %s", id, groupName)
         self:Remove(id)
     end
-    self.ItemToGroup[id] = groupName
-    ---@type FilterGroupItem
-    local group = Tools.Dictionary.GetOrAddValueLazy(self.FilterGroup, groupName, function () return { Filtering = false, Elements = {} } end)
-    group.Elements[id] = true
+    self._itemToGroup[id] = groupName
 end
 
 --- func desc
 ---@param id integer
 function FireWall:Remove(id)
-    local group = self.ItemToGroup[id]
+    local group = self._itemToGroup[id]
     if (group == nil) then
         Logging.LogWarning("FireWall:Add not contains item %d", id)
         return
     end
-    self.ItemToGroup[id] = nil
-    self.FilterGroup[group].Filtering[id] = nil
+    self._itemToGroup[id] = nil
 end
 
 --- func desc
+---@param id integer
 ---@param groupName string
----@param flag boolean
-function FireWall:FilterGroup(groupName, flag)
-    local group = Tools.Dictionary.GetOrAddValueLazy(self.FilterGroup, groupName, function () return { Filtering = false, Elements = {} } end)
-    group.Filtering = flag
+---@param refFlag ReferenceValue<boolean>
+function FireWall:AddSwitcher(id, groupName, refFlag)
+    local idsInGroup = self._filterGroup[groupName]
+    if (idsInGroup ~= nil and idsInGroup._switchers[id] ~= nil) then
+        Logging.LogWarning("FireWall:AddSwitcher contains item %d %s", id, groupName)
+        self:RemoveSwitcher(id, groupName)
+    end
+    if (idsInGroup == nil) then
+        idsInGroup = FireWall.MakeFilterGroup(groupName)
+        self._filterGroup[groupName] = idsInGroup
+    end
+    idsInGroup:Add(id, refFlag)
 end
+
+--- func desc
+---@param id integer
+---@param groupName string
+function FireWall:RemoveSwitcher(id, groupName)
+    local idsInGroup = self._filterGroup[groupName]
+    if (idsInGroup == nil) then
+        Logging.LogWarning("FireWall:RemoveSwitcher group not exist %s", groupName)
+        return
+    end
+    if (idsInGroup._switchers[id] ~= nil) then
+        Logging.LogWarning("FireWall:RemoveSwitcher item not exist %d %s", id, groupName)
+        return
+    end
+    idsInGroup:Remove(id)
+end
+
+-- --- func desc
+-- ---@param id integer
+-- ---@param groupName string
+-- ---@param flag ReferenceValue<boolean>
+-- function FireWall:SetSwitcher(id, groupName, flag)
+--     local idsInGroup = self._filterGroup[groupName]
+--     if (idsInGroup == nil) then
+--         Logging.LogWarning("FireWall:SetSwitcher group not exist %s", groupName)
+--         return
+--     end
+--     if (idsInGroup:SetState(id, flag) == nil) then
+--         Logging.LogWarning("FireWall:SetSwitcher item not exist %d %s", id, groupName)
+--         return
+--     end
+--     idsInGroup[id] = flag
+
+-- end
 
 --- func desc
 ---@param id integer
@@ -69,9 +107,20 @@ end
 ---@param id integer
 ---@return boolean
 function FireWall:Contains(id)
-    local groupName = self.ItemToGroup[id]
+    local groupName = self._itemToGroup[id]
     if (groupName == nil) then
         return false
     end
-    return self.FilterGroup[groupName].Filtering
+
+    local group = self._filterGroup[groupName]
+    if (group == nil) then
+        Logging.LogWarning("FireWall:Contains not found group: %s", groupName)
+        return false
+    end
+    return group:GetState()
+end
+
+---@return FilterGroup
+function FireWall.MakeFilterGroup(name)
+    return FilterGroup.new(name)
 end

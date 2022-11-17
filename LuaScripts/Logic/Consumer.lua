@@ -7,26 +7,27 @@ Author: Sotin NU aka VirRus77
 ---@class Consumer :AccessPoint # consumer
 ---@field _requires RequireItem[]
 ---@field _bandwidth integer
+---@function make(author :integer, integer, integer table|nil)
 Consumer = { }
 ---@type Consumer
 Consumer = AccessPoint:extend(Consumer)
 
 --- func desc
+---@param author integer # Author. Ex. Trnsmitter.
 ---@param id integer # Provider Id. Ex. StorageId.
--- ---@param type string  # Items type
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
-function Consumer.new(id, bandwidth, hashTables)
-    local instance = Consumer:make(id, bandwidth, hashTables)
+function Consumer.new(author, id, bandwidth, hashTables)
+    local instance = Consumer:make(author, id, bandwidth, hashTables)
     return instance
 end
 
-function Consumer:initialize(id, bandwidth, hashTables)
+function Consumer:initialize(author, id, bandwidth, hashTables)
     self._bandwidth = bandwidth
     self._updated = false
     self._requires = { }
     self.Id = id
-    --self.Type = type
+    self.Author = author
     self.HashTables = hashTables
 end
 

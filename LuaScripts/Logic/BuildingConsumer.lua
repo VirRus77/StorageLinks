@@ -12,13 +12,14 @@ BuildingConsumer = {
 BuildingConsumer = Consumer:extend(BuildingConsumer)
 
 --- func desc
+---@param author integer # Autor Id. Ex. Transmitter.
 ---@param id integer # Provider Id. Ex. StorageId.
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
 ---@return BuildingConsumer
-function BuildingConsumer.new(id, bandwidth, hashTables)
+function BuildingConsumer.new(author, id, bandwidth, hashTables)
     -- Logging.LogDebug("BuildingConsumer.new id: %d, bandwidth: %s", id, tostring(bandwidth))
-    local instance = BuildingConsumer:make(id, bandwidth, hashTables)
+    local instance = BuildingConsumer:make(author, id, bandwidth, hashTables)
     instance._freeSpace = 0
     return instance
 end
@@ -37,22 +38,22 @@ function BuildingConsumer:Update()
     if (buildingRequirements.Successfully) then
         -- Logging.LogDebug("BuildingConsumer:Update buildingRequirements: %s", buildingRequirements)
         ---@type RequireItem[]
-        local requirements = BuildingConsumer.MakeRequirements(self.Id, buildingRequirements.Fuel, "Fuel", bandwidth)
+        local requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Fuel, "Fuel", bandwidth)
         Tools.TableConcat(requires, requirements)
         -- if(buildingRequirements.Fuel ~= nil) then
         --     Logging.LogDebug("BuildingConsumer:Update\nbuildingRequirements.Fuel = %s\nrequirements = %s", buildingRequirements.Fuel,requirements)
         -- end
 
-        requirements = BuildingConsumer.MakeRequirements(self.Id, buildingRequirements.Water, "Water", bandwidth)
+        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Water, "Water", bandwidth)
         Tools.TableConcat(requires, requirements)
 
-        requirements = BuildingConsumer.MakeRequirements(self.Id, buildingRequirements.Heart, "Heart", bandwidth)
+        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Heart, "Heart", bandwidth)
         Tools.TableConcat(requires, requirements)
 
-        requirements = BuildingConsumer.MakeRequirements(self.Id, buildingRequirements.Ingredient, "Ingredient", bandwidth)
+        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Ingredient, "Ingredient", bandwidth)
         Tools.TableConcat(requires, requirements)
 
-        requirements = BuildingConsumer.MakeRequirements(self.Id, buildingRequirements.Hay, "Hay", bandwidth)
+        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Hay, "Hay", bandwidth)
         Tools.TableConcat(requires, requirements)
     else
         Logging.LogWarning("BuildingConsumer:Update Not readed BuildingRequirements Id: %d", self.Id)
@@ -76,6 +77,7 @@ function BuildingConsumer:Update()
     if (freeSpace > 0) then
         ---@type RequireItem
         requires[#requires + 1] = {
+            Author = self.Author,
             Id = self.Id,
             Type = storageInfo.TypeStores,
             Amount = amount,
@@ -89,13 +91,15 @@ function BuildingConsumer:Update()
 end
 
 --- func desc
+---@param author integer
+---@param id integer
 ---@param list UnpackBuildingRequirementsItem[]
 ---@param requireType RequirementType
 ---@param bandwidth ReferenceValue
 ---@param sortToBig boolean|nil
 ---@param takeFirst integer|nil
 ---@return RequireItem[]
-function BuildingConsumer.MakeRequirements(id, list, requireType, bandwidth, sortToBig, takeFirst)
+function BuildingConsumer.MakeRequirements(author, id, list, requireType, bandwidth, sortToBig, takeFirst)
     ---@type RequireItem[]
     local result = { }
     if(list == nil) then
@@ -126,6 +130,7 @@ function BuildingConsumer.MakeRequirements(id, list, requireType, bandwidth, sor
         if (require > 0) then
             ---@type RequireItem
             return {
+                Author = author,
                 Id = id,
                 Amount = -1,
                 RequirementType = requireType,

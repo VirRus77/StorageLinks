@@ -1,4 +1,5 @@
 ---@class RequireItem
+---@field Author integer #
 ---@field Id integer # BuildingId
 ---@field Type string #
 ---@field Requires ReferenceValue #
@@ -8,6 +9,7 @@
 RequireItem = { }
 
 ---@class ProviderItem
+---@field Author integer #
 ---@field Id integer #
 ---@field Type string #
 ---@field Bandwidth ReferenceValue #

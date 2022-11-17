@@ -7,6 +7,7 @@ inheritance and inheritable constructors. All other objects inherit from this.
 ---@function create
 ---@function make
 ---@function initialize(... vargs)
+---@field base any # Base class
 Object = {}
 Object.meta = {__index = Object}
 
@@ -31,8 +32,9 @@ Creates a new instance and calls `obj:initialize(...)` if it exists.
     local rect = Rectangle:new(3, 4)
     p(rect:getArea())
 ]]
+---@generic T :Object
 ---@param ... any # Argumets method "initialize".
----@return Object|any
+---@return T
 function Object:make(...)
   local instance = self:create()
   if type(instance.initialize) == "function" then
@@ -69,7 +71,7 @@ function Object:extend(defaultValues)
     meta.__index = instance
     meta.super = self
     instance.meta = meta
-
+    instance.base = self
     return instance
 end
 

@@ -13,12 +13,13 @@ StorageProvider = Provider:extend(StorageProvider)
 
 
 --- func desc
+---@param author integer # Author Id. Ex. Transmitter.
 ---@param id integer # Provider Id. Ex. StorageId.
 ---@param type string|nil  # Items type
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
 ---@return StorageProvider
-function StorageProvider.new(id, type, bandwidth, hashTables)
+function StorageProvider.new(author, id, type, bandwidth, hashTables)
     if (type == nil) then
         -- if (hashTables == nil) then
             -- type = type or AccessPoint.GetStorageInfo(id).TypeStores
@@ -29,7 +30,7 @@ function StorageProvider.new(id, type, bandwidth, hashTables)
         type = type or AccessPoint.GetStorageInfo(id).TypeStores
     end
 
-    local instance = StorageProvider:make(id, type, bandwidth)
+    local instance = StorageProvider:make(author, id, type, bandwidth)
     instance._amount = 0
     return instance
 end
@@ -39,18 +40,16 @@ function StorageProvider:GetAmount()
 end
 
 function StorageProvider:Update()
-    ---@type fun() :UnpackStorageInfo
-    local getValue = function () return AccessPoint.GetStorageInfo(self.Id) end
     ---@type UnpackStorageInfo|nil
     local storageInfo = self:GetStorageInfoSelf()
     if (storageInfo == nil or (not storageInfo.Successfully)) then
         self._amount = 0
-        Logging.LogWarning("StorageConsumer:Update StorageInfo not readed %d", self.Id)
+        Logging.LogWarning("StorageProvider:Update StorageInfo not readed %d", self.Id)
         self._updated = true
         return
     end
     if(self.Type ~= storageInfo.TypeStores) then
-        Logging.LogWarning("StorageConsumer:Update change Type %s ==> %s", self.Type, storageInfo.TypeStores)
+        Logging.LogWarning("StorageProvider:Update change Type %s ==> %s", self.Type, storageInfo.TypeStores)
         self.Type = storageInfo.TypeStores
     end
     self._amount = storageInfo.AmountStored

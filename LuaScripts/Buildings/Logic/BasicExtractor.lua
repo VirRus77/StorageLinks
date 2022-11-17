@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class BasicExtractor :BuildingBase #
+---@class BasicExtractor :BuildingStorageLinksBase #
 BasicExtractor = {
     SupportTypes = { Converters.Extractor },
     OutputPoint = 0,
@@ -13,16 +13,16 @@ BasicExtractor = {
     MinStackLimit = 1,
     MaxStackLimit = 5
 }
----@type BuildingBase #
-BasicExtractor = BuildingBase:extend(BasicExtractor)
+---@type BasicExtractor #
+BasicExtractor = BuildingStorageLinksBase:extend(BasicExtractor)
 
 --- func desc
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
----@return BuildingBase
-function BasicExtractor.new(id, type, callbackRemove)
-    Logging.LogInformation("BasicExtractor.new %d, %s", id, callbackRemove)
+---@return BasicExtractor
+function BasicExtractor.new(id, type, callbackRemove, fireWall)
+    Logging.LogInformation("BasicExtractor.new %d, %s, %s", id, callbackRemove, fireWall)
     ---@type BasicExtractor
     local instance = BasicExtractor:make(id, type, callbackRemove, nil, nil, 1)
     instance:UpdateLogic()
@@ -37,7 +37,7 @@ function BasicExtractor:UpdateLogic(editType, oldValue)
     Logging.LogInformation("BasicExtractor:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
-    elseif (editType == BuildingBase.BuildingEditType.Rename) then
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
         self:UpdateName()
         return
     end

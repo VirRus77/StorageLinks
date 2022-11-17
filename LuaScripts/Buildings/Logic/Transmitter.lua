@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Transmitter :BuildingBase #
+---@class Transmitter :BuildingStorageLinksBase #
 ---@field _acccessType "Transmitter"|"Receiver"|"Both"
 ---@field WorkArea Area #
 ---@field InputPoint Point|nil # Direction base rotation
@@ -24,18 +24,20 @@ Transmitter = {
     },
 }
 ---@type Transmitter
-Transmitter = BuildingBase:extend(Transmitter)
+Transmitter = BuildingStorageLinksBase:extend(Transmitter)
 
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
+---@param fireWall FireWall #
 ---@return Transmitter
-function Transmitter.new(id, type, callbackRemove)
+function Transmitter.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("Transmitter.new %d, %s", id, callbackRemove)
     ---@type TransmitterSettingsItem
     local settings = BuildingSettings.GetSettingsByType(type) or error("Transmitter Settings not found", 666) or { }
+
     ---@type Transmitter
-    local instance = Transmitter:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
+    local instance = Transmitter:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
 
     instance.Settings = settings
     instance.InputPoint = settings.InputPoint
@@ -53,12 +55,13 @@ end
 function Transmitter:UpdateLogic(editType, oldValue)
     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
     if (editType == nil) then
-        self:UpdateName()
-    elseif (editType == BuildingBase.BuildingEditType.Rename) then
-        self:UpdateName()
+        self:UpdateGroup()
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
+        self:UpdateGroup()
         return
-    elseif (editType == BuildingBase.BuildingEditType.Destroy) then
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
         self:RemoveLink()
+        self:RemoveFromFireWall()
         return
     end
 end
@@ -68,7 +71,7 @@ function Transmitter:OnTimerCallback()
     local location = self.Location
     local accessPoint = self.InputPoint
     ---@type Point
-    if(self._acccessType == "Receiver")then
+    if (self._acccessType == "Receiver") then
         accessPoint = self.OutputPoint
     end
 
@@ -84,10 +87,6 @@ function Transmitter:OnTimerCallback()
     if (building == self.LinkedBuildingId) then
         return
     end
-
-    --  if(building ~= nil)then
-         -- Logging.LogDebug("Transmitter:OnTimerCallback BuildingRequirements:\n%s", ModBuilding.GetBuildingRequirements(building))
-    --  end
 
     self:RemoveLink()
     self.LinkedBuildingId = building
@@ -116,14 +115,10 @@ function Transmitter:AddLink()
     end
 
     if (self._acccessType == "Transmitter") then
-        self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.LinkedBuildingId, nil, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
+        self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, self.LinkedBuildingId, nil, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
     else
-        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.LinkedBuildingId, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
+        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, self.LinkedBuildingId, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
     end
-end
-
-function Transmitter:UpdateName()
-    Logging.LogInformation("Transmitter:UpdateName %s", self.Name)
 end
 
 function Transmitter:SetAccessType()

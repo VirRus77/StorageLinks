@@ -56,7 +56,7 @@ end
 ---@param providerId string #
 function VirtualNetwor:RemoveProvider(providerId)
     if (self.Providers[providerId] == nil) then
-       Logging.LogError("VirtualNetwor:RemoveProvider Not found provider %s\n", providerId, self.Providers)
+       Logging.LogError("VirtualNetwor:RemoveProvider Not found provider %s\n%s", providerId, self.Providers)
        return
     end
     self.Providers[providerId] = nil
@@ -66,7 +66,7 @@ end
 ---@param consumerId string #
 function VirtualNetwor:RemoveConsumer(consumerId)
     if (self.Consumers[consumerId] == nil) then
-       Logging.LogError("VirtualNetwor:RemoveProvider Not found consumer %s\n", consumerId, self.Consumers)
+       Logging.LogError("VirtualNetwor:RemoveProvider Not found consumer %s\n%s", consumerId, self.Consumers)
        return
     end
     self.Consumers[consumerId] = nil
@@ -130,10 +130,22 @@ function VirtualNetwor:ChainProcess()
     ---@type RequireItem[]
     local requires = { }
 
+    ---@type table<string, boolean>
+    local cashGroup = { }
+    local getState = function (id)
+        if (self.FireWall == nil) then
+            return false
+        end
+        return self.FireWall:Skip(id)
+    end
+    --Logging.LogDebug("VirtualNetwor:ChainProcess self.FireWall: %s", self.FireWall)
     for _, consumer in pairs(self.Consumers) do
-        if(self.FireWall == nil or not self.FireWall:Skip(consumer.Id)) then
+        local skip = Tools.Dictionary.GetOrAddValueLazyVariable(cashGroup, consumer.Author, getState)
+        if (not skip) then
             consumer:BeginRead(self.HashTables)
             Tools.TableConcat(requires, consumer:Requires())
+        else
+            Logging.LogDebug("VirtualNetwor:ChainProcess skip %d", consumer.Author)
         end
     end
     if (#requires == 0) then
@@ -145,10 +157,13 @@ function VirtualNetwor:ChainProcess()
     local providers = { }
     -- Providers
     for _, provider in pairs(self.Providers) do
-        provider:BeginRead(self.HashTables)
-        local providerItem = provider:Amount()
-        if (providerItem.FullAmount.Value > 0) then
-            providers[#providers + 1] = providerItem
+        local skip = Tools.Dictionary.GetOrAddValueLazyVariable(cashGroup, provider.Author, getState)
+        if (not skip) then
+            provider:BeginRead(self.HashTables)
+            local providerItem = provider:Amount()
+            if (providerItem.FullAmount.Value > 0) then
+                providers[#providers + 1] = providerItem
+            end
         end
     end
     if (#providers == 0) then

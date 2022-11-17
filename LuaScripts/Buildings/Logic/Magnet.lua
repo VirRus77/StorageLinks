@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Magnet :BuildingBase #
+---@class Magnet :BuildingStorageLinksBase #
 ---@field WorkArea Area #
 ---@field OutputPoint Point # Direction base rotation
 ---@field Settings MagnetSettingsItem2 #
@@ -17,19 +17,20 @@ Magnet = {
     OutputPoint = Point.new(1, 0),
 }
 ---@type Magnet
-Magnet = BuildingBase:extend(Magnet)
+Magnet = BuildingStorageLinksBase:extend(Magnet)
 
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
+---@param fireWall FireWall
 ---@return Magnet
-function Magnet.new(id, type, callbackRemove)
+function Magnet.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("Magnet.new %d, %s", id, callbackRemove)
     ---@type MagnetSettingsItem2
     local settings = BuildingSettings.GetSettingsByType(type) or error("Magnet Settings not found", 666) or { }
 
     ---@type Magnet
-    local instance = Magnet:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod)
+    local instance = Magnet:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
     instance.Settings = settings
     local area = instance.Settings.Area
     instance.WorkArea = instance:GetAreaByPosition(area:Width(), area:Height())
@@ -45,13 +46,19 @@ function Magnet:UpdateLogic(editType, oldValue)
     Logging.LogInformation("Magnet:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
-    elseif (editType == BuildingBase.BuildingEditType.Rename) then
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
         self:UpdateName()
         return
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
+        self:RemoveFromFireWall()
     end
 end
 
 function Magnet:OnTimerCallback()
+    --Logging.LogDebug("Magnet:OnTimerCallback self.FireWall %s", self.FireWall)
+    if (self.FireWall:Skip(self.Id)) then
+        return
+    end
     -- Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
     local location = self.Location
     local outputRotate = Point.Rotate(self.OutputPoint, self.Rotation)
@@ -127,7 +134,8 @@ function Magnet:UpdateName()
     else
         self.WorkArea = self:GetAreaByPosition(self.Settings.Area:Width(), self.Settings.Area:Height())
     end
-    Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
+    self:UpdateGroup()
+    -- Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
 end
 
 --- func desc
@@ -212,7 +220,7 @@ function Magnet:GetAreaByPosition(width, height)
     local bottom = top + height
 
     local area = Area.new(left, top, right, bottom)
-    WORLD_LIMITS:ApplyLimits(area)
+    area = WORLD_LIMITS:ApplyLimits(area)
 
     return area
 end
@@ -239,6 +247,6 @@ function Magnet:GetAreaByName()
     end
     -- Logging.LogDebug("Magnet:GetAreaByName values: %s", values)
     local area = Area.new(table.unpack(values))
-    WORLD_LIMITS:ApplyLimits(area)
+    area = WORLD_LIMITS:ApplyLimits(area)
     return area
 end

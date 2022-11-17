@@ -80,7 +80,41 @@ function Logging.LogLevel(logLevel, formatString, ...)
             cahngedParamsStringFormat[i] = value
         end
     end
+
+    Logging.ValidateSringFormat(formatString, table.unpack(cahngedParamsStringFormat))
+
     Logging.Log(string.format(" [%s] %s", logLevel, string.format(formatString, table.unpack(cahngedParamsStringFormat))))
+end
+
+--- func desc
+---@param stringFormat string
+---@param ... any
+function Logging.ValidateSringFormat(stringFormat, ...)
+    local findPatterns = StringFindPattern.new("%%.")
+        :AfterFind(function (found) return string.sub(found, 2) end)
+    local patterns = findPatterns:Find(stringFormat)
+    local argsCount = select("#", ...)
+    if (patterns == nil) then
+        -- if (argsCount ~= 0 or argsCount ~= nil) then
+        --     error(string.format("Error string format count arguments argsCount: %s \'%s\'", ToTypedString(argsCount), stringFormat), 666)
+        -- end
+        return
+    end
+    if (#patterns ~= argsCount) then
+        error(string.format("Error string format count arguments patterns: %s argsCount: %s \'%s\'", ToTypedString(#patterns), ToTypedString(argsCount), stringFormat), 666)
+    end
+
+    for i = 1, argsCount, 1 do
+        local value = select(i, ...)
+        local type = type(value)
+        if(patterns[i] == "s" and type ~= "string") then
+            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+        elseif(patterns[i] == "d" and type ~= "number") then
+            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+        elseif(patterns[i] == "f" and type ~= "number") then
+            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+        end
+    end
 end
 
 --- 

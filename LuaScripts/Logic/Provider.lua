@@ -4,8 +4,8 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Provider :AccessPoint #  provider
----@field _bandwidth integer # Bandwidth
+---@class Provider :AccessPoint #  provider.
+---@field _bandwidth integer # Bandwidth.
 ---@field Id integer # Provider Id. Ex. StorageId.
 ---@field Type string # Items type
 Provider = { }
@@ -13,19 +13,21 @@ Provider = { }
 Provider = AccessPoint:extend(Provider)
 
 --- func desc
+---@param author integer # Author Id. Ex. Transmitter.
 ---@param id integer # Provider Id. Ex. StorageId.
 ---@param type string  # Items type
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
-function Provider.new(id, type, bandwidth, hashTables)
-    local instance = Consumer:make(id, type, bandwidth, hashTables)
+function Provider.new(author, id, type, bandwidth, hashTables)
+    local instance = Consumer:make(author, id, type, bandwidth, hashTables)
     return instance
 end
 
-function Provider:initialize(id, type, bandwidth, hashTables)
+function Provider:initialize(author, id, type, bandwidth, hashTables)
     self._bandwidth = bandwidth
     self._updated = false
     self.Id = id
+    self.Author = author
     self.Type = type
     self.HashTables = hashTables
 end
@@ -39,7 +41,14 @@ function Provider:Amount()
         self:Update()
     end
     --return math.min(self._bandwidth, self:GetAmount())
-    return { Id = self.Id, Type = self.Type, Bandwidth = ReferenceValue.new(self._bandwidth), FullAmount = ReferenceValue.new(self:FullAmount()), RequirementType = "Storage" }
+    return {
+        Author = self.Author,
+        Id = self.Id,
+        Type = self.Type,
+        Bandwidth = ReferenceValue.new(self._bandwidth),
+        FullAmount = ReferenceValue.new(self:FullAmount()),
+        RequirementType = "Storage"
+    }
 end
 
 --- Can provide

@@ -11,13 +11,14 @@ StorageConsumer = {
 StorageConsumer = Consumer:extend(StorageConsumer)
 
 --- func desc
+---@param author integer # Author. Ex. Trnsmitter.
 ---@param id integer # Provider Id. Ex. StorageId.
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
 ---@return StorageConsumer
-function StorageConsumer.new(id, bandwidth, hashTables)
+function StorageConsumer.new(author, id, bandwidth, hashTables)
     local type = AccessPoint.GetStorageInfo(id).TypeStores
-    local instance = StorageConsumer:make(id, bandwidth, hashTables)
+    local instance = StorageConsumer:make(author, id, bandwidth, hashTables)
     instance.type = type
     return instance
 end

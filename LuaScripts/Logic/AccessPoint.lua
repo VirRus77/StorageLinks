@@ -11,6 +11,7 @@ Author: Sotin NU aka VirRus77
 ---@field _getStorageInfo fun(id :integer) :UnpackStorageInfo
 ---@field Id integer # Provider Id. Ex. StorageId.
 ---@field Type string # Items type
+---@field Author integer # Author Id. Ex. Transmitter.
 ---@field HashTables table # Items type
 AccessPoint = {
     _getBuildingRequirements = function (key) return Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(key)) end,
@@ -28,12 +29,13 @@ AccessPoint.HashTableGroups = {
     "BuildingRequirements"
 }
 
-function AccessPoint:initialize(id, type, bandwidth, hashTables)
+function AccessPoint:initialize(author, id, type, bandwidth, hashTables)
     self._bandwidth = bandwidth
     self._updated = false
     --self._getBuildingRequirements = function (key) return Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(key)) end
     self.Id = id
     self.Type = type
+    self.Author = author
     self.HashTables = hashTables
 end
 

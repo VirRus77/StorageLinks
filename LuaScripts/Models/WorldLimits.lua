@@ -35,11 +35,18 @@ end
 
 --- func desc
 ---@param area Area
+---@return Area
 function WORLD_LIMITS:ApplyLimits(area)
-    area.Left   = math.max(self.Left,   math.min(area.Left,  self.Right))
-    area.Top    = math.max(self.Top,    math.min(area.Top,   self.Bottom))
-    area.Right  = math.min(self.Right,  math.max(area.Right, self.Left))
-    area.Bottom = math.min(self.Bottom, math.max(area.Bottom, self.Top))
+    local newArea = Area.new()
+    newArea.Left   = math.max(self.Left,   math.min(area.Left,  self.Right))
+    newArea.Top    = math.max(self.Top,    math.min(area.Top,   self.Bottom))
+    newArea.Right  = math.min(self.Right,  math.max(area.Right, self.Left))
+    newArea.Bottom = math.min(self.Bottom, math.max(area.Bottom, self.Top))
+    return newArea
+end
+
+function WORLD_LIMITS:Unpack()
+    return self.Left, self.Top, self.Right, self.Bottom
 end
 
 function WORLD_LIMITS:__tostring()
