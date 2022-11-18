@@ -40,6 +40,8 @@ function StorageProvider:GetAmount()
 end
 
 function StorageProvider:Update()
+    self._provider = nil
+
     ---@type UnpackStorageInfo|nil
     local storageInfo = self:GetStorageInfoSelf()
     if (storageInfo == nil or (not storageInfo.Successfully)) then
@@ -54,4 +56,13 @@ function StorageProvider:Update()
     end
     self._amount = storageInfo.AmountStored
     self._updated = true
+
+    self._provider = {
+        Author = self.Author,
+        Id = self.Id,
+        Type = self.Type,
+        Bandwidth = ReferenceValue.new(self._bandwidth),
+        FullAmount = ReferenceValue.new(self._amount),
+        RequirementType = "Storage"
+    }
 end

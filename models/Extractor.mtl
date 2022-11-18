@@ -1,13 +1,10 @@
 # Created by Kenney (www.kenney.nl)
 
-# ќбъ€вление очередного материала
-newmtl custom1
-# ƒиффузный цвет (белый)
-Kd 0.145 0.145 0.166
+newmtl Mat_0
+Kd 1.000000 1.000000 1.000000
+map_Kd ..\\textures\\SharedWoodgrain06-resources.assets-839.png
 
-# ќбъ€вление очередного материала
-newmtl _defaultMat
-# ƒиффузный цвет (белый)
-#Kd 0.096 0.654 0.193
-Kd 1.0 0.843 0.0
 
+newmtl Mat_1
+Kd 1.000000 1.000000 1.000000
+map_Kd ..\\textures\\SharedWoodEnd-resources.assets-1162.png

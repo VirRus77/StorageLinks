@@ -6,6 +6,7 @@ Author: Sotin NU aka VirRus77
 
 ---@class Provider :AccessPoint #  provider.
 ---@field _bandwidth integer # Bandwidth.
+---@field _provider ProviderItem|nil
 ---@field Id integer # Provider Id. Ex. StorageId.
 ---@field Type string # Items type
 Provider = { }
@@ -26,6 +27,7 @@ end
 function Provider:initialize(author, id, type, bandwidth, hashTables)
     self._bandwidth = bandwidth
     self._updated = false
+    self._provider = nil
     self.Id = id
     self.Author = author
     self.Type = type
@@ -35,20 +37,12 @@ end
 --- Can provide
 ---@public
 ---@alias ProviderRequirementType RequirementType | "Storage"
----@return ProviderItem #
+---@return ProviderItem|nil #
 function Provider:Amount()
     if (not self._updated) then
         self:Update()
     end
-    --return math.min(self._bandwidth, self:GetAmount())
-    return {
-        Author = self.Author,
-        Id = self.Id,
-        Type = self.Type,
-        Bandwidth = ReferenceValue.new(self._bandwidth),
-        FullAmount = ReferenceValue.new(self:FullAmount()),
-        RequirementType = "Storage"
-    }
+    return self._provider
 end
 
 --- Can provide

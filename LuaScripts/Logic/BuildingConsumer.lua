@@ -34,6 +34,12 @@ function BuildingConsumer:Update()
     local bandwidth = ReferenceValue.new(self._bandwidth)
     -- Logging.LogDebug("BuildingConsumer:Update _bandwidth: %d bandwidth:\n%s", self._bandwidth, bandwidth)
     self._requires = requires
+
+    if (not ModObject.IsValidObjectUID(self.Id)) then
+        Logging.LogWarning("BuildingConsumer:Update Not valid id: %d", self.Id)
+        return requires
+    end
+
     local buildingRequirements = self:GetBuildingRequirementsSelf()
     if (buildingRequirements.Successfully) then
         -- Logging.LogDebug("BuildingConsumer:Update buildingRequirements: %s", buildingRequirements)

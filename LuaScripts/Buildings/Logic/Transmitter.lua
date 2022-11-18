@@ -55,9 +55,13 @@ end
 function Transmitter:UpdateLogic(editType, oldValue)
     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
     if (editType == nil) then
+        self:CheckAccessPoint()
         self:UpdateGroup()
     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
         self:UpdateGroup()
+        return
+    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Move) then
+        self:CheckAccessPoint()
         return
     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
         self:RemoveLink()
@@ -68,28 +72,36 @@ end
 
 function Transmitter:OnTimerCallback()
     -- Logging.LogInformation("Transmitter:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
+    self:CheckAccessPoint()
+end
+
+function Transmitter:CheckAccessPoint()
     local location = self.Location
-    local accessPoint = self.InputPoint
     ---@type Point
+    local accessPoint = self.InputPoint
     if (self._acccessType == "Receiver") then
         accessPoint = self.OutputPoint
     end
 
     if (accessPoint == nil) then
-        Logging.LogError("Transmitter:OnTimerCallback all Access Points nil")
+        Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
         return
     end
 
     local accessRotate = Point.Rotate(accessPoint, self.Rotation)
     accessPoint = Point.new(location.X + accessRotate.X, location.Y + accessRotate.Y)
 
-    local building = Tools.GetBuilding(accessPoint)
-    if (building == self.LinkedBuildingId) then
+    local buildingId = Tools.GetBuilding(accessPoint)
+    if (buildingId == self.LinkedBuildingId) then
         return
+    else
+        if (buildingId ~= nil) then
+            Logging.LogDebug("Transmitter:CheckAccessPoint Required: %s", Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(buildingId)))
+        end
     end
 
     self:RemoveLink()
-    self.LinkedBuildingId = building
+    self.LinkedBuildingId = buildingId
     self:AddLink()
 end
 

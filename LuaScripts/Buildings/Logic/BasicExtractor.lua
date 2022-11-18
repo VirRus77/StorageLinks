@@ -6,7 +6,7 @@ Author: Sotin NU aka VirRus77
 
 ---@class BasicExtractor :BuildingStorageLinksBase #
 BasicExtractor = {
-    SupportTypes = { Converters.Extractor },
+    SupportTypes = { Buildings.Extractor },
     OutputPoint = 0,
     InputPoint  = 2,
     StackLimit = 1,

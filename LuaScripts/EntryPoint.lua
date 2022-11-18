@@ -126,9 +126,9 @@ function BeforeLoad()
         return
     end
 
-    -- for _, value in pairs(Buildings.AllTypes) do
-    --     ModBuilding.ShowBuildingAccessPoint(value.Type, true)
-    -- end    
+    for _, value in pairs(Buildings.AllTypes) do
+        ModBuilding.ShowBuildingAccessPoint(value.Type, value.AccessPoint ~= nil)
+    end
     -- for _, value in pairs(Decoratives.AllTypes) do
     --     ModBuilding.ShowBuildingAccessPoint(value.Type, false)
     -- end

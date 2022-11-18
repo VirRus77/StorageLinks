@@ -75,7 +75,7 @@ end
 function VirtualNetwor:TimeCallback()
     local sw = Stopwatch.Start()
     self:ChainProcess()
-    Logging.LogDebug("VirtualNetwor duration: %f", sw:Elapsed())
+    -- Logging.LogDebug("VirtualNetwor duration: %f", sw:Elapsed())
 end
 
 function VirtualNetwor:ClearHashTables()
@@ -145,7 +145,7 @@ function VirtualNetwor:ChainProcess()
             consumer:BeginRead(self.HashTables)
             Tools.TableConcat(requires, consumer:Requires())
         else
-            Logging.LogDebug("VirtualNetwor:ChainProcess skip %d", consumer.Author)
+            -- Logging.LogDebug("VirtualNetwor:ChainProcess skip %d", consumer.Author)
         end
     end
     if (#requires == 0) then
@@ -161,7 +161,7 @@ function VirtualNetwor:ChainProcess()
         if (not skip) then
             provider:BeginRead(self.HashTables)
             local providerItem = provider:Amount()
-            if (providerItem.FullAmount.Value > 0) then
+            if (providerItem ~= nil and providerItem.FullAmount.Value > 0) then
                 providers[#providers + 1] = providerItem
             end
         end
@@ -172,15 +172,15 @@ function VirtualNetwor:ChainProcess()
     end
 
     -- Aggregates
-    Logging.LogDebug("VirtualNetwor:ChainProcess requires: %d", #requires)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess requires: %d", #requires)
     requires = Consumer.Aggregate(requires)
-    Logging.LogDebug("VirtualNetwor:ChainProcess after Aggregate requires: %d", #requires)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess after Aggregate requires: %d", #requires)
 
-    Logging.LogDebug("VirtualNetwor:ChainProcess providers: %d", #providers)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess providers: %d", #providers)
     providers = Provider.Aggregate(providers)
-    Logging.LogDebug("VirtualNetwor:ChainProcess providers after Aggregate: %d", #providers)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess providers after Aggregate: %d", #providers)
 
-    Logging.LogDebug("VirtualNetwor:ChainProcess (make) requires:%d providers:%d", #requires, #providers)
+    -- Logging.LogDebug("VirtualNetwor:ChainProcess (make) requires:%d providers:%d", #requires, #providers)
     local chains = VirtualNetwor.MakeChain(requires, providers)
     self:ExecuteChains(chains)
 end
@@ -190,7 +190,7 @@ end
 ---@param provider ProviderItem[]
 ---@return ChainItem[]
 function VirtualNetwor.MakeChain(requires, provider)
-    Logging.LogDebug("VirtualNetwor.MakeChain requires: %d provider: %d", #requires, #provider)
+    -- Logging.LogDebug("VirtualNetwor.MakeChain requires: %d provider: %d", #requires, #provider)
     ---@type ChainItem
     local chains = { }
     ---@type table<string, RequireItem[]>
@@ -241,7 +241,7 @@ function VirtualNetwor.MakeChain(requires, provider)
         end
     end
 
-    Logging.LogDebug("VirtualNetwor.MakeChain (end) chains: %d", #chains)
+    -- Logging.LogDebug("VirtualNetwor.MakeChain (end) chains: %d", #chains)
     return chains
 end
 

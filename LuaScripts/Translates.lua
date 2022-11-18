@@ -123,8 +123,8 @@ Translates.Russian = {
     },
 
     -- Extractor
-    { Building = Converters.Extractor, Name = "Выбрасыватель",
-        Description = "Выбрасывает объект из хранилища."
+    { Building = Buildings.Extractor, Name = "Извлкеатель",
+        Description = "Извлекает объект из хранилища."
     },
 }
 
@@ -165,7 +165,7 @@ Translates.English = {
     { Building = Buildings.SwitchSuper, Name = "Super Switch" },
 
     -- Extractor
-    { Building = Converters.Extractor, Name = "Extract item" },
+    { Building = Buildings.Extractor, Name = "Extract item" },
 }
 
 function Translates.SetNames()

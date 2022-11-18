@@ -5,11 +5,27 @@ Author: Sotin NU aka VirRus77
 
 
 Buildings = {
-    -- Magnet
     ---@alias Point2 integer[] # Point [1] = X, [2] = Y
     ---@alias Point3 { X? :number, Y? :number, Z? :number }
     ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type BuildingItem #
+    Extractor = {
+        Type = "Extractor",
+        Recipes = nil,
+        Ingridients = { "Log", "TreeSeed" },
+        IngridientsAmount = { 1, 1 },
+        ModelName = "Extractor",
+        TopLeft = { 0, 0 },
+        BottomRigth = { 0, 0 },
+        AccessPoint = { 0, -1 },
+        --SpawnPoint = { 0, -1 },
+        Scale = 3,
+        Rotation = { Y = 90 },
+        Walkable = true,
+        CustomModel = true,
+    },
+
+    -- Magnet
     MagnetCrude = {
         Type = "MagnetCrude",
         Name = "Crude Magnet (SL)",
@@ -268,40 +284,41 @@ Buildings = {
 
 ---@type BuildingItem[]
 Buildings.AllTypes = {
-        -- Magnet
-        Buildings.MagnetCrude,
-        Buildings.MagnetGood,
-        Buildings.MagnetSuper,
+    Buildings.Extractor,
+    -- Magnet
+    Buildings.MagnetCrude,
+    Buildings.MagnetGood,
+    Buildings.MagnetSuper,
 
-        -- Pump
-        Buildings.PumpCrude,
-        Buildings.PumpGood,
-        Buildings.PumpSuper,
-        Buildings.PumpSuperLong,
+    -- Pump
+    Buildings.PumpCrude,
+    Buildings.PumpGood,
+    Buildings.PumpSuper,
+    Buildings.PumpSuperLong,
 
-        -- Overflow Pump
-        Buildings.OverflowPumpCrude,
-        Buildings.OverflowPumpGood,
-        Buildings.OverflowPumpSuper,
+    -- Overflow Pump
+    Buildings.OverflowPumpCrude,
+    Buildings.OverflowPumpGood,
+    Buildings.OverflowPumpSuper,
 
-        -- Balancer
-        Buildings.BalancerCrude,
-        Buildings.BalancerGood,
-        Buildings.BalancerSuper,
-        Buildings.BalancerSuperLong,
+    -- Balancer
+    Buildings.BalancerCrude,
+    Buildings.BalancerGood,
+    Buildings.BalancerSuper,
+    Buildings.BalancerSuperLong,
 
-        -- Transmitter    
-        Buildings.TransmitterCrude,
-        Buildings.TransmitterGood,
-        Buildings.TransmitterSuper,
+    -- Transmitter    
+    Buildings.TransmitterCrude,
+    Buildings.TransmitterGood,
+    Buildings.TransmitterSuper,
 
-        -- Receiver
-        Buildings.ReceiverCrude,
-        Buildings.ReceiverGood,
-        Buildings.ReceiverSuper,
+    -- Receiver
+    Buildings.ReceiverCrude,
+    Buildings.ReceiverGood,
+    Buildings.ReceiverSuper,
 
-        -- Switch
-        Buildings.SwitchSuper,
+    -- Switch
+    Buildings.SwitchSuper,
 }
 
 ---@type BuildingItem[]
@@ -367,6 +384,7 @@ end
 --- Add all buildings.
 function Buildings.CreateAll ()
     Logging.LogInformation("Buildings.CreateAll")
+    Buildings.Create (Buildings.Extractor)
 
     Buildings.Create (Buildings.MagnetCrude)
     Buildings.Create (Buildings.TransmitterCrude)
