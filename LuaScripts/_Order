@@ -7,6 +7,7 @@ Core/Tools/Stopwatch.lua
 Core/Tools/SerializeTable.lua
 Core/Tools/Logging.lua
 Core/Tools/StringFindPattern.lua
+Core/Models/TranslateItem.lua
 GameValues/SubCategory.lua
 Models/FlightObject.lua
 Models/FlightObjectsList.lua
@@ -45,7 +46,4 @@ Buildings/Logic/PumpBase.lua
 Buildings/Logic/Transmitter.lua
 Buildings/Logic/Switcher.lua
 Translates.lua
-Flight.Logic.lua
-Magnet.Logic.lua
-StorageLink.lua
 EntryPoint.lua

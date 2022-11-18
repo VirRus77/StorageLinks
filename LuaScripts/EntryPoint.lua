@@ -126,49 +126,15 @@ function BeforeLoad()
         return
     end
 
+    -- for _, value in pairs(Buildings.AllTypes) do
+    --     ModBuilding.ShowBuildingAccessPoint(value.Type, true)
+    -- end    
+    -- for _, value in pairs(Decoratives.AllTypes) do
+    --     ModBuilding.ShowBuildingAccessPoint(value.Type, false)
+    -- end
+    -- ModBuilding.ShowBuildingAccessPoint(Converters.Extractor.Type, true)
+
     -- BuildingsDependencyTree.SwitchAllLockState()
-
-    -- -- Pump
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Pump (SL)", "Good Pump (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Pump (SL)" , "Super Pump (SL)")
-
-    -- -- Overflow Pump
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Overflow Pump (SL)", "Good Overflow Pump (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Overflow Pump (SL)" , "Super Overflow Pump (SL)")
-
-
-    -- -- Balancer
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Balancer (SL)", "Good Balancer (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Balancer (SL)" , "Super Balancer (SL)")
-
-    -- -- Magnet
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Magnet (SL)", "Good Magnet (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Magnet (SL)" , "Super Magnet (SL)")
-
-    -- -- Transmitter
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Transmitter (SL)", "Good Transmitter (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Transmitter (SL)" , "Super Transmitter (SL)")
-
-    -- -- Receiver
-    -- ModVariable.SetVariableForBuildingUpgrade("Crude Receiver (SL)", "Good Receiver (SL)" )
-    -- ModVariable.SetVariableForBuildingUpgrade("Good Receiver (SL)" , "Super Receiver (SL)")
-
-    -- Access Points
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Pump (SL)"			, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Pump (SL)" 			, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Overflow Pump (SL)"	, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Overflow Pump (SL)" 	, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Balancer (SL)"		, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Balancer (SL)"		, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Magnet (SL)"			, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Magnet (SL)"			, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Transmitter (SL)"	, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Transmitter (SL)"		, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Crude Receiver (SL)"		, true)
-    -- ModBuilding.ShowBuildingAccessPoint("Good Receiver (SL)"		, true)
-
-    --lockLevels()
-    --checkUnlockLevels()
 
 end
 
@@ -180,18 +146,7 @@ function AfterLoad_LoadedWorld()
     end
 
     Translates.SetNames()
-
-    -- Reset caches
     WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
-
-    LINK_UIDS = { }
-    STORAGE_UIDS = { }
-
-    --DiscoveredAllMap:Go()
-    --MakeDevelopMap:Make()
-
-    -- When world is loaded, find Magnets!
-    -- discoverUnknownMagnets()
 end
 
 --- Once a game has loaded key functionality, this is called.
@@ -213,19 +168,6 @@ function AfterLoad()
     TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
     TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 
-    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Crude))
-    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Good))
-    -- TimersStack.AddTimers (MakeTimers (BuildingLevels.Super))
-
-    -- if (Settings.ReplaceOldBuildings.Value) then
-    --     for _, value in ipairs(Buildings.MappingOldTypes) do
-    --         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-    --     end
-    --     for _, value in ipairs(Decoratives.MappingOldTypes) do
-    --         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
-    --     end
-    -- end
-
     Converters.UpdateState()
     BuildingsDependencyTree.SwitchAllLockState()
     BUILDING_CONTROLLER:RegistryTypes({
@@ -235,10 +177,6 @@ function AfterLoad()
         Transmitter,
         Switcher
     })
-    -- BuildingController.Initialize()
-    -- ReplaceOldBuildings()
-
-    --swapOldNamesToNew()
 end
 
 --- Only called when creating a game. [v134.23]

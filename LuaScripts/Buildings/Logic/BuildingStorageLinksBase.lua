@@ -198,7 +198,6 @@ function BuildingStorageLinksBase:OnTimerCallback()
 end
 
 --- func desc
----@param name any
 ---@return string|nil
 function BuildingStorageLinksBase:GetGroupName()
     local findPattern = StringFindPattern.new("%[[^[]+%]")
