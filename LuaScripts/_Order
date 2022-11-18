@@ -45,5 +45,6 @@ Buildings/Logic/Magnet.lua
 Buildings/Logic/PumpBase.lua
 Buildings/Logic/Transmitter.lua
 Buildings/Logic/Switcher.lua
+Buildings/Logic/InspectorBase.lua
 Translates.lua
 EntryPoint.lua

@@ -7,6 +7,19 @@ Author: Sotin NU aka VirRus77
 ---@alias BuildingSettingItem { Type : { Type :string }, Settings :table }
 ---@type table<string, BuildingSettingItem[]>
 BuildingSettings = {
+    ---@type InspectorSettingsItem[]
+    Inspector = {
+        {
+            Type = Buildings.Inspector,
+            ---@alias InspectorSettingsItem { UpdatePeriod :number, SwitchState :boolean, InspectPoint :Point } #
+            Settings = {
+                UpdatePeriod = 1 / 4,
+                SwitchState = true,
+                InspectPoint = Point.new(0, -1)
+            }
+        }
+    },
+
     ---@type BuildingSettingItem[] #
     Magnets = {
         {
@@ -223,7 +236,7 @@ BuildingSettings = {
                 SwitchState = true
             }
         }
-    }
+    },
 }
 
 --- GetSettings by building type.

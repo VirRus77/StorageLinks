@@ -25,6 +25,26 @@ Buildings = {
         CustomModel = true,
     },
 
+    ---@alias Point2 integer[] # Point [1] = X, [2] = Y
+    ---@alias Point3 { X? :number, Y? :number, Z? :number }
+    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
+    ---@type BuildingItem #
+    Inspector = {
+        Type = "Inspector",
+        Recipes = nil,
+        Ingridients = { "Log", "TreeSeed", "Stick" },
+        IngridientsAmount = { 1, 2, 4 },
+        ModelName = "Inspector",
+        TopLeft = { 0, 0 },
+        BottomRigth = { 0, 0 },
+        AccessPoint = nil,
+        --SpawnPoint = { 0, -1 },
+        Scale = 3,
+        Rotation = { Y = 90 },
+        Walkable = true,
+        CustomModel = true,
+    },
+
     -- Magnet
     MagnetCrude = {
         Type = "MagnetCrude",
@@ -285,6 +305,7 @@ Buildings = {
 ---@type BuildingItem[]
 Buildings.AllTypes = {
     Buildings.Extractor,
+    Buildings.Inspector,
     -- Magnet
     Buildings.MagnetCrude,
     Buildings.MagnetGood,
@@ -384,7 +405,6 @@ end
 --- Add all buildings.
 function Buildings.CreateAll ()
     Logging.LogInformation("Buildings.CreateAll")
-    Buildings.Create (Buildings.Extractor)
 
     Buildings.Create (Buildings.MagnetCrude)
     Buildings.Create (Buildings.TransmitterCrude)
@@ -392,6 +412,10 @@ function Buildings.CreateAll ()
     Buildings.Create (Buildings.PumpCrude)
     Buildings.Create (Buildings.OverflowPumpCrude)
     Buildings.Create (Buildings.BalancerCrude)
+
+    -- Extractor Inspector
+    Buildings.Create (Buildings.Extractor)
+    Buildings.Create (Buildings.Inspector)
 
     Buildings.Create (Buildings.MagnetGood)
     Buildings.Create (Buildings.PumpGood)

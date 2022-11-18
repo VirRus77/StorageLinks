@@ -48,6 +48,7 @@ function BuildingController:RegistryTypes(typesList)
             local removeFunction = function (removedBuildingBase)
                 self:Remove(removedBuildingBase)
             end
+            Logging.LogDebug("BuildingController:RegistryTypes \n%s", typesList.SupportTypes)
             self:InitializeTypes(
                 value.SupportTypes,
                 function (buildingId, buildingType, isBlueprint, isDragging)

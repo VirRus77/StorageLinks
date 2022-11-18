@@ -40,7 +40,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ..\\textures\\SharedPlanksPlain01-resources.assets-2099.png
+map_Kd textures/SharedPlanksPlain01-resources.assets-2099.png
 
 newmtl RingWood
 Ns 225.000000
@@ -51,7 +51,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ..\\textures\\SharedWoodgrain06-resources.assets-839.png
+map_Kd textures/SharedWoodgrain06-resources.assets-839.png
 
 newmtl White
 Ns 323.999994
@@ -62,4 +62,4 @@ Ke 1.000000 1.000000 1.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ..\\textures\\SharedMetalCrude-resources.assets-1188.png
+map_Kd textures/SharedMetalCrude-resources.assets-1188.png

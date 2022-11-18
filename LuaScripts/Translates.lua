@@ -126,6 +126,11 @@ Translates.Russian = {
     { Building = Buildings.Extractor, Name = "Извлкеатель",
         Description = "Извлекает объект из хранилища."
     },
+
+    -- Inspector
+    { Building = Buildings.Inspector, Name = "Инспектор",
+        Description = "Контролирует объекты в области."
+    },
 }
 
 Translates.English = {
@@ -166,6 +171,11 @@ Translates.English = {
 
     -- Extractor
     { Building = Buildings.Extractor, Name = "Extract item" },
+
+    -- Inspector
+    { Building = Buildings.Inspector, Name = "Inspector",
+        Description = "Controls the objects in the area."
+    },
 }
 
 function Translates.SetNames()

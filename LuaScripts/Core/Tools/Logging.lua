@@ -81,7 +81,14 @@ function Logging.LogLevel(logLevel, formatString, ...)
         end
     end
 
-    Logging.ValidateSringFormat(formatString, table.unpack(cahngedParamsStringFormat))
+    local errorMessage = Logging.ValidateSringFormat(formatString, table.unpack(cahngedParamsStringFormat))
+    if (errorMessage ~= nil) then
+        Logging.Log(string.format(" [%s] %s", logLevel, errorMessage))
+        if (Logging._minimalLevel < Logging._logLevelToOrder[LogLevel.Information]) then
+            error(errorMessage, 666)
+        end
+        return
+    end
 
     Logging.Log(string.format(" [%s] %s", logLevel, string.format(formatString, table.unpack(cahngedParamsStringFormat))))
 end
@@ -89,6 +96,7 @@ end
 --- func desc
 ---@param stringFormat string
 ---@param ... any
+---@return string|nil
 function Logging.ValidateSringFormat(stringFormat, ...)
     local findPatterns = StringFindPattern.new("%%.")
         :AfterFind(function (found) return string.sub(found, 2) end)
@@ -98,23 +106,24 @@ function Logging.ValidateSringFormat(stringFormat, ...)
         -- if (argsCount ~= 0 or argsCount ~= nil) then
         --     error(string.format("Error string format count arguments argsCount: %s \'%s\'", ToTypedString(argsCount), stringFormat), 666)
         -- end
-        return
+        return nil
     end
     if (#patterns ~= argsCount) then
-        error(string.format("Error string format count arguments patterns: %s argsCount: %s \'%s\'", ToTypedString(#patterns), ToTypedString(argsCount), stringFormat), 666)
+        return string.format("Error string format count arguments patterns: %s argsCount: %s \'%s\'", ToTypedString(#patterns), ToTypedString(argsCount), stringFormat)
     end
 
     for i = 1, argsCount, 1 do
         local value = select(i, ...)
         local type = type(value)
         if(patterns[i] == "s" and type ~= "string") then
-            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+            return "Error string format count arguments \'" .. stringFormat .. "\'"
         elseif(patterns[i] == "d" and type ~= "number") then
-            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+            return "Error string format count arguments \'" .. stringFormat .. "\'"
         elseif(patterns[i] == "f" and type ~= "number") then
-            error("Error string format count arguments \'" .. stringFormat .. "\'", 666)
+            return "Error string format count arguments \'" .. stringFormat .. "\'"
         end
     end
+    return nil
 end
 
 --- 

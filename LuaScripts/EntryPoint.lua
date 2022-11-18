@@ -175,7 +175,8 @@ function AfterLoad()
         Magnet,
         PumpBase,
         Transmitter,
-        Switcher
+        Switcher,
+        InspectorBase
     })
 end
 
