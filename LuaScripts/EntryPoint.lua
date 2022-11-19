@@ -129,11 +129,13 @@ function BeforeLoad()
     for _, value in pairs(Buildings.AllTypes) do
         ModBuilding.ShowBuildingAccessPoint(value.Type, value.AccessPoint ~= nil)
     end
+
+    ModVariable.SetVariableForObjectAsInt(Buildings.Extractor.Type, "Unlocked", 0)
+
     -- for _, value in pairs(Decoratives.AllTypes) do
     --     ModBuilding.ShowBuildingAccessPoint(value.Type, false)
     -- end
     -- ModBuilding.ShowBuildingAccessPoint(Converters.Extractor.Type, true)
-
     -- BuildingsDependencyTree.SwitchAllLockState()
 
 end

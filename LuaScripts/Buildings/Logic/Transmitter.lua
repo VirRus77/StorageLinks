@@ -127,9 +127,9 @@ function Transmitter:AddLink()
     end
 
     if (self._acccessType == "Transmitter") then
-        self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, self.LinkedBuildingId, nil, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
+        self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, self.LinkedBuildingId, nil, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
     else
-        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, self.LinkedBuildingId, self.Settings.MaxTransferPercentOneTime, VIRTUAL_NETWORK.HashTables))
+        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, self.LinkedBuildingId, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
     end
 end
 

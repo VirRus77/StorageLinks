@@ -3,11 +3,11 @@ Copyright (C) Sotin NU aka VirRus77
 Author: Sotin NU aka VirRus77
 --]]
 
-
+---@alias ConverterItem { Type :string, Recipes : string[]|nil, Ingridients :string[]|nil, IngridientsAmount :integer[]|nil, ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2|nil, SpawnPoint :Point2|nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
 ---@type ConverterItem[]
 Converters = {
     -- -- Extractors
-    -- ---@alias ConverterItem { Type :string, Recipes : string[]|nil, Ingridients :string[]|nil, IngridientsAmount :integer[]|nil, ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2|nil, SpawnPoint :Point2|nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
+    -- ---
     -- ---@type ConverterItem #
 }
 

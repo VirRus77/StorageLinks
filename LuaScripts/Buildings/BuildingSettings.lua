@@ -167,10 +167,10 @@ BuildingSettings = {
     Transmitter = {
         {
             Type = Buildings.TransmitterCrude,
-            ---@alias TransmitterSettingsItem { UpdatePeriod :number, MaxTransferPercentOneTime :integer, InputPoint? :Point, OutputPoint? :Point }
+            ---@alias TransmitterSettingsItem { UpdatePeriod :number, MaxTransferOneTime :integer, InputPoint? :Point, OutputPoint? :Point }
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 1,
+                MaxTransferOneTime = 1,
                 InputPoint  = Point.new(0, -1),
                 OutputPoint = nil,
             },
@@ -179,7 +179,7 @@ BuildingSettings = {
             Type = Buildings.TransmitterGood,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 5,
+                MaxTransferOneTime = 5,
                 InputPoint  = Point.new(0, -1),
                 OutputPoint = nil,
             },
@@ -188,7 +188,7 @@ BuildingSettings = {
             Type = Buildings.TransmitterSuper,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 10,
+                MaxTransferOneTime = 10,
                 InputPoint  = Point.new(0, -1),
                 OutputPoint = nil,
             },
@@ -201,7 +201,7 @@ BuildingSettings = {
             Type = Buildings.ReceiverCrude,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 1,
+                MaxTransferOneTime = 1,
                 InputPoint  = nil,
                 OutputPoint = Point.new(0, 1),
             },
@@ -210,7 +210,7 @@ BuildingSettings = {
             Type = Buildings.ReceiverGood,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 5,
+                MaxTransferOneTime = 5,
                 InputPoint  = nil,
                 OutputPoint = Point.new(0, 1),
             },
@@ -219,7 +219,7 @@ BuildingSettings = {
             Type = Buildings.ReceiverSuper,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferPercentOneTime = 10,
+                MaxTransferOneTime = 10,
                 InputPoint  = nil,
                 OutputPoint = Point.new(0, 1),
             },
