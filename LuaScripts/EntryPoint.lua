@@ -69,7 +69,7 @@ A set of links that can hook storages together. This is a great minimal mod.
 
 ~= Enjoy =~
 
-Fork: https://steamcommunity.com/sharedfiles/filedetails/?id=2087715431
+Fork abandoned mods: https://steamcommunity.com/sharedfiles/filedetails/?id=2087715431
 and https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
 
 Source mod: https://github.com/VirRus77/StorageLinks
