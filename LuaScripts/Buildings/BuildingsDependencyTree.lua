@@ -40,13 +40,13 @@ BuildingsDependencyTree.Dependencies = {
             'MetalWorkbench'
         }
     },
-    ---@type DependecyItem
-    {
-        Buildings = {
-            Converters.Extractor
-        },
-        DependencyOn = nil
-    }
+    -- ---@type DependecyItem
+    -- {
+    --     Buildings = {
+    --         Converters.Extractor
+    --     },
+    --     DependencyOn = nil
+    -- }
 }
 
 --- Check any buildings in buildingTable unlock

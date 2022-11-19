@@ -31,7 +31,6 @@ BuildingSettings = {
                 Speed = 10,
                 Height = 10,
                 Area = Area.new(0, 0, 10, 10),
-                StackLimit = 5,
             },
         },
         {
@@ -41,19 +40,17 @@ BuildingSettings = {
                 CountOneTime = 5,
                 Speed = 15,
                 Height = 10,
-                Area = Area.new(0, 0, 14, 14),
-                StackLimit = 10
+                Area = Area.new(0, 0, 10, 10),
             },
         },
         {
             Type = Buildings.MagnetSuper,
             Settings = {
                 UpdatePeriod = 1 / 4,
-                CountOneTime = 25,
+                CountOneTime = 15,
                 Speed = 20,
                 Height = 10,
-                Area = Area.new(0, 0, 20, 20),
-                StackLimit = 15
+                Area = Area.new(0, 0, 10, 10),
             },
         }
     },
@@ -188,7 +185,7 @@ BuildingSettings = {
             Type = Buildings.TransmitterSuper,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferOneTime = 10,
+                MaxTransferOneTime = 15,
                 InputPoint  = Point.new(0, -1),
                 OutputPoint = nil,
             },
@@ -219,7 +216,7 @@ BuildingSettings = {
             Type = Buildings.ReceiverSuper,
             Settings = {
                 UpdatePeriod = 1,
-                MaxTransferOneTime = 10,
+                MaxTransferOneTime = 15,
                 InputPoint  = nil,
                 OutputPoint = Point.new(0, 1),
             },

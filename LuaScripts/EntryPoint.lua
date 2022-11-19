@@ -11,45 +11,56 @@ function SteamDetails()
     Logging.LogInformation("SteamDetails")
 
     local description = [[
+===  ENGLISH (Google translate)
 A set of links that can hook storages together. This is a great minimal mod.
 
-=== Crude, Good, Super ===
- - Crude _____ are available at all times, can move up to 1 item every 5 seconds.
- - Good _____ are available once a Mortar Mixer is built and can move up to 5 items every second.
- - Super _____ are available once a Steam Hammer is built and can move unlimited items per second.
- - All levels have the capability to be SWITCHED on or off using the 'Super Switch (SL)'
+=== Raw, Good, Super ===
+ - Raw _____ are available at any time, you can move up to 1 item every second.
+ - Good _____ are available after building a mortar mixer and can move up to 5 items every second.
+ - Super _____ are available after building a steam hammer and can move 15 items per second.
+ - All levels can be turned ON or OFF with "Super Switch (SL)" or "Inspector".
 
 === Balancer (SL) ===
- - Keeps two storages of similiar type balanced.
- - Long version functions exactly the same.
+ - Keeps the balance of two storages of the same type.
+ - The long version works exactly the same.
 
 === Pump (SL) ===
- - Pumps product into the storage indicated by the arrow.
- - Long version functions exactly the same.
+ - Transfers the product to the storage indicated by the arrow.
+ - The long version works exactly the same.
  
-=== Overflow Pump (SL) ===
- - Only operates if the source side is at max capacity.
- - Removes the qty as defined below:
- - Crude: 1% (rounded up).
+=== Bypass pump (SL) ===
+ - Only works if the source side is at maximum power.
+ - Removes quantity as defined below:
+ - Raw: 1% (rounded up).
  - Good: 5% (rounded up).
  - Super: 10% (rounded up).
  
 === Receiver (SL) ===
- - Requests and will receive whatever it can of the type that fits into this storage.
- - If there are multiple receivers per type of item stored, the emptiest storage is always dealt with first.
+ - Requests and will receive everything it can, of the type that is placed in this store.
+ - If there are multiple recipients for each stored item type, the most empty storage is always processed first.
  
 === Transmitter (SL) ===
- - Transmits any requested types, if it can from the attached storage.
+ - Passes any requested types, if possible, from the attached store.
  
 === Magnet (SL) ===
- - Attach to a storage. Collects items that fit in storage, within 10x10 around magnet.
- - If you can name the magnet, setting name to '80x80' will collect items 80 tiles wide by 80 tiles tall.
+ - Attach to storage. Gathers items that fit in storage within 10x10 around the magnet.
+ - If you name the magnet by setting the name to "80x80", you will collect items that are 80 tiles wide and 80 tiles high.
+ - If you name the magnet by setting the name to "{10,12;20,23}", you will collect items in that area.
+ - Raw: Attracts 1 item at a time.
+ - Good: Pulls 5 items at a time.
+ - Super: Pulls 15 items at a time.
  
 === Switch (SL) ===
- - Name the link you wish to control with a name like "sw[GROUP NAME]" (Use "L" key.).
- - Build the switch anywhere.
- - Name the SWITCH like ">GROUP NAME". (always start with ">")
- - You can only have one switch per group name. (use anything you want for group name)
+ - The link you want to manage, for example: "[GROUP NAME]" (use the "L" key) enter in the name of the building (mod buildings only).
+ - Build a switch anywhere.
+ - Add in the name of the SWITCH, for example "[GROUP NAME]".
+ - You can have as many switches or inspectors for each group name as you want (when any one is triggered, the group logic will stop). (use any group name)
+
+=== Inspector (SL) ===
+ - The link you want to manage, for example: "[GROUP NAME]" (use the "L" key) enter in the name of the building (mod buildings only).
+ - Build an inspector in any place where you want to control the location of the object (for example, the exit of the constructor).
+ - Add in the name of the INSPECTOR, for example "[GROUP NAME]".
+ - You can have as many switches or inspectors for each group name as you want (when any one is triggered, the group logic will stop). (use any group name)
 
 ~= Enjoy =~
 
@@ -58,11 +69,69 @@ and https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
 
 Source mod: https://github.com/VirRus77/StorageLinks
 
+=== RUSSIAN
+Набор строений, которые могут связывать хранилища вместе. Это отличный минимальный мод.
+
+=== Обычный, Хороший, Супер ===
+ - Обычный _____ доступны в любое время, можно перемещать до 1 предмета каждую секунду.
+ - Хорошие _____ доступны после постройки растворомешалки и могут перемещать до 5 предметов каждую секунду.
+ - Супер _____ доступны после постройки парового молота и могут перемещать 15 предметов в секунду.
+ - Все уровни могут быть ВКЛЮЧЕНЫ или выключены с помощью «Суперпереключателя (SL)» или «Инспектора».
+
+=== Балансир (SL) ===
+ - Сохраняет баланс двух хранилищ одинакового типа.
+ - Длинная версия работает точно так же.
+
+=== Насос (SL) ===
+ - Перекачивает продукт в хранилище, указанное стрелкой.
+ - Длинная версия работает точно так же.
+
+=== Перепускной насос (SL) ===
+ - Работает только в том случае, если сторона источника находится на максимальной мощности.
+ - Удаляет количество, как определено ниже:
+ - Сырая: 1% (округлено вверх).
+ - Хорошо: 5% (округлено в большую сторону).
+ - Супер: 10% (с округлением вверх).
+
+=== Ресивер (SL) ===
+ - Запрашивает и будет получать все, что может, того типа, который помещается в это хранилище.
+ - Если есть несколько получателей для каждого типа хранимых предметов, самое пустое хранилище всегда обрабатывается первым.
+
+=== Передатчик (SL) ===
+ - Передает любые запрошенные типы, если это возможно, из подключенного хранилища.
+
+=== Магнит (SL) ===
+ - Прикрепите к хранилищу. Собирает предметы, которые помещаются в хранилище, в пределах 10x10 вокруг магнита.
+ - Если вы измените имя магнита, добавив в имя «80x80», вы будете собирать предметы размером 80 плиток в ширину и 80 плиток в высоту.
+ - Если вы измените имя магнит, добавив в имя «{10,12;20,23}», вы будете собирать предметы в этой области.
+ - Сырая: единовременно притягивает 1 предмет.
+ - Хорошо: единовременно притягивает 5 предметов.
+ - Супер: единовременно притягивает 15 предметов.
+
+=== Переключатель (SL) ===
+ - Ссылку, которой вы хотите управлять, например: "[ИМЯ ГРУППЫ]" (используйте клавишу "L") внесите в имя строения (только строения мода).
+ - Постройте переключатель в любом месте.
+ - Добавьте в имя ПЕРЕКЛЮЧАТЕЛЯ, например «[ИМЯ ГРУППЫ]».
+ - У вас может быть сколько угодно переключателей или инспекторов для каждого имени группы (при срабатывании любого, логика группы остановится). (используйте любое имя группы)
+
+=== Инспектор (SL) ===
+ - Ссылку, которой вы хотите управлять, например: "[ИМЯ ГРУППЫ]" (используйте клавишу "L") внесите в имя строения (только строения мода).
+ - Постройте испектор в любом месте в котором хотите контролировать нахождение предмета (например выход конструктора).
+ - Добавьте в имя ИНСПЕКТОРА, например «[ИМЯ ГРУППЫ]».
+ - У вас может быть сколько угодно переключателей или инспекторов для каждого имени группы (при срабатывании любого, логика группы остановится). (используйте любое имя группы)
+
+~= Наслаждайтесь =~
+
+Форк: https://steamcommunity.com/sharedfiles/filedetails/?id=2087715431
+и https://steamcommunity.com/sharedfiles/filedetails/?id=2841552670
+
+Исходный мод: https://github.com/VirRus77/StorageLinks
+
 ]]
     -- Setting of Steam details
     ModBase.SetSteamWorkshopDetails("Storage Links 2.0",
         description,
-        { "transport", "storage", "move", "transmitter", "receiver", "magnet", "ejector" },
+        { "transport", "storage", "move", "transmitter", "receiver", "magnet" },
         "logo2.jpg"
     )
 
