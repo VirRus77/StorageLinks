@@ -4,8 +4,9 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@type { Left :integer, Top :integer, Width :integer, Height :integer }
-WORLD_LIMITS = {
+---@class WorldLimits :Object
+----@type { Left :integer, Top :integer, Width :integer, Height :integer }
+WorldLimits = {
     ---@type integer
     Left = nil,
     ---@type integer
@@ -18,25 +19,31 @@ WORLD_LIMITS = {
     Width = nil,
     ---@type integer
     Height = nil,
-    
 }
+---@type WorldLimits
+WorldLimits = Object:extend(WorldLimits)
+
+---@return WorldLimits
+function WorldLimits.new()
+    return WorldLimits:make()
+end
 
 ---@param worldParameters integer[]
-function WORLD_LIMITS.Update (worldParameters)
+function WorldLimits:Update (worldParameters)
     Logging.LogDebug("WORLD_LIMITS.Update %s", worldParameters)
-    WORLD_LIMITS.Left = 0
-    WORLD_LIMITS.Top = 0
-    WORLD_LIMITS.Width = worldParameters[1] - 1
-    WORLD_LIMITS.Height = worldParameters[2] - 1
-    WORLD_LIMITS.Right = WORLD_LIMITS.Left + WORLD_LIMITS.Width
-    WORLD_LIMITS.Bottom = WORLD_LIMITS.Top + WORLD_LIMITS.Height
-    Logging.LogDebug("WORLD_LIMITS.Update %s %s %s %s", tostring(WORLD_LIMITS.Left), tostring(WORLD_LIMITS.Top), tostring(WORLD_LIMITS.Width), tostring(WORLD_LIMITS.Height))
+    self.Left = 0
+    self.Top = 0
+    self.Width = worldParameters[1] - 1
+    self.Height = worldParameters[2] - 1
+    self.Right = self.Left + self.Width
+    self.Bottom = self.Top + self.Height
+    Logging.LogDebug("WORLD_LIMITS.Update %s %s %s %s", tostring(self.Left), tostring(self.Top), tostring(self.Width), tostring(self.Height))
 end
 
 --- func desc
 ---@param area Area
 ---@return Area
-function WORLD_LIMITS:ApplyLimits(area)
+function WorldLimits:ApplyLimits(area)
     local newArea = Area.new()
     newArea.Left   = math.max(self.Left,   math.min(area.Left,  self.Right))
     newArea.Top    = math.max(self.Top,    math.min(area.Top,   self.Bottom))
@@ -45,10 +52,11 @@ function WORLD_LIMITS:ApplyLimits(area)
     return newArea
 end
 
-function WORLD_LIMITS:Unpack()
+---@return integer, integer, integer, integer
+function WorldLimits:Unpack()
     return self.Left, self.Top, self.Right, self.Bottom
 end
 
-function WORLD_LIMITS:__tostring()
+function WorldLimits:__tostring()
     return string.format("%s %s %s %s", tostring(self.Left), tostring(self.Top), tostring(self.Width), tostring(self.Height))
 end

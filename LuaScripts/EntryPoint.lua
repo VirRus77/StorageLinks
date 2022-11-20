@@ -117,6 +117,12 @@ function Creation()
     Buildings.CreateAll()
     Converters.CreateAll()
 
+    -- Buildings:UpdateTypeByUniq()
+    -- Decoratives:UpdateTypeByUniq()
+    -- Converters:UpdateTypeByUniq()
+    -- Buildings.CreateAll()
+    -- Converters.CreateAll()
+
     -- ModObject.AddMaterialsToCache("Material")
 
 
@@ -146,6 +152,7 @@ function BeforeLoad()
         ModBuilding.ShowBuildingAccessPoint(value.Type, value.AccessPoint ~= nil)
     end
 
+    Translates.SetNames()
     ModVariable.SetVariableForObjectAsInt(Buildings.Extractor.Type, "Unlocked", 0)
 
     -- for _, value in pairs(Decoratives.AllTypes) do
@@ -162,9 +169,6 @@ function AfterLoad_LoadedWorld()
     if (not IsSupportGameVersion()) then
         return
     end
-
-    Translates.SetNames()
-    WORLD_LIMITS.Update ( ModTiles.GetMapLimits() )
 end
 
 --- Once a game has loaded key functionality, this is called.
@@ -174,8 +178,11 @@ function AfterLoad()
         return
     end
 
+    WORLD_LIMITS:Update ( ModTiles.GetMapLimits() )
+
     -- Remove all Decoratives
     for _, value in pairs(Decoratives.AllTypes) do
+        Logging.LogDebug("AfterLoad: %s, WORLD_LIMITS: %s", value, WORLD_LIMITS)
         local symbolIds = ModTiles.GetObjectUIDsOfType(value.Type, WORLD_LIMITS:Unpack())
         for _, symbolId in pairs(symbolIds) do
             ModObject.DestroyObject(symbolId)
