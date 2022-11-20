@@ -40,9 +40,17 @@ function BuildingConsumer:Update()
         return requires
     end
 
+    -- Not support Colonist House
+    local objectType = ModObject.GetObjectType(self.Id)
+    -- local category = ModObject.GetObjectCategory(self.Id)
+    -- local info = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(self.Id))
+    -- Logging.LogDebug("BuildingConsumer:Update buildingRequirements: %s[%s][%s] {category: %s}", info.Name, objectType, info.Type, category)
+    if (Tools.IsColonistHouse(objectType)) then
+        return requires
+    end
+
     local buildingRequirements = self:GetBuildingRequirementsSelf()
     if (buildingRequirements.Successfully) then
-        -- Logging.LogDebug("BuildingConsumer:Update buildingRequirements: %s", buildingRequirements)
         ---@type RequireItem[]
         local requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Fuel, "Fuel", bandwidth)
         Tools.TableConcat(requires, requirements)

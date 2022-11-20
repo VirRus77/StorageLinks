@@ -8,6 +8,15 @@ Author: Sotin NU aka VirRus77
 ---@function  GroupBy
 Tools = { }
 
+Tools.ColonistHouses = {
+    ['Hut'] = true,
+    ['LogCabin'] = true,
+    ['StoneCottage'] = true,
+    ['BrickHut'] = true,
+    ['Mansion'] = true,
+    ['Castle'] = true,
+}
+
 --- func desc
 ---@param hashTable table<string, integer> # HashTable Durability
 ---@param itemType string # Type of item
@@ -259,6 +268,12 @@ function Tools.TableConcat(table, table2)
         table[#table + 1] = value
     end
     return table
+end
+
+--- func desc
+---@param buildingType string
+function Tools.IsColonistHouse(buildingType)
+    return Tools.ColonistHouses[buildingType] or false
 end
 
 --- Get all UIDs by array types on map
