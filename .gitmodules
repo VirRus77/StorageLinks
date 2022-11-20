@@ -1,0 +1,3 @@
+[submodule "lib/AutonautsLuaHeaders"]
+	path = lib/AutonautsLuaHeaders
+	url = https://github.com/VirRus77/AutonautsLuaHeaders.git
