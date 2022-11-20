@@ -125,3 +125,8 @@ end
 function FireWall.MakeFilterGroup(name)
     return FilterGroup.new(name)
 end
+
+function FireWall:Clear()
+    self._filterGroup = { }
+    self._itemToGroup = { }
+end

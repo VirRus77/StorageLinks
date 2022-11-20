@@ -82,6 +82,14 @@ function VirtualNetwor:ClearHashTables()
     self.HashTables = { }
 end
 
+function VirtualNetwor:Clear()
+    self:ClearHashTables()
+    self._index = 1
+    self.Providers = { }
+    self.Consumers = { }
+    self.HashTables = { }
+end
+
 -- -----@param aggregateHash AggregateConsumerProvider
 -- ---@return { ItemType :string, Chains :ChainItem }[]
 -- function VirtualNetwor.MakeChain(aggregateHash)

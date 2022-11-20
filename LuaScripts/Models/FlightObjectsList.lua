@@ -75,3 +75,7 @@ end
 function FlightObjectsList:Contains(flyObjectId)
     return self._items[flyObjectId] ~= nil
 end
+
+function FlightObjectsList:Clear()
+    self._items = { }
+end

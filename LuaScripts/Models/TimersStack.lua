@@ -67,5 +67,6 @@ end
 
 --- Remove all timers in list.
 function TimersStack:Clear()
+    self._index = 1
     self._timers = { }
 end

@@ -43,7 +43,7 @@ A set of links that can hook storages together. This is a great minimal mod.
  - Passes any requested types, if possible, from the attached store.
  
 === Magnet (SL) ===
- - Attach to storage. Gathers items that fit in storage within 10x10 around the magnet.
+ - Attach to storage. Gathers items that fit in storage within 11x11 around the magnet.
  - If you name the magnet by setting the name to "80x80", you will collect items that are 80 tiles wide and 80 tiles high.
  - If you name the magnet by setting the name to "{10,12;20,23}", you will collect items in that area.
  - Raw: Attracts 1 item at a time.
@@ -153,6 +153,8 @@ function BeforeLoad()
     end
 
     Translates.SetNames()
+
+    -- Disable Extractor.
     ModVariable.SetVariableForObjectAsInt(Buildings.Extractor.Type, "Unlocked", 0)
 
     -- for _, value in pairs(Decoratives.AllTypes) do
@@ -180,10 +182,10 @@ function AfterLoad()
 
     HASH_TABLES:Clear()
     WORLD_LIMITS:Update ( ModTiles.GetMapLimits() )
-    FIRE_WALL = FireWall.new()
-    VIRTUAL_NETWORK = VirtualNetwor.new(FIRE_WALL)
-    OBJECTS_IN_FLIGHT = FlightObjectsList.new()
-    TIMERS_STACK = TimersStack.new()
+    FIRE_WALL:Clear()
+    VIRTUAL_NETWORK:Clear()
+    OBJECTS_IN_FLIGHT:Clear()
+    TIMERS_STACK:Clear()
     BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
 
     -- Remove all Decoratives
@@ -195,7 +197,6 @@ function AfterLoad()
         end
     end
 
-    TIMERS_STACK:Clear()
     TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
     TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 

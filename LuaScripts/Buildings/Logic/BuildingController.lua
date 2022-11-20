@@ -43,8 +43,29 @@ end
 --- func desc
 ---@param typesList BuildingStorageLinksBase[]|nil
 function BuildingController:RegistryTypes(typesList)
+    for _, value in pairs(self.BuildingsTypes) do
+        local removeFunction = function (removedBuildingBase)
+            self:Remove(removedBuildingBase)
+        end
+        self:InitializeTypes(
+            value.SupportTypes,
+            function (buildingId, buildingType, isBlueprint, isDragging)
+                ---@type BuildingStorageLinksBase
+                local building = value.new(
+                    buildingId,
+                    buildingType,
+                    removeFunction,
+                    self.FireWall
+                )
+                self:Add(building)
+            end
+        )
+    end
+
     if (typesList ~= nil and #typesList > 0) then
         for _, value in pairs(typesList) do
+            self:AddBuildingsType(value)
+
             local removeFunction = function (removedBuildingBase)
                 self:Remove(removedBuildingBase)
             end
@@ -63,25 +84,6 @@ function BuildingController:RegistryTypes(typesList)
                 end
             )
         end
-    end
-
-    for _, value in pairs(self.BuildingsTypes) do
-        local removeFunction = function (removedBuildingBase)
-            self:Remove(removedBuildingBase)
-        end
-        self:InitializeTypes(
-            value.SupportTypes,
-            function (buildingId, buildingType, isBlueprint, isDragging)
-                ---@type BuildingStorageLinksBase
-                local building = value.new(
-                    buildingId,
-                    buildingType,
-                    removeFunction,
-                    self.FireWall
-                )
-                self:Add(building)
-            end
-        )
     end
 end
 

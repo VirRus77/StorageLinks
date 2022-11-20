@@ -51,7 +51,7 @@ end
 ---@type TranslateItem[]
 Translates.Russian = {
     -- Magnet
-    ---@alias TranslateItem { Building :{ Type :string }, Name :string, Description :string|nil, UpdateDescription :fun(value :{ Buiding :{ Type :string }, Description :string })|nil }
+    ---@alias TranslateItem { Building :{ Type :string }, Name :string, Description :string|nil, UpdateDescription :fun(value :TranslateItem)|nil }
     {
         Building = Buildings.MagnetCrude,
         Name = "Магнит",
@@ -144,17 +144,19 @@ Translates.Russian = {
     {
         Building = Buildings.SwitchSuper,
         Name = "Нажимная Панель",
-        Description = "Отплючает логику объектов.\nИмя объектов в группе: \"[GroupName]\"."
+        Description = "Отплючает логику объектов.\nИмена групп: \"[GroupName]\"."
     },
 
     -- Extractor
-    -- { Building = Buildings.Extractor, Name = "Извлкеатель",
-    --     Description = "Извлекает объект из хранилища."
-    -- },
+    {
+        Building = Buildings.Extractor,
+        Name = "Извлкеатель",
+        Description = "Извлекает объект из хранилища."
+    },
 
     -- Inspector
     { Building = Buildings.Inspector, Name = "Инспектор",
-        Description = "Проверяет объекты в области и отключает логику группе.\nИмя объектов в группе: \"[GroupName]\"."
+        Description = "Проверяет объекты в области и отключает логику группе.\nИмена групп: \"[GroupName]\"."
     },
 }
 
@@ -244,7 +246,11 @@ Translates.English = {
     },
 
     -- Extractor
-    -- { Building = Buildings.Extractor, Name = "Extract item" },
+    {
+        Building = Buildings.Extractor,
+        Name = "Extract item",
+        Description = "Retrieves an object from storage.",
+    },
 
     -- Inspector
     {

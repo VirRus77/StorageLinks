@@ -19,8 +19,10 @@ Provider = AccessPoint:extend(Provider)
 ---@param type string  # Items type
 ---@param bandwidth integer # Bandwidth
 ---@param hashTables? table # HashTables
+---@return Provider
 function Provider.new(author, id, type, bandwidth, hashTables)
-    local instance = Consumer:make(author, id, type, bandwidth, hashTables)
+    ---@type Provider
+    local instance = Provider:make(author, id, type, bandwidth, hashTables)
     return instance
 end
 
