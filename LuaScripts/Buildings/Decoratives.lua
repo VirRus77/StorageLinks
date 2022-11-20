@@ -31,11 +31,16 @@ Decoratives.AllTypes = {
     Decoratives.SymbolBroken,
 }
 
+Decoratives.NameUpdated = false;
 --- UpdateType by uniq.
 function Decoratives:UpdateTypeByUniq()
+    if (self.NameUpdated) then
+        return
+    end
     for _, buildingValue in ipairs(self.AllTypes) do
         buildingValue.Type = Constants.UniqueName(buildingValue.Type)
     end
+    self.NameUpdated = true
 end
 
 --- func desc

@@ -178,7 +178,13 @@ function AfterLoad()
         return
     end
 
+    HASH_TABLES:Clear()
     WORLD_LIMITS:Update ( ModTiles.GetMapLimits() )
+    FIRE_WALL = FireWall.new()
+    VIRTUAL_NETWORK = VirtualNetwor.new(FIRE_WALL)
+    OBJECTS_IN_FLIGHT = FlightObjectsList.new()
+    TIMERS_STACK = TimersStack.new()
+    BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
 
     -- Remove all Decoratives
     for _, value in pairs(Decoratives.AllTypes) do

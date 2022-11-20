@@ -7,6 +7,9 @@ VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before 
 --  ---@type OBJECTS_IN_FLIGHT_Item[] #
 --  OBJECTS_IN_FLIGHT = {}
 
+
+---@type boolean
+BUILDINGS_INITIALIZED = false
 ---@type FireWall
 FIRE_WALL = FireWall.new()
 ---@type VirtualNetwor
@@ -31,3 +34,16 @@ HASH_TABLES = {
     ---@type table<string, integer>
     Water = { },
 }
+function HASH_TABLES:Clear()
+    --- HashTable Durability
+    ---@type table<string, integer>
+    self.Durability = { }
+
+    --- HashTable Fuel
+    ---@type table<string, integer>
+    self.Fuel = { }
+
+    --- HashTable Water
+    ---@type table<string, integer>
+    self.Water = { }
+end

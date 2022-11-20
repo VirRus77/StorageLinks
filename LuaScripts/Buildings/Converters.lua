@@ -17,11 +17,16 @@ Converters.AllTypes = {
     --Converters.Extractor
 }
 
+Converters.NameUpdated = false
 --- UpdateType by uniq.
 function Converters:UpdateTypeByUniq()
+    if (self.NameUpdated) then
+        return
+    end
     for _, buildingValue in ipairs(self.AllTypes) do
         buildingValue.Type = Constants.UniqueName(buildingValue.Type)
     end
+    self.NameUpdated = true
 end
 
 --- Add all buildings.

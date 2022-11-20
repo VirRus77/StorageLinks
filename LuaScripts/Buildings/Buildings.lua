@@ -413,10 +413,6 @@ function Buildings.CreateAll ()
     Buildings.Create (Buildings.OverflowPumpCrude)
     Buildings.Create (Buildings.BalancerCrude)
 
-    -- Extractor Inspector
-    Buildings.Create (Buildings.Extractor)
-    Buildings.Create (Buildings.Inspector)
-
     Buildings.Create (Buildings.MagnetGood)
     Buildings.Create (Buildings.PumpGood)
     Buildings.Create (Buildings.OverflowPumpGood)
@@ -433,6 +429,9 @@ function Buildings.CreateAll ()
     Buildings.Create (Buildings.TransmitterSuper)
     Buildings.Create (Buildings.ReceiverSuper)
 
+    -- Extractor Inspector
+    Buildings.Create (Buildings.Extractor)
+    Buildings.Create (Buildings.Inspector)
     Buildings.Create (Buildings.SwitchSuper)
 
     -- Switch
@@ -441,11 +440,16 @@ function Buildings.CreateAll ()
     Decoratives.CreateDecorative (Decoratives.SymbolBroken)
 end
 
+Buildings.NameUpdated = false
 --- UpdateType by uniq.
 function Buildings:UpdateTypeByUniq()
+    if (self.NameUpdated) then
+        return
+    end
     for _, buildingValue in ipairs(self.AllTypes) do
         buildingValue.Type = Constants.UniqueName(buildingValue.Type)
     end
+    self.NameUpdated = true
 end
 
 --- Extension ModBuilding.CreateBuilding
