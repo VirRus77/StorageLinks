@@ -4,45 +4,44 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Point #
+---@class Point :Object #
 ---@field X integer
 ---@field Y integer
 Point = {
     X = 0,
     Y = 0,
-    [0] = 0,
-    [1] = 0
+    [1] = 0,
+    [2] = 0
 }
----@type Point|Object
+---@type Point
 Point = Object:extend(Point)
 
 --- func desc
----@param x? integer
----@param y? integer
+---@param x? integer|nil
+---@param y? integer|nil
 ---@return Point
 function Point.new(x, y)
     ---@type Point
-    local newInstance = Point:make(x,y)
+    local newInstance = Point:make(x or 0, y or 0)
     return newInstance
 end
 
 function Point:initialize(x, y)
     self.X = x
     self.Y = y
-    self[0] = x
-    self[1] = y
+    self[1] = x
+    self[2] = y
 end
 
---- Rotate the coordinate point clockwise by 90 degrees.
+--- Rotate the coordinate point clockwise by 90 degrees. 
+--- Negative values - counterclockwise.
 ---@param point Point
----@param countRotate? integer # Count rotation by 90 degrees. Default 1.
+---@param countRotate? integer|nil # Count rotation by 90 degrees. Default 1.
 function Point.Rotate(point, countRotate)
     if (countRotate == nil) then
         countRotate = 1
     end
-    if (countRotate < 0) then
-        error("Point.Rotate countRotate < 0", 666)
-    end
+
     countRotate = countRotate % 4
     if (countRotate == 0) then
         return Point.new(point.X, point.Y)

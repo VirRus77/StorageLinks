@@ -256,7 +256,7 @@ end
 --- func desc
 ---@param chains ChainItem[]
 function VirtualNetwor:ExecuteChains(chains)
-    -- Logging.LogDebug("VirtualNetwor:ExecuteChains chains: %s", chains)
+    Logging.LogDebug("VirtualNetwor:ExecuteChains chains: %s", chains)
     local storageInfoGroup = AccessPoint.GetHashGroup(self.HashTables, "StorageInfo")
     for _, chain in pairs(chains) do
         if (chain.SourceRequireType ~= "Storage") then
@@ -295,6 +295,15 @@ function VirtualNetwor:ExecuteChains(chains)
                 AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
                 chain.DestinationId,
                 AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
+                chain.Count
+            )
+        elseif (chain.DestinationRequireType == "Heart") then
+            StorageTools.TransferHeart(
+                chain.Type,
+                chain.SourceId,
+                AccessPoint.GetStorageInfo(chain.SourceId, storageInfoGroup),
+                chain.DestinationId,
+                --AccessPoint.GetStorageInfo(chain.DestinationId, storageInfoGroup),
                 chain.Count
             )
         end

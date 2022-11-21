@@ -102,6 +102,19 @@ function Tools.GetTableLength(tableValue)
     return count
 end
 
+--- func desc
+---@param table any
+---@param value any
+---@return boolean
+function Tools.Contains(table, value)
+    for _, tableValue in pairs(table) do
+        if (tableValue == value) then
+            return true
+        end
+    end
+    return false
+end
+
 --- By sort small to big
 ---@param a any
 ---@param b any

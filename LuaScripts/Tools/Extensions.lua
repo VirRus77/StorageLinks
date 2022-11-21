@@ -166,3 +166,27 @@ function Extensions.UnpackBuildingRequirements (properties)
 
     return result
 end
+
+--- func desc
+---@param id integer
+---@return string
+function Extensions.GetFullInformation(id)
+    local category = ModObject.GetObjectCategory(id)
+    local subCategory = ModObject.GetObjectSubcategory(id)
+    local objectProperties = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(id))
+    local buildingRequirements = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(id))
+    local converterProperties = Extensions.UnpackConverterProperties(ModConverter.GetConverterProperties(id))
+    local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(id))
+    local durability = ModObject.GetObjectDurability(id)
+    return StringFormat.UnpackStringFormat(
+        "Id: %d\nCategory: %s\nSubcategory: %s\nDurability: %d\nObjectProperties:\n%s\nBuildingRequirements:\n%s\nConverterProperties:\n%s\nStorageInfo:\n%s",
+        id,
+        category,
+        subCategory,
+        durability,
+        objectProperties,
+        buildingRequirements,
+        converterProperties,
+        storageInfo
+    )
+end

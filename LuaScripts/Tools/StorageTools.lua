@@ -126,6 +126,58 @@ function StorageTools.TransferIngredient(storesType, storageSourceId, storageSou
     end
 end
 
+--- func desc
+---@param storesType string # Type store items.
+---@param storageSourceId integer # Source storage Id.
+---@param storageSourceInfo UnpackStorageInfo
+---@param destinationId integer # Destination storage.
+---@param count integer # Count transfer.
+function StorageTools.TransferHeart(storesType, storageSourceId, storageSourceInfo, destinationId, count)
+    -- Not supported current API.
+
+    -- local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
+    -- for _, itemId in ipairs(itemIds) do
+    --     local requiredBefore = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(destinationId))
+    --     local heartAmountsBefore = Tools.GroupBy(requiredBefore.Heart, function (v) return v.Type end)
+
+    --     local x = Extensions.GetFullInformation(destinationId);
+
+    --     local added = ModObject.AddObjectToResearchStation(destinationId, itemId)
+    --     if (added) then
+    --         --Logging.LogDebug("StorageTools.TransferHeart State: %s", Extensions.UnpackConverterProperties(ModConverter.GetConverterProperties(destinationId)))
+    --         Logging.LogDebug("StorageTools.TransferHeart add item: %d", itemId)
+    --     else
+    --         Logging.LogError("StorageTools.TransferHeart not add item: %d", itemId)
+    --         ModStorage.AddToStorage(storageSourceId, itemId)
+    --     end
+
+    --     if (added) then
+    --         Logging.LogDebug("StorageTools.TransferHeart FullInfo %s\n%s",x, Extensions.GetFullInformation(destinationId))
+    --         local requiredAfter = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(destinationId))
+    --         --Logging.LogDebug("StorageTools.TransferHeart Amounts\nBefore: %s\nAfter: %s", requiredBefore, requiredAfter)
+    --         local heartAmountsAfter = Tools.GroupBy(requiredAfter.Heart, function (v) return v.Type end)
+    --         local changed = false
+    --         for key, value in pairs(heartAmountsBefore) do
+    --             changed = changed or (heartAmountsAfter[key] == nil)
+    --             if(not changed) then
+    --                 changed = heartAmountsAfter[key].AmountStored ~= value.AmountStored
+    --             end
+    --         end
+    --         if (not changed) then
+    --             --Logging.LogDebug("StorageTools.TransferHeart Amount not changed.\nBefore: %s\nAfter: %s", requiredBefore, requiredAfter)
+    --             Logging.LogDebug("StorageTools.TransferHeart Amount not changed.", requiredBefore, requiredAfter)
+    --             ModStorage.AddToStorage(storageSourceId, itemId)
+    --         end
+    --     end
+    --     if (ModObject.IsValidObjectUID(itemId)) then
+    --         if (ModObject.IsValidObjectUID(itemId)) then
+    --             Logging.LogError("StorageTools.TransferHeart Destory object: %d", itemId)
+    --             ModObject.DestroyObject(itemId)
+    --         end
+    --     end
+    -- end
+end
+
 --- 
 ---@param storageId integer
 ---@param storageInfo UnpackStorageInfo

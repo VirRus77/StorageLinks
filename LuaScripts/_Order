@@ -7,6 +7,7 @@ Core/Tools/Stopwatch.lua
 Core/Tools/SerializeTable.lua
 Core/Tools/Logging.lua
 Core/Tools/StringFindPattern.lua
+Core/Tools/StringFormat.lua
 Core/Models/TranslateItem.lua
 GameValues/SubCategory.lua
 Models/FlightObject.lua

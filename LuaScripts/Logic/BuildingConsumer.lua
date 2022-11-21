@@ -31,6 +31,7 @@ end
 function BuildingConsumer:Update()
     ---@type RequireItem[] #
     local requires = { }
+    ---@type ReferenceValue<integer>
     local bandwidth = ReferenceValue.new(self._bandwidth)
     -- Logging.LogDebug("BuildingConsumer:Update _bandwidth: %d bandwidth:\n%s", self._bandwidth, bandwidth)
     self._requires = requires
@@ -40,40 +41,50 @@ function BuildingConsumer:Update()
         return requires
     end
 
-    -- Not support Colonist House
     local objectType = ModObject.GetObjectType(self.Id)
-    -- local category = ModObject.GetObjectCategory(self.Id)
-    -- local info = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(self.Id))
-    -- Logging.LogDebug("BuildingConsumer:Update buildingRequirements: %s[%s][%s] {category: %s}", info.Name, objectType, info.Type, category)
+    local selfLocation = Point.new(table.unpack(ModObject.GetObjectTileCoord(self.Id)))
+    local allTypesOnTile = ModTiles.GetObjectTypeOnTile(selfLocation.X, selfLocation.Y)
+
+    -- ConverterFoundation
+    if (#allTypesOnTile > 0 and Tools.Contains(allTypesOnTile, "ConverterFoundation")) then
+        local ids = ModBuilding.GetBuildingUIDsOfType("ConverterFoundation", selfLocation.X, selfLocation.Y, selfLocation.X, selfLocation.Y)
+        if (#ids > 0) then
+            for _, converterId in pairs(ids) do
+                if (converterId ~= self.Id) then
+                    local buildingRequirements = self:GetBuildingRequirementsSelf(converterId)
+                    local requirements = self:MakeBuildingRequirements(converterId, buildingRequirements, bandwidth)
+                    Tools.TableConcat(requires, requirements)
+                end
+            end
+        end
+    end
+
+    -- Analysis of new opportunities.
+    -- if (subCategory == "BuildingsSpecial") then
+    --     -- Logging.LogDebug("BuildingConsumer:Update FullInfo:\n%s", Extensions.GetFullInformation(self.Id))
+    --     if(#allTypesOnTile > 1) then
+    --         Logging.LogDebug("BuildingConsumer:Update All type objects on tile: %s", allTypesOnTile)
+    --         for _, buildingType in pairs(allTypesOnTile) do
+    --             local ids = ModBuilding.GetBuildingUIDsOfType(buildingType, selfLocation[1], selfLocation[2], selfLocation[1], selfLocation[2])
+    --             for _, converterId in pairs(ids) do
+    --                 if (converterId ~= self.Id) then
+    --                     Logging.LogDebug("BuildingConsumer:Update FullInfo:\n%s", Extensions.GetFullInformation(converterId))
+    --                 end
+    --             end
+    --         end
+    --     end
+    -- end
+
+    -- Not support Colonist House
+    -- Bug: ColonistHouse always require.
     if (Tools.IsColonistHouse(objectType)) then
         return requires
     end
 
     local buildingRequirements = self:GetBuildingRequirementsSelf()
-    if (buildingRequirements.Successfully) then
-        ---@type RequireItem[]
-        local requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Fuel, "Fuel", bandwidth)
-        Tools.TableConcat(requires, requirements)
-        -- if(buildingRequirements.Fuel ~= nil) then
-        --     Logging.LogDebug("BuildingConsumer:Update\nbuildingRequirements.Fuel = %s\nrequirements = %s", buildingRequirements.Fuel,requirements)
-        -- end
-
-        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Water, "Water", bandwidth)
-        Tools.TableConcat(requires, requirements)
-
-        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Heart, "Heart", bandwidth)
-        Tools.TableConcat(requires, requirements)
-
-        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Ingredient, "Ingredient", bandwidth)
-        Tools.TableConcat(requires, requirements)
-
-        requirements = BuildingConsumer.MakeRequirements(self.Author, self.Id, buildingRequirements.Hay, "Hay", bandwidth)
-        Tools.TableConcat(requires, requirements)
-    else
-        Logging.LogWarning("BuildingConsumer:Update Not readed BuildingRequirements Id: %d", self.Id)
-    end
+    local requirements = self:MakeBuildingRequirements(self.Id, buildingRequirements, bandwidth)
+    Tools.TableConcat(requires, requirements)
     -- Logging.LogDebug("BuildingConsumer:Update requires: %s", requires)
-
 
     local isStorage = Tools.IsStorage(self.Id)
     -- Logging.LogDebug("BuildingConsumer:Update() isStorage: %s", isStorage)
@@ -101,6 +112,36 @@ function BuildingConsumer:Update()
         }
     end
 
+    return requires
+end
+
+--- func desc
+---@param id integer
+---@param buildingRequirements UnpackBuildingRequirementsList
+---@param bandwidth ReferenceValue<integer>
+---@return RequireItem[]
+function BuildingConsumer:MakeBuildingRequirements(id ,buildingRequirements, bandwidth)
+    local requires = { }
+    if (buildingRequirements.Successfully) then
+        ---@type RequireItem[]
+        local requirements = BuildingConsumer.MakeRequirements(self.Author, id, buildingRequirements.Fuel, "Fuel", bandwidth)
+        Tools.TableConcat(requires, requirements)
+
+        requirements = BuildingConsumer.MakeRequirements(self.Author, id, buildingRequirements.Water, "Water", bandwidth)
+        Tools.TableConcat(requires, requirements)
+
+        -- Don`t supported API.
+        -- requirements = BuildingConsumer.MakeRequirements(self.Author, id, buildingRequirements.Heart, "Heart", bandwidth)
+        -- Tools.TableConcat(requires, requirements)
+
+        requirements = BuildingConsumer.MakeRequirements(self.Author, id, buildingRequirements.Ingredient, "Ingredient", bandwidth)
+        Tools.TableConcat(requires, requirements)
+
+        requirements = BuildingConsumer.MakeRequirements(self.Author, id, buildingRequirements.Hay, "Hay", bandwidth)
+        Tools.TableConcat(requires, requirements)
+    else
+        Logging.LogWarning("BuildingConsumer:Update Not readed BuildingRequirements Id: %d", id)
+    end
     return requires
 end
 
@@ -141,6 +182,12 @@ function BuildingConsumer.MakeRequirements(author, id, list, requireType, bandwi
             return nil
         end
         local require = math.floor(item.Capacity - item.Amount)
+
+        if (requireType == "Heart") then
+            -- Bandwidth 1
+            require = math.min(require, 1)
+        end
+
         if (require > 0) then
             ---@type RequireItem
             return {

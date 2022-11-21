@@ -73,13 +73,15 @@ function AccessPoint:GetStorageInfoSelf(id)
 end
 
 --- 
+---@param id integer|nil
 ---@return UnpackBuildingRequirementsList #
-function AccessPoint:GetBuildingRequirementsSelf()
+function AccessPoint:GetBuildingRequirementsSelf(id)
+    id = id or self.Id
     if (self.HashTables ~= nil) then
         local hashTable = AccessPoint.GetHashGroup(self.HashTables, "BuildingRequirements")
-        return AccessPoint.GetBuildingRequirements(self.Id, hashTable)
+        return AccessPoint.GetBuildingRequirements(id, hashTable)
     end
-    return AccessPoint.GetBuildingRequirements(self.Id)
+    return AccessPoint.GetBuildingRequirements(id)
 end
 
 --- func desc

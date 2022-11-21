@@ -70,42 +70,64 @@ Translates.Russian = {
     },
 
     -- Pump
-    { Building = Buildings.PumpCrude, Name = "Помпа",
-        Description = "Транспортирует объекты."
+    {
+        Building = Buildings.PumpCrude,
+        Name = "Помпа",
+        Description = "Транспортирует объекты.",
     },
-    { Building = Buildings.PumpGood, Name = "Хорошая Помпа",
-        Description = "Транспортирует объекты."
+    {
+        Building = Buildings.PumpGood,
+        Name = "Хорошая Помпа",
+        Description = "Транспортирует объекты.",
     },
-    { Building = Buildings.PumpSuper, Name = "Супер Помпа",
-        Description = "Транспортирует объекты."
+    {
+        Building = Buildings.PumpSuper,
+        Name = "Супер Помпа",
+        Description = "Транспортирует объекты.",
     },
-    { Building = Buildings.PumpSuperLong, Name = "Супер Помпа - длинная",
-        Description = "Транспортирует объекты."
+    {
+        Building = Buildings.PumpSuperLong,
+        Name = "Супер Помпа - длинная",
+        Description = "Транспортирует объекты.",
     },
 
     -- Overflow Pump
-    { Building = Buildings.OverflowPumpCrude, Name = "Помпа Переполнения",
-        Description = "Перекачивает объекты при переполнении источника."
+    {
+        Building = Buildings.OverflowPumpCrude,
+        Name = "Помпа Переполнения",
+        Description = "Перекачивает объекты при переполнении источника.",
     },
-    { Building = Buildings.OverflowPumpGood, Name = "Хорошая Помпа Переполнения",
-        Description = "Перекачивает объекты при переполнении источника."
+    {
+        Building = Buildings.OverflowPumpGood,
+        Name = "Хорошая Помпа Переполнения",
+        Description = "Перекачивает объекты при переполнении источника.",
     },
-    { Building = Buildings.OverflowPumpSuper, Name = "Супер Помпа Переполнения",
-        Description = "Перекачивает объекты при переполнении источника."
+    {
+        Building = Buildings.OverflowPumpSuper,
+        Name = "Супер Помпа Переполнения",
+        Description = "Перекачивает объекты при переполнении источника.",
     },
 
     -- Balancer
-    { Building = Buildings.BalancerCrude, Name = "Помпа Баланса",
-        Description = "Баланчсирует объекты по количеству."
+    {
+        Building = Buildings.BalancerCrude,
+        Name = "Помпа Баланса",
+        Description = "Баланчсирует объекты по количеству.",
     },
-    { Building = Buildings.BalancerGood, Name = "Хорошая Помпа Баланса",
-        Description = "Баланчсирует объекты по количеству."
+    {
+        Building = Buildings.BalancerGood,
+        Name = "Хорошая Помпа Баланса",
+        Description = "Баланчсирует объекты по количеству.",
     },
-    { Building = Buildings.BalancerSuper, Name = "Супер Помпа Баланса",
-        Description = "Баланчсирует объекты по количеству."
+    {
+        Building = Buildings.BalancerSuper,
+        Name = "Супер Помпа Баланса",
+        Description = "Баланчсирует объекты по количеству.",
     },
-    { Building = Buildings.BalancerSuperLong, Name = "Супер Помпа Баланса - длинная",
-        Description = "Баланчсирует объекты по количеству."
+    {
+        Building = Buildings.BalancerSuperLong,
+        Name = "Супер Помпа Баланса - длинная",
+        Description = "Баланчсирует объекты по количеству.",
     },
 
     -- Transmitter    
@@ -113,50 +135,60 @@ Translates.Russian = {
         Building = Buildings.TransmitterCrude,
         Name = "Отправитель",
         Description = "Отправляет объекты на получатель.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
     {
         Building = Buildings.TransmitterGood,
         Name = "Хороший Отправитель",
         Description = "Отправляет объекты на получатель.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
-    { Building = Buildings.TransmitterSuper, Name = "Супер Отправитель",
+    {
+        Building = Buildings.TransmitterSuper,
+        Name = "Супер Отправитель",
         Description = "Отправляет объекты на получатель.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
 
     -- Receiver
-    { Building = Buildings.ReceiverCrude, Name = "Получатель",
+    {
+        Building = Buildings.ReceiverCrude,
+        Name = "Получатель",
         Description = "Получает объекты от отправителя.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
-    { Building = Buildings.ReceiverGood, Name = "Хороший Получатель",
+    {
+        Building = Buildings.ReceiverGood,
+        Name = "Хороший Получатель",
         Description = "Получает объекты от отправителя.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
-    { Building = Buildings.ReceiverSuper, Name = "Супер Получатель",
+    {
+        Building = Buildings.ReceiverSuper,
+        Name = "Супер Получатель",
         Description = "Получает объекты от отправителя.\nСкорость: %d объект(ов) в с.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
 
     -- Switch
     {
         Building = Buildings.SwitchSuper,
         Name = "Нажимная Панель",
-        Description = "Отплючает логику объектов.\nИмена групп: \"[GroupName]\"."
+        Description = "Отплючает логику объектов.\nИмена групп: \"[GroupName]\".",
     },
 
     -- Extractor
     {
         Building = Buildings.Extractor,
         Name = "Извлкеатель",
-        Description = "Извлекает объект из хранилища."
+        Description = "Извлекает объект из хранилища.",
     },
 
     -- Inspector
-    { Building = Buildings.Inspector, Name = "Инспектор",
-        Description = "Проверяет объекты в области и отключает логику группе.\nИмена групп: \"[GroupName]\"."
+    {
+        Building = Buildings.Inspector,
+        Name = "Инспектор",
+        Description = "Проверяет объекты в области и отключает логику группе.\nИмена групп: \"[GroupName]\".",
     },
 }
 
@@ -167,7 +199,6 @@ Translates.English = {
         Name = "Crude Magnet",
         Description = "Attracts %d/s object(s).\nArea of attraction is %dx%d.\nSupport are: \"{L,T;R,B}\"",
         UpdateDescription = Translates.UpdateMagnetDescription,
-
     },
     {
         Building = Buildings.MagnetGood,
@@ -183,40 +214,84 @@ Translates.English = {
     },
 
     -- Pump
-    { Building = Buildings.PumpCrude, Name = "Crude Pump" },
-    { Building = Buildings.PumpGood, Name = "Good Pump" },
-    { Building = Buildings.PumpSuper, Name = "Super Pump" },
-    { Building = Buildings.PumpSuperLong, Name = "Super Pump Long" },
+    {
+        Building = Buildings.PumpCrude,
+        Name = "Crude Pump",
+        Description = nil,
+    },
+    {
+        Building = Buildings.PumpGood,
+        Name = "Good Pump",
+        Description = nil,
+    },
+    {
+        Building = Buildings.PumpSuper,
+        Name = "Super Pump",
+        Description = nil,
+    },
+    {
+        Building = Buildings.PumpSuperLong,
+        Name = "Super Pump Long",
+        Description = nil,
+    },
 
     -- Overflow Pump
-    { Building = Buildings.OverflowPumpCrude, Name = "Crude Overflow Pump" },
-    { Building = Buildings.OverflowPumpGood, Name = "Good Overflow Pump" },
-    { Building = Buildings.OverflowPumpSuper, Name = "Super Overflow Pump" },
+    {
+        Building = Buildings.OverflowPumpCrude,
+        Name = "Crude Overflow Pump",
+        Description = nil,
+    },
+    {
+        Building = Buildings.OverflowPumpGood,
+        Name = "Good Overflow Pump",
+        Description = nil,
+    },
+    {
+        Building = Buildings.OverflowPumpSuper,
+        Name = "Super Overflow Pump",
+        Description = nil,
+    },
 
     -- Balancer
-    { Building = Buildings.BalancerCrude, Name = "Crude Balancer" },
-    { Building = Buildings.BalancerGood, Name = "Good Balancer" },
-    { Building = Buildings.BalancerSuper, Name = "Super Balancer" },
-    { Building = Buildings.BalancerSuperLong, Name = "Super Balancer Long" },
+    {
+        Building = Buildings.BalancerCrude,
+        Name = "Crude Balancer",
+        Description = nil,
+    },
+    {
+        Building = Buildings.BalancerGood,
+        Name = "Good Balancer",
+        Description = nil,
+    },
+    {
+        Building = Buildings.BalancerSuper,
+        Name = "Super Balancer",
+        Description = nil,
+    },
+    {
+        Building = Buildings.BalancerSuperLong,
+        Name = "Super Balancer Long",
+        Description = nil,
+    },
 
     -- Transmitter    
     {
         Building = Buildings.TransmitterCrude,
         Name = "Crude Transmitter",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
     {
         Building = Buildings.TransmitterGood,
         Name = "Good Transmitter",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
     {
         Building = Buildings.TransmitterSuper,
         Name = "Super Transmitter",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
 
     -- Receiver
@@ -224,25 +299,26 @@ Translates.English = {
         Building = Buildings.ReceiverCrude,
         Name = "Crude Receiver",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
     {
         Building = Buildings.ReceiverGood,
         Name = "Good Receiver",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
     {
         Building = Buildings.ReceiverSuper,
         Name = "Super Receiver",
         Description = "Speed: %d object in sec.",
-        UpdateDescription = Translates.UpdateAccessPointsDescription
+        UpdateDescription = Translates.UpdateAccessPointsDescription,
     },
 
     -- Switch
     {
         Building = Buildings.SwitchSuper,
-        Name = "Super Switch"
+        Name = "Super Switch",
+        Description = nil,
     },
 
     -- Extractor
@@ -256,7 +332,7 @@ Translates.English = {
     {
         Building = Buildings.Inspector,
         Name = "Inspector",
-        Description = "Checks the objects in the area and disables the logic for the group.\nGroup names: ex. \"[GroupName]\"."
+        Description = "Checks the objects in the area and disables the logic for the group.\nGroup names: ex. \"[GroupName]\".",
     },
 }
 
