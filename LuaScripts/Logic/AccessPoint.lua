@@ -25,7 +25,6 @@ AccessPoint.HashTableGroups = {
     "StorageInfo",
     "Storage.FreeSpace",
     "ConverterProperties",
-    "BuildingRequirements",
     "BuildingRequirements"
 }
 

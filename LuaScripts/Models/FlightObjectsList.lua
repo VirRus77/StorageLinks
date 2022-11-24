@@ -11,6 +11,7 @@ FlightObjectsList = {
     ---@protected
     _items = nil
 }
+---@type FlightObjectsList
 FlightObjectsList = Object:extend(FlightObjectsList)
 
 --- func desc

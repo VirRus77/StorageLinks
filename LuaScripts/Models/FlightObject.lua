@@ -4,7 +4,7 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class FlightObject
+---@class FlightObject :Object
 ---@field Id integer
 ---@field TagerId integer|nil
 ---@field InitiatorId integer|nil
@@ -21,7 +21,7 @@ FlightObject = {
     ---@type CallbackFlightComplete[]
     _callbacksComplete = { }
 }
-FlightObject.__index = FlightObject
+FlightObject = Object:extend(FlightObject)
 
 --- func desc
 ---@param id integer # Id flight object
@@ -30,29 +30,28 @@ FlightObject.__index = FlightObject
 ---@param from Point #
 ---@param to Point #
 ---@param callbackComplete CallbackFlightComplete #
----@param flightParameters? FlightParameters # Default { Arch = true, Wobble = false }
+---@param flightParameters? FlightParameters|nil # Default { Arch = true, Wobble = false }
 function FlightObject.new(id, targetId, initiatorId, from, to, callbackComplete, flightParameters)
     ---@type FlightObject
-    local newInstance = {
-        _flightParameters = flightParameters or FlightObject._flightParameters,
-        _callbacksComplete = { callbackComplete },
-        Id = id,
-        TagerId = targetId,
-        InitiatorId = initiatorId,
-        From = from,
-        To = to
-    }
-    -- Logging.LogDebug("new FlightObject %s", serializeTable(newInstance))
-
-    setmetatable(newInstance, FlightObject)
-    newInstance.__index = FlightObject
+    local newInstance = FlightObject:make(id, targetId, initiatorId, from, to, callbackComplete, flightParameters)
     return newInstance
+end
+
+function FlightObject:initialize(id, targetId, initiatorId, from, to, callbackComplete, flightParameters)
+    self._flightParameters = flightParameters or FlightObject._flightParameters
+    self._callbacksComplete = { }
+    self.Id = id
+    self.TagerId = targetId
+    self.InitiatorId = initiatorId
+    self.From = from
+    self.To = to
+
+    self._callbacksComplete[#self._callbacksComplete + 1] = callbackComplete
 end
 
 --- func desc
 ---@param callback CallbackFlightComplete
 function FlightObject:AddCallback(callback)
-    -- Logging.LogDebug("FlightObject:AddCallback")
     self._callbacksComplete[#self._callbacksComplete + 1] = callback
     -- Logging.LogDebug("FlightObject:AddCallback %d", #self._callbacksComplete)
 end

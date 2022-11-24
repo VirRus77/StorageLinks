@@ -8,6 +8,7 @@ Author: Sotin NU aka VirRus77
 ---@function  GroupBy
 Tools = { }
 
+---@type table<string, boolean>
 Tools.ColonistHouses = {
     ['Hut'] = true,
     ['LogCabin'] = true,
@@ -113,6 +114,36 @@ function Tools.Contains(table, value)
         end
     end
     return false
+end
+
+--- func desc
+---@generic T :any
+---@param table any
+---@param value T
+---@return table<integer, T>
+function Tools.Skip(table, value)
+    local table = { }
+    for _, tableValue in pairs(table) do
+        if (tableValue ~= value) then
+            table[#table + 1] = tableValue
+        end
+    end
+    return table
+end
+
+--- func desc
+---@generic T :any
+---@param table any
+---@param predicate fun(T) :boolean
+---@return table<integer, T>
+function Tools.Where(table, predicate)
+    local table = { }
+    for _, tableValue in pairs(table) do
+        if (predicate(tableValue)) then
+            table[#table + 1] = tableValue
+        end
+    end
+    return table
 end
 
 --- By sort small to big
@@ -285,6 +316,7 @@ end
 
 --- func desc
 ---@param buildingType string
+---@return boolean
 function Tools.IsColonistHouse(buildingType)
     return Tools.ColonistHouses[buildingType] or false
 end

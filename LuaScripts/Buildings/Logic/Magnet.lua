@@ -80,7 +80,7 @@ function Magnet:OnTimerCallback()
         return
     end
 
-    local captureQuantity = self:CaptureQuantity(storageId, storageInfo)
+    local captureQuantity = self:CaptureQuantity(storageId, storageInfo, OBJECTS_IN_FLIGHT)
     if (captureQuantity == 0) then
         return
     end
@@ -93,7 +93,7 @@ function Magnet:OnTimerCallback()
         workArea.Right,
         workArea.Bottom
     )
-    if(holdables == nil or holdables[1] == nil) then
+    if (holdables == nil or holdables[1] == nil) then
         return
     end
     local countCapture = 0
@@ -141,8 +141,13 @@ end
 --- func desc
 ---@param storageId integer
 ---@param storageProperties UnpackStorageInfo
-function Magnet:CaptureQuantity(storageId, storageProperties)
-    local countFlyToStorage = OBJECTS_IN_FLIGHT:FlightObjectByTarget(storageId)
+---@param objectInFly FlightObjectsList|nil
+function Magnet:CaptureQuantity(storageId, storageProperties, objectInFly)
+    local countFlyToStorage = { }
+    if (objectInFly ~= nil) then
+        countFlyToStorage = objectInFly:FlightObjectByTarget(storageId)
+    end
+
     local countByMagnet = 0
     for _, value in ipairs(countFlyToStorage) do
         if (value.InitiatorId == self.Id) then

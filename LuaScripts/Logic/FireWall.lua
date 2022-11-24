@@ -8,7 +8,7 @@ Author: Sotin NU aka VirRus77
 ---@field _filterGroup table<string, FilterGroup>
 ---@field _itemToGroup table<integer, string>
 FireWall = { }
----@type Provider
+---@type FireWall
 FireWall = Object:extend(FireWall)
 
 ---@return FireWall
