@@ -3,10 +3,13 @@ Copyright (C) Sotin NU aka VirRus77
 Author: Sotin NU aka VirRus77
 --]]
 
+
+---@generic T :any
 ---@class ReferenceValue<T> :Object, { Value: T } #
 ----@field Value T #
 ReferenceValue = { }
----@type ReferenceValue
+---@generic T :any
+---@type ReferenceValue<T>
 ReferenceValue = Object:extend(ReferenceValue)
 
 --- func desc

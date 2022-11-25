@@ -42,22 +42,22 @@ function BuildingConsumer:Update()
     end
 
     local objectType = ModObject.GetObjectType(self.Id)
-    local selfLocation = Point.new(table.unpack(ModObject.GetObjectTileCoord(self.Id)))
-    local allTypesOnTile = ModTiles.GetObjectTypeOnTile(selfLocation.X, selfLocation.Y)
+    --local selfLocation = Point.new(table.unpack(ModObject.GetObjectTileCoord(self.Id)))
+    --local allTypesOnTile = ModTiles.GetObjectTypeOnTile(selfLocation.X, selfLocation.Y)
 
     -- ConverterFoundation
-    if (#allTypesOnTile > 0 and Tools.Contains(allTypesOnTile, "ConverterFoundation")) then
-        local ids = ModBuilding.GetBuildingUIDsOfType("ConverterFoundation", selfLocation.X, selfLocation.Y, selfLocation.X, selfLocation.Y)
-        if (#ids > 0) then
-            for _, converterId in pairs(ids) do
-                if (converterId ~= self.Id) then
-                    local buildingRequirements = self:GetBuildingRequirementsSelf(converterId)
-                    local requirements = self:MakeBuildingRequirements(converterId, buildingRequirements, bandwidth)
-                    Tools.TableConcat(requires, requirements)
-                end
-            end
-        end
-    end
+    -- if (#allTypesOnTile > 0 and Tools.Contains(allTypesOnTile, "ConverterFoundation")) then
+    --     local ids = ModBuilding.GetBuildingUIDsOfType("ConverterFoundation", selfLocation.X, selfLocation.Y, selfLocation.X, selfLocation.Y)
+    --     if (#ids > 0) then
+    --         for _, converterId in pairs(ids) do
+    --             if (converterId ~= self.Id) then
+    --                 local buildingRequirements = self:GetBuildingRequirementsSelf(converterId)
+    --                 local requirements = self:MakeBuildingRequirements(converterId, buildingRequirements, bandwidth)
+    --                 Tools.TableConcat(requires, requirements)
+    --             end
+    --         end
+    --     end
+    -- end
 
     -- Analysis of new opportunities.
     -- if (subCategory == "BuildingsSpecial") then
@@ -78,13 +78,14 @@ function BuildingConsumer:Update()
     -- Not support Colonist House
     -- Bug: ColonistHouse always require.
     if (Tools.IsColonistHouse(objectType)) then
+        Logging.LogDebug("BuildingConsumer:Update IsColonistHouse exit.")
         return requires
     end
 
     local buildingRequirements = self:GetBuildingRequirementsSelf()
     local requirements = self:MakeBuildingRequirements(self.Id, buildingRequirements, bandwidth)
     Tools.TableConcat(requires, requirements)
-    -- Logging.LogDebug("BuildingConsumer:Update requires: %s", requires)
+    -- Logging.LogDebug("BuildingConsumer:Update requires: %d\n%s", self.Id, requires)
 
     local isStorage = Tools.IsStorage(self.Id)
     -- Logging.LogDebug("BuildingConsumer:Update() isStorage: %s", isStorage)

@@ -4,20 +4,20 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Magnet :BuildingStorageLinksBase #
+---@class Magnet :BuildingFireWallBase #
 ---@field WorkArea Area #
 ---@field OutputPoint Point # Direction base rotation
 ---@field Settings MagnetSettingsItem2 #
 Magnet = {
     SupportTypes = {
-        Buildings.MagnetCrude,
-        Buildings.MagnetGood,
-        Buildings.MagnetSuper,
+        Buildings.MagnetCrude.Type,
+        Buildings.MagnetGood.Type,
+        Buildings.MagnetSuper.Type,
     },
     OutputPoint = Point.new(1, 0),
 }
 ---@type Magnet
-Magnet = BuildingStorageLinksBase:extend(Magnet)
+Magnet = BuildingFireWallBase:extend(Magnet)
 
 ---@param id integer #
 ---@param type string #
@@ -30,7 +30,7 @@ function Magnet.new(id, type, callbackRemove, fireWall)
     local settings = BuildingSettings.GetSettingsByType(type) or error("Magnet Settings not found", 666) or { }
 
     ---@type Magnet
-    local instance = Magnet:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
+    local instance = Magnet:make(id, type, callbackRemove, fireWall)
     instance.Settings = settings
     local area = instance.Settings.Area
     instance.WorkArea = instance:GetAreaByPosition(area:Width(), area:Height())

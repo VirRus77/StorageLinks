@@ -26,6 +26,11 @@ TIMERS_STACK = TimersStack.new()
 BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
 ---@type WorldLimits
 WORLD_LIMITS = WorldLimits.new()
+---@type TileController
+TILE_CONTROLLER = TileController.new(TIMERS_STACK)
+
+---@type CacheItemInfo
+CACHE_ITEM_INFO = CacheItemInfo.new()
 
 HASH_TABLES = {
     --- HashTable Durability

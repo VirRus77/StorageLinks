@@ -15,11 +15,11 @@ StorageTools = {}
 ---@param storageDestInfo UnpackStorageInfo
 ---@param count integer # Count transfer.
 function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
-    Logging.LogDebug("StorageTools.TransferItems")
+    -- Logging.LogDebug("StorageTools.TransferItems")
     local isDurability = Tools.IsDurability(HASH_TABLES.Durability, storesType)
-    Logging.LogDebug("StorageTools.TransferItems %d == %d x %s ==> %d", storageSourceId, count, storesType, storageDestId)
-    Logging.LogDebug("StorageTools.TransferItems storageSourceInfo\n%s", storageSourceInfo)
-    Logging.LogDebug("StorageTools.TransferItems storageDestInfo\n%s", storageDestInfo)
+    -- Logging.LogDebug("StorageTools.TransferItems %d == %d x %s ==> %d", storageSourceId, count, storesType, storageDestId)
+    -- Logging.LogDebug("StorageTools.TransferItems storageSourceInfo\n%s", storageSourceInfo)
+    -- Logging.LogDebug("StorageTools.TransferItems storageDestInfo\n%s", storageDestInfo)
     if (not isDurability) then
         local sourceAmount = storageSourceInfo.AmountStored - count
         if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then

@@ -7,10 +7,10 @@ Author: Sotin NU aka VirRus77
 Buildings = {
     ---@alias Point2 integer[] # Point [1] = X, [2] = Y
     ---@alias Point3 { X? :number, Y? :number, Z? :number }
-    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
+    ---@alias BuildingItem { Type :ReferenceValue<string>, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type BuildingItem #
     Extractor = {
-        Type = "Extractor",
+        Type = ReferenceValue.new("Extractor"),
         Recipes = nil,
         Ingridients = { "Log", "TreeSeed" },
         IngridientsAmount = { 1, 1 },
@@ -30,7 +30,7 @@ Buildings = {
     ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type BuildingItem #
     Inspector = {
-        Type = "Inspector",
+        Type = ReferenceValue.new("Inspector"),
         Recipes = nil,
         Ingridients = { "Log", "TreeSeed", "Stick" },
         IngridientsAmount = { 1, 2, 4 },
@@ -47,7 +47,7 @@ Buildings = {
 
     -- Magnet
     MagnetCrude = {
-        Type = "MagnetCrude",
+        Type = ReferenceValue.new("MagnetCrude"),
         Name = "Crude Magnet (SL)",
         Ingridients = { "Rock", "TreeSeed" },
         IngridientsAmount = {2, 1},
@@ -62,7 +62,7 @@ Buildings = {
     },
     ---@type BuildingItem #
     MagnetGood = {
-        Type = "MagnetGood",
+        Type = ReferenceValue.new("MagnetGood"),
         Name = "Good Magnet (SL)",
         Ingridients = { "Rock", "StringBall" },
         IngridientsAmount = { 4, 3 },
@@ -76,7 +76,7 @@ Buildings = {
         CustomModel = true,
     },
     MagnetSuper = {
-        Type = "MagnetSuper",
+        Type = ReferenceValue.new("MagnetSuper"),
         Name = "Super Magnet (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 2, 2, 4, 1 },
@@ -92,7 +92,7 @@ Buildings = {
 
     -- Pump
     PumpCrude = {
-        Type = "PumpCrude",
+        Type = ReferenceValue.new("PumpCrude"),
         Name = "Crude Pump (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -103,7 +103,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpGood = {
-        Type = "PumpGood",
+        Type = ReferenceValue.new("PumpGood"),
         Name = "Good Pump (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -114,7 +114,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpSuper = {
-        Type = "PumpSuper",
+        Type = ReferenceValue.new("PumpSuper"),
         Name = "Super Pump (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -125,7 +125,7 @@ Buildings = {
         CustomModel = true,
     },
     PumpSuperLong = {
-        Type = "PumpSuperLong",
+        Type = ReferenceValue.new("PumpSuperLong"),
         Name = "Super Pump Long (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -138,7 +138,7 @@ Buildings = {
 
     -- Overflow Pump
     OverflowPumpCrude = {
-        Type = "OverflowPumpCrude",
+        Type = ReferenceValue.new("OverflowPumpCrude"),
         Name = "Crude Overflow Pump (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -149,7 +149,7 @@ Buildings = {
         CustomModel = true,
     },
     OverflowPumpGood = {
-        Type = "OverflowPumpGood",
+        Type = ReferenceValue.new("OverflowPumpGood"),
         Name = "Good Overflow Pump (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -160,7 +160,7 @@ Buildings = {
         CustomModel = true,
     },
     OverflowPumpSuper = {
-        Type = "OverflowPumpSuper",
+        Type = ReferenceValue.new("OverflowPumpSuper"),
         Name = "Super Overflow Pump (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -173,7 +173,7 @@ Buildings = {
 
 	-- Balancer
     BalancerCrude = {
-        Type = "BalancerCrude",
+        Type = ReferenceValue.new("BalancerCrude"),
         Name = "Crude Balancer (SL)",
         Ingridients = { "Log", "Pole" },
         IngridientsAmount = { 1, 2 },
@@ -184,7 +184,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerGood = {
-        Type = "BalancerGood",
+        Type = ReferenceValue.new("BalancerGood"),
         Name = "Good Balancer (SL)",
         Ingridients = { "Mortar", "Pole" },
         IngridientsAmount = { 4, 8 },
@@ -195,7 +195,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerSuper = {
-        Type = "BalancerSuper",
+        Type = ReferenceValue.new("BalancerSuper"),
         Name = "Super Balancer (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -206,7 +206,7 @@ Buildings = {
         CustomModel = true,
     },
     BalancerSuperLong = {
-        Type ="BalancerSuperLong",
+        Type =ReferenceValue.new("BalancerSuperLong"),
         Name = "Super Balancer Long (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets" },
         IngridientsAmount = { 4, 8, 8 },
@@ -219,7 +219,7 @@ Buildings = {
 
     -- Transmitter
     TransmitterCrude = {
-        Type = "TransmitterCrude",
+        Type = ReferenceValue.new("TransmitterCrude"),
         Name = "Crude Transmitter (SL)",
         Ingridients = { "Log", "Pole", "TreeSeed" },
         IngridientsAmount = { 2, 3, 1 },
@@ -230,7 +230,7 @@ Buildings = {
         CustomModel = true,
     },
     TransmitterGood = {
-        Type = "TransmitterGood",
+        Type = ReferenceValue.new("TransmitterGood"),
         Name = "Good Transmitter (SL)",
         Ingridients = { "Mortar", "Pole", "TreeSeed" },
         IngridientsAmount = { 4, 10, 1 },
@@ -241,7 +241,7 @@ Buildings = {
         CustomModel = true,
     },
     TransmitterSuper = {
-        Type = "TransmitterSuper",
+        Type = ReferenceValue.new("TransmitterSuper"),
         Name = "Super Transmitter (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 4, 6, 6, 1 },
@@ -254,7 +254,7 @@ Buildings = {
 
     -- Receiver
     ReceiverCrude = {
-        Type = "ReceiverCrude",
+        Type = ReferenceValue.new("ReceiverCrude"),
         Name = "Crude Receiver (SL)",
         Ingridients = { "Log","Pole","TreeSeed" },
         IngridientsAmount = { 2, 3, 1 },
@@ -265,7 +265,7 @@ Buildings = {
         CustomModel = true,
     },
     ReceiverGood = {
-        Type = "ReceiverGood",
+        Type = ReferenceValue.new("ReceiverGood"),
         Name = "Good Receiver (SL)",
         Ingridients = { "Mortar","Pole","TreeSeed" },
         IngridientsAmount = { 4, 10, 1 },
@@ -276,7 +276,7 @@ Buildings = {
         CustomModel = true,
     },
     ReceiverSuper = {
-        Type = "ReceiverSuper",
+        Type = ReferenceValue.new("ReceiverSuper"),
         Name = "Super Receiver (SL)",
         Ingridients = { "MetalPlateCrude", "MetalPoleCrude", "Rivets", "UpgradeWorkerCarrySuper" },
         IngridientsAmount = { 4, 6, 6, 1 },
@@ -289,7 +289,7 @@ Buildings = {
 
     -- Switch
     SwitchSuper = {
-        Type = "SwitchSuper",
+        Type = ReferenceValue.new("SwitchSuper"),
         Name = "Super Switch (SL)",
         Ingridients = { "MetalPlateCrude", "Plank" },
         IngridientsAmount = { 1, 3 },
@@ -380,9 +380,9 @@ Buildings.SuperTypes = {
 ---@return boolean #
 function Buildings.IsMagnet(type)
     return (
-        type == Buildings.MagnetCrude.Type
-        or type == Buildings.MagnetGood.Type
-        or type == Buildings.MagnetSuper.Type
+        type == Buildings.MagnetCrude.Type.Value
+        or type == Buildings.MagnetGood.Type.Value
+        or type == Buildings.MagnetSuper.Type.Value
     )
 end
 
@@ -447,7 +447,7 @@ function Buildings:UpdateTypeByUniq()
         return
     end
     for _, buildingValue in ipairs(self.AllTypes) do
-        buildingValue.Type = Constants.UniqueName(buildingValue.Type)
+        buildingValue.Type.Value = Constants.UniqueName(buildingValue.Type.Value)
     end
     self.NameUpdated = true
 end

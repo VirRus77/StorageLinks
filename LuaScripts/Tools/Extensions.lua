@@ -52,12 +52,6 @@ function Extensions.UnpackObjectProperties(properties, normalizeRotation)
         TileY    = properties[3],
         Rotation = properties[4],
         Name     = properties[5],
-        -- Accept by index (Old style)
-        [1]      = properties[1],
-        [2]      = properties[2],
-        [3]      = properties[3],
-        [4]      = properties[4],
-        [5]      = properties[5],
 
     }
 
@@ -91,11 +85,6 @@ function Extensions.UnpackStorageInfo (properties)
         AmountStored = properties[2],
         Capacity     = properties[3],
         StorageType  = properties[4],
-        -- Accept by index (Old style)
-        [1] = properties[1],
-        [2] = properties[2],
-        [3] = properties[3],
-        [4] = properties[4],
     }
 
     return result
@@ -103,7 +92,6 @@ end
 
 --- Unpack @{ConverterProperties}
 ---@alias UnpackConverterProperties { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string }
----@alias UnpackConverterPropertiesOld { State : "Idle"|"Converting"|"Creating"|"Cancelling", TileX :integer, TileY :integer, Rotation :number, Name :string, RequirementsMet :boolean, OutputX :integer, OutputY :integer, InputX :integer, InputY :integer, LastObjectAddedType :string|integer, CurrentFuel :integer, FuelCapacity :integer, Successfully :string,  [1] : "Idle"|"Converting"|"Creating"|"Cancelling", [2] :integer, [3] :integer, [4] :number, [5] :string, [6] :boolean, [7] :integer, [8] :integer, [9] :integer, [10] :integer, [11] :string|integer, [12] :integer, [13] :integer }
 ---@param properties ConverterProperties|nil
 ---@return UnpackConverterProperties #
 function Extensions.UnpackConverterProperties (properties)
@@ -131,20 +119,6 @@ function Extensions.UnpackConverterProperties (properties)
         LastObjectAddedType = properties[11],
         CurrentFuel         = properties[12],
         FuelCapacity        = properties[13],
-        -- Accept by index (Old style)
-        [1]                 = properties[1],
-        [2]                 = properties[2],
-        [3]                 = properties[3],
-        [4]                 = properties[4],
-        [5]                 = properties[5],
-        [6]                 = properties[6],
-        [7]                 = properties[7],
-        [8]                 = properties[8],
-        [9]                 = properties[9],
-        [10]                = properties[10],
-        [11]                = properties[11],
-        [12]                = properties[12],
-        [13]                = properties[13],
     }
 
     return result

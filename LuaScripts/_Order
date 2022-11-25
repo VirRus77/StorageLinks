@@ -8,6 +8,7 @@ Core/Tools/SerializeTable.lua
 Core/Tools/Logging.lua
 Core/Tools/StringFindPattern.lua
 Core/Tools/StringFormat.lua
+Core/Tools/Linq.lua
 Core/Models/TranslateItem.lua
 GameValues/SubCategory.lua
 Models/FlightObject.lua
@@ -19,6 +20,8 @@ Tools/Extensions.lua
 Tools/Tools.lua
 Tools/StorageTools.lua
 Tools/MakeDevelopMap.lua
+Tools/Utils/CacheItemInfo.lua
+Tools/Utils/Utils.lua
 Settings.lua
 Constants.lua
 Logic/AccessPoint.lua
@@ -30,6 +33,8 @@ Logic/BuildingConsumer.lua
 Logic/FilterGroup.lua
 Logic/FireWall.lua
 Logic/VirtualNetwork.lua
+Logic/TileController.lua
+Logic/TileSubscriber.lua
 Buildings/Logic/BuildingController.lua
 GlobalParameters.lua
 Buildings/Decoratives.lua

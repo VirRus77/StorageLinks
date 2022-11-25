@@ -4,27 +4,27 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Transmitter :BuildingStorageLinksBase #
----@field _acccessType "Transmitter"|"Receiver"|"Both"
----@field WorkArea Area #
+---@alias AcccessPointType "Transmitter"|"Receiver"|"Both"
+
+---@class Transmitter :BuildingFireWallBase #
+---@field _acccessType AcccessPointType
 ---@field InputPoint Point|nil # Direction base rotation
 ---@field OutputPoint Point|nil # Direction base rotation
----@field LinkedBuildingId integer|nil #
----@field AccessPointId string|nil #
+---@field AccessPoint Point #
 ---@field Settings TransmitterSettingsItem #
 Transmitter = {
     SupportTypes = {
-        Buildings.TransmitterCrude,
-        Buildings.TransmitterGood,
-        Buildings.TransmitterSuper,
+        Buildings.TransmitterCrude.Type,
+        Buildings.TransmitterGood.Type,
+        Buildings.TransmitterSuper.Type,
 
-        Buildings.ReceiverCrude,
-        Buildings.ReceiverGood,
-        Buildings.ReceiverSuper,
+        Buildings.ReceiverCrude.Type,
+        Buildings.ReceiverGood.Type,
+        Buildings.ReceiverSuper.Type,
     },
 }
 ---@type Transmitter
-Transmitter = BuildingStorageLinksBase:extend(Transmitter)
+Transmitter = BuildingFireWallBase:extend(Transmitter)
 
 ---@param id integer #
 ---@param type string #
@@ -33,50 +33,59 @@ Transmitter = BuildingStorageLinksBase:extend(Transmitter)
 ---@return Transmitter
 function Transmitter.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("Transmitter.new %d, %s", id, callbackRemove)
-    ---@type TransmitterSettingsItem
-    local settings = BuildingSettings.GetSettingsByType(type) or error("Transmitter Settings not found", 666) or { }
-
     ---@type Transmitter
-    local instance = Transmitter:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
-
-    instance.Settings = settings
-    instance.InputPoint = settings.InputPoint
-    instance.OutputPoint = settings.OutputPoint
-    instance:SetAccessType()
-    instance:UpdateLogic()
-
+    local instance = Transmitter:make(id, type, callbackRemove, fireWall)
     return instance
 end
 
+---@param self Transmitter
+function Transmitter:initialize(id, type, callbackRemove, fireWall)
+    self.base:initialize(id, type, callbackRemove, fireWall)
+    self.InputPoint = self._settings.Settings.InputPoint
+    self.OutputPoint = self._settings.Settings.OutputPoint
+    self._acccessType = self:GetAccessType()
+end
+
+-- --- func desc
+-- ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+-- ---@param oldValue Point|nil
+-- ---@protected
+-- function Transmitter:UpdateLogic(editType, oldValue)
+--     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
+--     if (editType == nil) then
+--         self:CheckAccessPoint()
+--         self:UpdateGroup()
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
+--         self:UpdateGroup()
+--         return
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Move) then
+--         self:CheckAccessPoint(oldValue)
+--         return
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
+--         self:RemoveLink(self.LinkedBuildingIds)
+--         self:RemoveFromFireWall()
+--         return
+--     end
+-- end
+
+-- function Transmitter:OnTimerCallback()
+--     -- Logging.LogInformation("Transmitter:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
+--     self:CheckAccessPoint()
+-- end
+
+-- --- func desc
+-- ---@param oldLocation Point|nil
+-- function Transmitter:MoveAccessPoint(oldLocation)
+--     if (oldLocation ~= nil) then
+
+--     end
+
+-- end
+
 --- func desc
----@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
----@param oldValue Point|nil
----@protected
-function Transmitter:UpdateLogic(editType, oldValue)
-    Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
-    if (editType == nil) then
-        self:CheckAccessPoint()
-        self:UpdateGroup()
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
-        self:UpdateGroup()
-        return
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Move) then
-        self:CheckAccessPoint()
-        return
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
-        self:RemoveLink()
-        self:RemoveFromFireWall()
-        return
-    end
-end
-
-function Transmitter:OnTimerCallback()
-    -- Logging.LogInformation("Transmitter:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
-    self:CheckAccessPoint()
-end
-
-function Transmitter:CheckAccessPoint()
-    local location = self.Location
+---@param location Point
+---@return Point
+function Transmitter:GetAccessPoint(location)
     ---@type Point
     local accessPoint = self.InputPoint
     if (self._acccessType == "Receiver") then
@@ -84,60 +93,119 @@ function Transmitter:CheckAccessPoint()
     end
 
     if (accessPoint == nil) then
-        Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
+        error("Transmitter:CheckAccessPoint all Access Points nil", 666)
+        --Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
         return
     end
 
-    local accessRotate = Point.Rotate(accessPoint, self.Rotation)
-    accessPoint = Point.new(location.X + accessRotate.X, location.Y + accessRotate.Y)
-
-    local buildingId = Tools.GetBuilding(accessPoint)
-    if (buildingId == self.LinkedBuildingId) then
-        return
-    else
-        if (buildingId ~= nil) then
-            Logging.LogDebug("Transmitter:CheckAccessPoint Required: %s", Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(buildingId)))
-        end
-    end
-
-    self:RemoveLink()
-    self.LinkedBuildingId = buildingId
-    self:AddLink()
+    local accessPointRotate = Point.Rotate(accessPoint, self.Rotation)
+    accessPoint = Point.new(location.X + accessPointRotate.X, location.Y + accessPointRotate.Y)
+    return accessPoint
 end
 
-function Transmitter:RemoveLink()
-    if (self.AccessPointId == nil) then
-        return
-    end
+-- function Transmitter:CheckAccessPoint()
+--     local location = self.Location
+--     ---@type Point
+--     local accessPoint = self.InputPoint
+--     if (self._acccessType == "Receiver") then
+--         accessPoint = self.OutputPoint
+--     end
 
-    if(self._acccessType == "Transmitter")then
-        VIRTUAL_NETWORK:RemoveProvider(self.AccessPointId)
-    else
-        VIRTUAL_NETWORK:RemoveConsumer(self.AccessPointId)
-    end
-    self.AccessPointId = nil
-end
+--     if (accessPoint == nil) then
+--         error("Transmitter:CheckAccessPoint all Access Points nil", 666)
+--         --Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
+--         return
+--     end
 
-function Transmitter:AddLink()
-    if (self.LinkedBuildingId == nil) then
-        return
-    end
-    if ((self._acccessType == "Transmitter") and (not Tools.IsStorage(self.LinkedBuildingId))) then
-        return
-    end
+--     local accessRotate = Point.Rotate(accessPoint, self.Rotation)
+--     accessPoint = Point.new(location.X + accessRotate.X, location.Y + accessRotate.Y)
 
-    if (self._acccessType == "Transmitter") then
-        self.AccessPointId = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, self.LinkedBuildingId, nil, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
-    else
-        self.AccessPointId = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, self.LinkedBuildingId, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
-    end
-end
 
-function Transmitter:SetAccessType()
-    self._acccessType = "Both"
+--     -- local buildingIds = Tools.GetAllBuilding(accessPoint)
+--     -- -- Logging.LogDebug("Transmitter:CheckAccessPoint buildingIds:\n%s", buildingIds)
+--     -- if (self._acccessType == "Transmitter") then
+--     --     buildingIds = Tools.Where(
+--     --         buildingIds,
+--     --         function (id)
+--     --             return Tools.IsStorage(id)
+--     --         end
+--     --     )
+--     -- end
+
+--     -- ---@type integer[]
+--     -- local notExistIds = Tools.Where(
+--     --     buildingIds,
+--     --     function (value)
+--     --         return self.LinkedBuildingIds[value] == nil
+--     --     end
+--     -- )
+
+--     -- ---@type table<integer, string>
+--     -- local removeIds = Tools.WhereTable(
+--     --     self.LinkedBuildingIds,
+--     --     function (key, value)
+--     --         return not Tools.Contains(buildingIds, key)
+--     --     end
+--     -- )
+--     -- if (#notExistIds == 0 and #removeIds == 0) then
+--     --     return
+--     -- end
+--     -- Logging.LogDebug("Transmitter:CheckAccessPoint %d (%s) notExistIds:\n%s\nremoveIds:\n%s", self.Id, self.Location, notExistIds, removeIds)
+
+--     -- if (#removeIds > 0) then
+--     --     self:RemoveLink(removeIds)
+--     -- end
+
+--     -- if (#notExistIds > 0) then
+--     --     self:AddLink(notExistIds)
+--     -- end
+-- end
+
+-- --- func desc
+-- ---@param removedItems table<integer, string>
+-- function Transmitter:RemoveLink(removedItems)
+--     -- if (self.AccessPointId == nil) then
+--     --     return
+--     -- end
+
+--     for key, value in pairs(removedItems) do
+--         if(self._acccessType == "Transmitter")then
+--             VIRTUAL_NETWORK:RemoveProvider(value)
+--         else
+--             VIRTUAL_NETWORK:RemoveConsumer(value)
+--         end
+--         self.LinkedBuildingIds[key] = nil
+--     end
+-- end
+
+-- --- func desc
+-- ---@param addIds integer[]
+-- function Transmitter:AddLink(addIds)
+--     -- if (self.LinkedBuildingIds == nil) then
+--     --     return
+--     -- end
+--     -- if ((self._acccessType == "Transmitter") and (not Tools.IsStorage(self.LinkedBuildingId))) then
+--     --     return
+--     -- end
+
+--     for _, value in pairs(addIds) do
+--         if (self._acccessType == "Transmitter") then
+--             self.LinkedBuildingIds[value] = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, value, nil, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
+--         else
+--             self.LinkedBuildingIds[value] = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, value, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
+--         end
+--     end
+-- end
+
+--- func desc
+---@return AcccessPointType
+function Transmitter:GetAccessType()
+    ---@type AcccessPointType
+    local acccessType = "Both"
     if (self.InputPoint == nil) then
-        self._acccessType = "Receiver"
+        acccessType = "Receiver"
     elseif (self.OutputPoint == nil) then
-        self._acccessType = "Transmitter"
+        acccessType = "Transmitter"
     end
+    return acccessType
 end

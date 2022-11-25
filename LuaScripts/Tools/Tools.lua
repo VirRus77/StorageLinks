@@ -83,10 +83,109 @@ function Tools.GetBuilding(location)
     return id
 end
 
+
+Tools.BuildingsFilter = {
+    Buildings = {
+        ---@type table<SubCategoryValue, boolean>
+        Skip = {
+            [SubCategory.BuildingsFloors] = true,
+            [SubCategory.BuildingsWalls] = true,
+            [SubCategory.BuildingsSpecial] = true,
+            -- [SubCategory.BuildingsStorage] = true,
+        },
+    },
+    Hidden = {
+    },
+}
+
+-- Tools.SpkipSubcategories = {
+--     SubCategory.BuildingsFloors,
+--     SubCategory.BuildingsWalls
+-- }
+
+
+-- Tools.UnskippableSpkipSubcategories = {
+--     SubCategory.Hidden,
+--     SubCategory.BuildingsWorkshop,
+--     SubCategory.BuildingsSpecial
+-- }
+
+function Tools.MakeCachItem(id)
+    return {
+        Id = id,
+        Category = ModObject.GetObjectCategory(id),
+        Subcategory = ModObject.GetObjectSubcategory(id)
+        --["Requires"] = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(id))
+    }
+end
+
+--- Get building by location. Excludes floor, walls, and entrence, exits.
+---@param location Point
+---@return table
+function Tools.GetAllBuilding(location)
+    local buildingIds = { }
+    local ids =  ModTiles.GetObjectUIDsOnTile(location.X, location.Y)
+    ---@type fun(id :integer) : CacheItemInfoItem
+
+    ---@type CacheItemInfoItem[]
+    local typeSubType = { }
+    for _, id in pairs(ids) do
+        typeSubType[#typeSubType + 1] = Tools.Dictionary.GetOrAddValueLazyVariable(CACHE_ITEM_INFO, id, Tools.MakeCachItem)
+    end
+
+    -- Logging.LogDebug("Tools.GetAllBuilding (%s) %s", location, typeSubType)
+    typeSubType = Tools.Where(
+        typeSubType,
+        function (value)
+            local skipValues = Tools.BuildingsFilter[value.Category]
+            if(skipValues == nil) then
+                return false
+            end
+            if(skipValues.Skip ~= nil and skipValues.Skip[value.Subcategory] == true) then
+                return false
+            end
+
+            return true
+        end
+    )
+    -- Logging.LogDebug("Tools.GetAllBuilding (%s) Filter: %s", location, typeSubType)
+
+    -- Storages
+    local storages = Tools.Where(typeSubType, function (value) return value["Subcategory"] == SubCategory.BuildingsStorage end)
+    if (#storages > 0) then
+        local storageId = Tools.GetBuilding(location)
+        if(storageId ~= nil) then
+            -- Get last storage
+            buildingIds[#buildingIds + 1] = storageId
+        end
+    end
+    typeSubType = Tools.Where(typeSubType, function (value) return value["Subcategory"] ~= SubCategory.BuildingsStorage end)
+
+    -- Hidden
+    local hidens = Tools.Where(typeSubType, function (value) return value["Category"] == "Hidden" end)
+    if(#hidens > 0) then
+        for _, value in pairs(hidens) do
+            buildingIds[#buildingIds + 1] = value["Id"]
+        end
+    end
+    typeSubType = Tools.Where(typeSubType, function (value) return value["Category"] ~= "Hidden" end)
+
+    for _, value in pairs(typeSubType) do
+        buildingIds[#buildingIds + 1] = value["Id"]
+    end
+
+    -- Logging.LogDebug("Tools.GetAllBuilding (%s) return %s", location, buildingIds)
+    return buildingIds
+end
+
 --- Is storage.
 ---@param id integer
 ---@return boolean
 function Tools.IsStorage(id)
+    local cachInfo = CACHE_ITEM_INFO:GetInfo(id)
+    if (cachInfo ~= nil) then
+        return cachInfo.Subcategory == SubCategory.BuildingsStorage
+    end
     return ModObject.GetObjectSubcategory(id) == SubCategory.BuildingsStorage
 end
 
@@ -122,28 +221,56 @@ end
 ---@param value T
 ---@return table<integer, T>
 function Tools.Skip(table, value)
-    local table = { }
+    local tableResult = { }
     for _, tableValue in pairs(table) do
         if (tableValue ~= value) then
-            table[#table + 1] = tableValue
+            tableResult[#tableResult + 1] = tableValue
         end
     end
-    return table
+    return tableResult
 end
 
 --- func desc
 ---@generic T :any
----@param table any
+---@param table table<integer, T>
 ---@param predicate fun(T) :boolean
 ---@return table<integer, T>
 function Tools.Where(table, predicate)
-    local table = { }
+    local tableResult = { }
     for _, tableValue in pairs(table) do
         if (predicate(tableValue)) then
-            table[#table + 1] = tableValue
+            tableResult[#tableResult + 1] = tableValue
         end
     end
-    return table
+    return tableResult
+end
+
+--- func desc
+---@generic T :any, K :any
+---@param table table<K, T>
+---@param predicate fun(key :K, value :T) :boolean
+---@return table<K, T>
+function Tools.WhereTable(table, predicate)
+    local tableResult = { }
+    for key, tableValue in pairs(table) do
+        if (predicate(key, tableValue)) then
+            tableResult[key] = tableValue
+        end
+    end
+    return tableResult
+end
+
+--- func desc
+---@generic T :any, K :any
+---@param table table<K, T>
+---@param selector fun(key :K, value :T) :any
+---@return table<integer, any>
+function Tools.SelectTable(table, selector)
+    local tableResult = { }
+    for key, tableValue in pairs(table) do
+        tableResult[#tableResult + 1] = selector(key, tableValue)
+    end
+    return tableResult
 end
 
 --- By sort small to big
@@ -181,10 +308,11 @@ Tools.Dictionary = {}
 
 --- func desc
 ---@generic T :integer|string|table
----@param hashTable table<T, any>
+---@generic TValue :integer|string|table
+---@param hashTable table<T, TValue>
 ---@param key T
----@param value any
----@return any|nil
+---@param value TValue
+---@return TValue
 function Tools.Dictionary.GetOrAddValue(hashTable, key, value)
     local hasValue = hashTable[key]
     if (hasValue == nil)then

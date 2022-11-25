@@ -37,6 +37,7 @@ function WorldLimits:Update (worldParameters)
     self.Height = worldParameters[2] - 1
     self.Right = self.Left + self.Width
     self.Bottom = self.Top + self.Height
+    self.meta.__tostring = WorldLimits.ToString
     Logging.LogDebug("WORLD_LIMITS.Update %s %s %s %s", tostring(self.Left), tostring(self.Top), tostring(self.Width), tostring(self.Height))
 end
 
@@ -45,18 +46,21 @@ end
 ---@return Area
 function WorldLimits:ApplyLimits(area)
     local newArea = Area.new()
-    newArea.Left   = math.max(self.Left,   math.min(area.Left,  self.Right))
-    newArea.Top    = math.max(self.Top,    math.min(area.Top,   self.Bottom))
-    newArea.Right  = math.min(self.Right,  math.max(area.Right, self.Left))
+    newArea.Left   = math.max(self.Left,   math.min(area.Left,   self.Right))
+    newArea.Top    = math.max(self.Top,    math.min(area.Top,    self.Bottom))
+    newArea.Right  = math.min(self.Right,  math.max(area.Right,  self.Left))
     newArea.Bottom = math.min(self.Bottom, math.max(area.Bottom, self.Top))
     return newArea
 end
 
----@return integer, integer, integer, integer
+---@return integer, integer, integer, integer # Left, Top, Right, Bottom
 function WorldLimits:Unpack()
     return self.Left, self.Top, self.Right, self.Bottom
 end
 
-function WorldLimits:__tostring()
-    return string.format("%s %s %s %s", tostring(self.Left), tostring(self.Top), tostring(self.Width), tostring(self.Height))
+--- func desc
+---@param worldLimits WorldLimits
+---@return string # "Left Top Width Height"
+function WorldLimits.ToString(worldLimits)
+    return string.format("%s %s %s %s", tostring(worldLimits.Left), tostring(worldLimits.Top), tostring(worldLimits.Width), tostring(worldLimits.Height))
 end

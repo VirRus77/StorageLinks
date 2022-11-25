@@ -5,7 +5,7 @@
     ],
     "Lua.workspace.library": [
         "./lib/AutonautsLuaHeaders/Headers",
-        "./LuaScripts"    
+        "./LuaScripts"
     ],
     "Lua.workspace.ignoreDir": [
         ".vscode",

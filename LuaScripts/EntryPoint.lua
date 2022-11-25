@@ -116,6 +116,7 @@ function Creation()
     Converters:UpdateTypeByUniq()
     Buildings.CreateAll()
     Converters.CreateAll()
+    CACHE_ITEM_INFO:Clear()
 
     -- Buildings:UpdateTypeByUniq()
     -- Decoratives:UpdateTypeByUniq()
@@ -187,6 +188,7 @@ function AfterLoad()
     OBJECTS_IN_FLIGHT:Clear()
     TIMERS_STACK:Clear()
     BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
+    CACHE_ITEM_INFO:Clear()
 
     -- Remove all Decoratives
     for _, value in pairs(Decoratives.AllTypes) do
@@ -197,7 +199,7 @@ function AfterLoad()
         end
     end
 
-    TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState))
+    TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState):RandomizeStart())
     TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
 
     Converters.UpdateState()

@@ -9,9 +9,7 @@ Author: Sotin NU aka VirRus77
 ---@field Y integer
 Point = {
     X = 0,
-    Y = 0,
-    [1] = 0,
-    [2] = 0
+    Y = 0
 }
 ---@type Point
 Point = Object:extend(Point)
@@ -29,8 +27,8 @@ end
 function Point:initialize(x, y)
     self.X = x
     self.Y = y
-    self[1] = x
-    self[2] = y
+    self.meta.__eq = Point.Equals
+    self.meta.__tostring = Point.ToString
 end
 
 --- Rotate the coordinate point clockwise by 90 degrees. 
@@ -54,12 +52,25 @@ function Point.Rotate(point, countRotate)
     end
 end
 
-function Point:__tostring()
-    return string.format("%d:%d", self.X, self.Y)
+--- Unpack x, y
+---@param point Point
+---@return integer, integer # x, y
+function Point.Unpack(point)
+    return point.X, point.Y
 end
 
 --- func desc
+---@param point1 Point
+---@param point2 Point
+---@return boolean
+function Point.Equals(point1, point2)
+    return point1.X == point2.X and point1.Y == point2.Y
+end
+
+--- func desc
+---@alias PointString string
 ---@param point Point
-function Point:Equals(point)
-    return self.X == point.X and self.Y == point.Y
+---@return PointString
+function Point.ToString(point)
+    return string.format("%d, %d", point.X, point.Y)
 end

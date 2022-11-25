@@ -4,22 +4,25 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class Timer # 
----@field Period number # Period of callback
----@field Delay Timer # Period delay of callback
----@field Callback fun() # Callback function
+---@class Timer :Object #
+---@field _ticker number # Current ticks.
+---@field Period number # Period of callback.
+---@field Callback fun() # Callback function.
 Timer = { }
----@type Object|Timer
+---@type Timer
 Timer = Object:extend(Timer)
 
 -- Constructor
 ---@param period number # In seconds.
 ---@param callback fun() # Callback function.
----@param delay? number # Start delay In seconds.
+---@param delay? number|nil # Start delay In seconds.
 ---@return Timer # New instance of Timer
 function Timer.new(period, callback, delay)
+    if (period < 0) then
+        error("Timer.new period < 0.", 666)
+    end
     ---@type Timer
-    local newInstance = Timer:make(period, callback, delay)
+    local newInstance = Timer:make(period, callback, delay or 0.0)
     return newInstance
 end
 
@@ -27,7 +30,6 @@ end
 ---@param callback fun() # Callback function.
 ---@param delay? number # Start delay In seconds.
 function Timer:initialize(period, callback, delay)
-    self._workDelay = false
     self._ticker = delay or 0.0
     self.Period = period
     self.Callback = callback
@@ -49,6 +51,13 @@ end
 --- Call callback immediately.
 function Timer:Immediately ()
     self.Callback()
+end
+
+--- func desc
+---@return Timer
+function Timer:RandomizeStart()
+    self._ticker = math.random() * self.Period
+    return self
 end
 
 --- Conver millisecondsToSeconds.

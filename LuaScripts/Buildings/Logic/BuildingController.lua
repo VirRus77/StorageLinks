@@ -7,13 +7,10 @@ Author: Sotin NU aka VirRus77
 ---@class BuildingController :Object #
 ---@field _timersStack TimersStack #
 ---@field Buildings table<integer, BuildingStorageLinksBase> #
----@field BuildingsTypes BuildingStorageLinksBase[] #
+---@field BuildingsTypes BuildingTypedBase[] #
 ---@field Timers table<integer, string> #
 ---@field FireWall FireWall #
 BuildingController = {
-    ---@type table<integer, BuildingStorageLinksBase>
-    Buildings = {},
-    Timers = {}
 }
 ---@type BuildingController
 BuildingController = Object:extend(BuildingController)
@@ -29,19 +26,19 @@ end
 function BuildingController:initialize(timersStack, fireWall)
     self._timersStack = timersStack
     self.Buildings = { }
-    self.Timer = { }
+    self.Timers = { }
     self.BuildingsTypes = { }
     self.FireWall = fireWall
 end
 
 --- func desc
----@param buildingBase BuildingStorageLinksBase
+---@param buildingBase BuildingTypedBase
 function BuildingController:AddBuildingsType(buildingBase)
     self.BuildingsTypes[#self.BuildingsTypes + 1] = buildingBase
 end
 
 --- func desc
----@param typesList BuildingStorageLinksBase[]|nil
+---@param typesList BuildingStorageLinksBase[]|BuildingFireWallBase[]|BuildingTypedBase[]|nil
 function BuildingController:RegistryTypes(typesList)
     for _, value in pairs(self.BuildingsTypes) do
         local removeFunction = function (removedBuildingBase)
@@ -50,7 +47,7 @@ function BuildingController:RegistryTypes(typesList)
         self:InitializeTypes(
             value.SupportTypes,
             function (buildingId, buildingType, isBlueprint, isDragging)
-                ---@type BuildingStorageLinksBase
+                ---@type BuildingStorageLinksBase|BuildingFireWallBase|BuildingTypedBase
                 local building = value.new(
                     buildingId,
                     buildingType,
@@ -73,7 +70,7 @@ function BuildingController:RegistryTypes(typesList)
             self:InitializeTypes(
                 value.SupportTypes,
                 function (buildingId, buildingType, isBlueprint, isDragging)
-                    ---@type BuildingStorageLinksBase
+                    ---@type BuildingStorageLinksBase|BuildingFireWallBase|BuildingTypedBase
                     local building = value.new(
                         buildingId,
                         buildingType,
@@ -126,7 +123,7 @@ function BuildingController:Remove(oldBuilding)
 end
 
 ---@protected
----@param buildingTypes { Type :string }[] #
+---@param buildingTypes SupportTypesItem[] #
 ---@param addNewCallback BuildingTypeSpawnedCallback #
 function BuildingController:InitializeTypes(buildingTypes, addNewCallback)
     ---@type string[] #

@@ -36,7 +36,7 @@ AngleRotationToNSEW = {
 ---@field Rotation integer #
 ---@field Name string #
 ---@field FireWall FireWall #
----@field SupportTypes { Type :string }[] # Association building types.
+---@field SupportTypes SupportTypesItem[] # Association building types.
 ---@function MakeTimer
 ---@function OnStateChangedCallback
 ---@function UpdateLogic
@@ -45,7 +45,7 @@ BuildingStorageLinksBase = {
     _logicPeriod = nil,
     ---@type fun(BuildingBase)
     _callbackRemove = nil,
-    ---@type { Type :string }[] #
+    ---@type SupportTypesItem[] #
     SupportTypes = { },
 
     ---@enum BuildingBase.BuildingEditType #

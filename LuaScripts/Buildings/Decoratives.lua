@@ -1,9 +1,8 @@
-
 Decoratives = {
-    ---@alias DecorativeItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, Scale? :number, Rotation? :Point3, CustomModel :boolean }
+    ---@alias DecorativeItem { Type :ReferenceValue<string>, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, Scale? :number, Rotation? :Point3, CustomModel :boolean }
     ---@type DecorativeItem #
     SwitchOnSymbol = {
-        Type = "SwitchOnSymbol",
+        Type = ReferenceValue.new("SwitchOnSymbol"),
         Name = "Switch On Symbol (SL)",
         Ingridients = { "TreeSeed", },
         IngridientsAmount = { 1 },
@@ -14,7 +13,7 @@ Decoratives = {
     -- Misc Symbols
     ---@type DecorativeItem #
     SymbolBroken = {
-        Type = "SymbolBroken",
+        Type = ReferenceValue.new("SymbolBroken"),
         Name = "Broken Symbol (SL)",
         Ingridients = { "TreeSeed" },
         IngridientsAmount = { 1 },
@@ -38,7 +37,7 @@ function Decoratives:UpdateTypeByUniq()
         return
     end
     for _, buildingValue in ipairs(self.AllTypes) do
-        buildingValue.Type = Constants.UniqueName(buildingValue.Type)
+        buildingValue.Type.Value = Constants.UniqueName(buildingValue.Type.Value)
     end
     self.NameUpdated = true
 end

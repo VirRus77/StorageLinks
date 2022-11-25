@@ -9,7 +9,6 @@ Author: Sotin NU aka VirRus77
 ---@field _index integer
 ---@field _timers table<string, Timer>
 TimersStack = { }
-
 ---@type TimersStack
 TimersStack = Object:extend(TimersStack)
 
