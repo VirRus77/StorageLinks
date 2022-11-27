@@ -54,5 +54,8 @@ Buildings/Logic/PumpBase.lua
 Buildings/Logic/Transmitter.lua
 Buildings/Logic/Switcher.lua
 Buildings/Logic/InspectorBase.lua
-Translates.lua
+Translates/Translates.lua
+Translates/Translates.Russian.lua
+Translates/Translates.English.lua
+Translates/Translates.German.lua
 EntryPoint.lua
