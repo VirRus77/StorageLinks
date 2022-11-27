@@ -47,8 +47,8 @@ A set of links that can hook storages together. This is a great minimal mod.
  - If you name the magnet by setting the name to "80x80", you will collect items that are 80 tiles wide and 80 tiles high.
  - If you name the magnet by setting the name to "{10,12;20,23}", you will collect items in that area.
  - Raw: Attracts 1 item at a time.
- - Good: Pulls 5 items at a time.
- - Super: Pulls 15 items at a time.
+ - Good: Attracts 5 items at a time.
+ - Super: Attracts 15 items at a time.
  
 === Switch (SL) ===
  - The link you want to manage, for example: "[GROUP NAME]" (use the "L" key) enter in the name of the building (mod buildings only).
@@ -65,6 +65,7 @@ A set of links that can hook storages together. This is a great minimal mod.
 === Support languages ===
  - English
  - Russian
+ - German (thanks [url=https://steamcommunity.com/id/Lord_Junes]Lord_Junes[/url])
  - another (write author translate) ;)
 
 ~= Enjoy =~
