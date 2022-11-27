@@ -8,9 +8,11 @@
         "./LuaScripts"
     ],
     "Lua.workspace.ignoreDir": [
-        ".vscode",
-        "_Publish_",
-        "LuaTests"
+        "/.vscode/**",
+        "/_Publish_",
+        "/_Publish_/**",
+        "/LuaTests",
+        "/LuaTests/**"
     ],
     "editor.detectIndentation": false,
     "editor.insertSpaces": true,

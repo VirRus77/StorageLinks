@@ -105,16 +105,16 @@ function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
 
     if (Settings.DebugMode.Value and (#invertBuildings > 0)) then
         Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings\n%s",
-            serializeTable({
+            {
                 stateUnlock = stateUnlock,
                 invertBuildings = invertBuildings,
                 stateValue = stateValue
-            })
+            }
         )
     end
 
     for _, value in pairs(invertBuildings) do        
-        ModVariable.SetVariableForObjectAsInt(value.Type, "Unlocked", stateValue)
+        ModVariable.SetVariableForObjectAsInt(value.Type.Value, "Unlocked", stateValue)
         -- Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings %s %d == %d", value.Type, stateValue, ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked"))
     end
 end
@@ -126,7 +126,7 @@ end
 function BuildingsDependencyTree.GetBuildingsUnlockedState(buildings, state)
     local result = { }
     for _, value in ipairs(buildings) do
-        local lockState = ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked")
+        local lockState = ModVariable.GetVariableForObjectAsInt(value.Type.Value, "Unlocked")
         local flag = (lockState > 0) == state
         if (flag) then
             result[#result + 1] = value

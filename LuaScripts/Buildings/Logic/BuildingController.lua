@@ -38,7 +38,7 @@ function BuildingController:AddBuildingsType(buildingBase)
 end
 
 --- func desc
----@param typesList BuildingStorageLinksBase[]|BuildingFireWallBase[]|BuildingTypedBase[]|nil
+---@param typesList BuildingTypedBase[]|BuildingStorageLinksBase[]|nil
 function BuildingController:RegistryTypes(typesList)
     for _, value in pairs(self.BuildingsTypes) do
         local removeFunction = function (removedBuildingBase)
@@ -66,7 +66,7 @@ function BuildingController:RegistryTypes(typesList)
             local removeFunction = function (removedBuildingBase)
                 self:Remove(removedBuildingBase)
             end
-            Logging.LogDebug("BuildingController:RegistryTypes \n%s", typesList.SupportTypes)
+            -- Logging.LogDebug("BuildingController:RegistryTypes \n%s", value.SupportTypes)
             self:InitializeTypes(
                 value.SupportTypes,
                 function (buildingId, buildingType, isBlueprint, isDragging)
@@ -129,7 +129,13 @@ function BuildingController:InitializeTypes(buildingTypes, addNewCallback)
     ---@type string[] #
     local buildingNameTypes = { }
     for _, value in ipairs(buildingTypes) do
-        buildingNameTypes[#buildingNameTypes + 1] = value.Type
+        if (value.Type ~= nil) then
+            buildingNameTypes[#buildingNameTypes + 1] = value.Type.Value
+        elseif (value.Value ~= nil) then
+            buildingNameTypes[#buildingNameTypes + 1] = value.Value
+        else
+            error("value.Type == nil and value.Value == nil", 666)
+        end
     end
 
     -- Find exist

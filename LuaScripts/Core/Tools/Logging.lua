@@ -61,7 +61,13 @@ function Logging.LogLevel(logLevel, formatString, ...)
         return
     end
 
-    Logging.Log(string.format(" [%s] %s", logLevel, StringFormat.UnpackStringFormat(formatString, ...)))
+    local message, isError = StringFormat.UnpackStringFormat(formatString, ...)
+
+    if (isError) then
+        Logging.Log(string.format(" [%s] %s", LogLevel.Error, message))
+    else
+        Logging.Log(string.format(" [%s] %s", logLevel, message))
+    end
 end
 
 --- 

@@ -150,13 +150,13 @@ function BeforeLoad()
     end
 
     for _, value in pairs(Buildings.AllTypes) do
-        ModBuilding.ShowBuildingAccessPoint(value.Type, value.AccessPoint ~= nil)
+        ModBuilding.ShowBuildingAccessPoint(value.Type.Value, value.AccessPoint ~= nil)
     end
 
     Translates.SetNames()
 
     -- Disable Extractor.
-    ModVariable.SetVariableForObjectAsInt(Buildings.Extractor.Type, "Unlocked", 0)
+    ModVariable.SetVariableForObjectAsInt(Buildings.Extractor.Type.Value, "Unlocked", 0)
 
     -- for _, value in pairs(Decoratives.AllTypes) do
     --     ModBuilding.ShowBuildingAccessPoint(value.Type, false)
@@ -189,11 +189,13 @@ function AfterLoad()
     TIMERS_STACK:Clear()
     BUILDING_CONTROLLER = BuildingController.new(TIMERS_STACK, FIRE_WALL)
     CACHE_ITEM_INFO:Clear()
+    TILE_CONTROLLER:Clear()
+    Utils.AddInspectors(TILE_CONTROLLER)
 
     -- Remove all Decoratives
     for _, value in pairs(Decoratives.AllTypes) do
         Logging.LogDebug("AfterLoad: %s, WORLD_LIMITS: %s", value, WORLD_LIMITS)
-        local symbolIds = ModTiles.GetObjectUIDsOfType(value.Type, WORLD_LIMITS:Unpack())
+        local symbolIds = ModTiles.GetObjectUIDsOfType(value.Type.Value, WORLD_LIMITS:Unpack())
         for _, symbolId in pairs(symbolIds) do
             ModObject.DestroyObject(symbolId)
         end

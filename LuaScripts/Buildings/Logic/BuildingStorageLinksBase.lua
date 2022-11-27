@@ -119,7 +119,7 @@ end
 ---@param editType "Rotate"|"Move"|"Rename"|"Destroy"
 ---@param newValue any
 function BuildingStorageLinksBase:OnEditedCallback(buildingUID, editType, newValue)
-    Logging.LogInformation("BuildingBase.OnEditedCallback(%d, %s, %s)", buildingUID, editType, serializeTable(newValue))
+    Logging.LogInformation("BuildingBase.OnEditedCallback(%d, %s, %s)", buildingUID, editType, newValue)
     if (editType == BuildingStorageLinksBase.BuildingEditType.Rotate) then
         self:OnRotate(newValue)
     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Move) then
@@ -140,7 +140,7 @@ end
 ---@param buildingUID integer
 ---@param newState any
 function BuildingStorageLinksBase:OnStateChangedCallback(buildingUID, newState)
-    Logging.LogInformation("BuildingBase.OnStateChangedCallback(%d, %s)", buildingUID, serializeTable(newState))
+    Logging.LogInformation("BuildingBase.OnStateChangedCallback(%d, %s)", buildingUID, newState)
 end
 
 --- func desc

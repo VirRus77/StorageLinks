@@ -51,7 +51,7 @@ end
 ---@type TranslateItem[]
 Translates.Russian = {
     -- Magnet
-    ---@alias TranslateItem { Building :{ Type :string }, Name :string, Description :string|nil, UpdateDescription :fun(value :TranslateItem)|nil }
+    ---@alias TranslateItem { Building :{ Type :ReferenceValue<string> }, Name :string, Description :string|nil, UpdateDescription :fun(value :TranslateItem)|nil }
     {
         Building = Buildings.MagnetCrude,
         Name = "Магнит",
@@ -197,17 +197,17 @@ Translates.German = {
     {
         Building = Buildings.MagnetCrude,
         Name = "Magnet",
-        Description = "Zieht %d/c Objekt(e) an.\nZieht Bereich %dx%d an.\nEnthält Bereich: {L,T;R,B}",
+        Description = "Zieht %d/s Objekt(e) an.\nZieht Bereich %dx%d an.\nEnthält Bereich: {L,T;R,B}",
         UpdateDescription = Translates.UpdateMagnetDescription,
     },
     {
         Building = Buildings.MagnetGood, Name = "Guter magnet",
-        Description = "Zieht %d/c Objekt(e) an. Der Einzugsbereich %dx%d.\nEnthält den Einzugsbereich: {L,T;R,B}",
+        Description = "Zieht %d/s Objekt(e) an. Der Einzugsbereich %dx%d.\nEnthält den Einzugsbereich: {L,T;R,B}",
         UpdateDescription = Translates.UpdateMagnetDescription,
     },
     {
         Building = Buildings.MagnetSuper, Name = "Super magnet",
-        Description = "Zieht %d/c Objekt(e) an. Der Einzugsbereich %dx%d.\nEnthält den Einzugsbereich: {L,T;R,B}",
+        Description = "Zieht %d/s Objekt(e) an. Der Einzugsbereich %dx%d.\nEnthält den Einzugsbereich: {L,T;R,B}",
         UpdateDescription = Translates.UpdateMagnetDescription,
     },
 
@@ -316,7 +316,7 @@ Translates.German = {
     {
         Building = Buildings.SwitchSuper,
         Name = "Umschalttafel",
-        Description = "Deaktiviert die Objektlogik.\Gruppennamen: \"[GroupName]\".",
+        Description = "Deaktiviert die Objektlogik.\nGruppennamen: \"[GroupName]\".",
     },
 
     -- Extractor
@@ -503,12 +503,12 @@ function Translates.UpdateDescriptions(namesList)
 end
 
 --- func desc
----@param namesList { Building :{ Type :string }, Name :string, Description :string|nil }[] #
+---@param namesList { Building :{ Type :ReferenceValue<string> }, Name :string, Description :string|nil }[] #
 function Translates.SetNamesList(namesList)
     for _, value in ipairs(namesList) do
-        ModText.SetText(value.Building.Type, value.Name)
+        ModText.SetText(value.Building.Type.Value, value.Name)
         if (value.Description ~= nil) then
-            ModText.SetDescription(value.Building.Type, value.Description)
+            ModText.SetDescription(value.Building.Type.Value, value.Description)
         end
     end
 end

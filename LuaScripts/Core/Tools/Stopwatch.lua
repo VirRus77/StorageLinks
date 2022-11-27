@@ -47,3 +47,16 @@ function Stopwatch.Elapsed(self)
     local delta = (self._stop or os.clock()) - self._start
     return delta
 end
+
+---@param value number
+---@return string
+function Stopwatch.ToTimeSpanString(value)
+        local days = math.floor(value/86400)
+        local hours = math.floor((value % 86400)/3600)
+        local minutes = math.floor((value % 3600)/60)
+        local seconds = math.floor((value % 60))
+        local _, milliSeconds = math.modf(value / 60)
+        milliSeconds = math.floor(milliSeconds * 1000)
+        local result, isError = StringFormat.UnpackStringFormat("%d.%02d:%02d:%02d.%03d", days, hours, minutes, seconds, milliSeconds)
+        return result
+end

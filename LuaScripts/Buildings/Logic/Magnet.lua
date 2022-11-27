@@ -5,9 +5,10 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class Magnet :BuildingFireWallBase #
+---@field base BuildingFireWallBase
 ---@field WorkArea Area #
 ---@field OutputPoint Point # Direction base rotation
----@field Settings MagnetSettingsItem2 #
+---@field _settings MagnetSettingsItem2
 Magnet = {
     SupportTypes = {
         Buildings.MagnetCrude.Type,
@@ -26,37 +27,38 @@ Magnet = BuildingFireWallBase:extend(Magnet)
 ---@return Magnet
 function Magnet.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("Magnet.new %d, %s", id, callbackRemove)
-    ---@type MagnetSettingsItem2
-    local settings = BuildingSettings.GetSettingsByType(type) or error("Magnet Settings not found", 666) or { }
-
     ---@type Magnet
     local instance = Magnet:make(id, type, callbackRemove, fireWall)
-    instance.Settings = settings
-    local area = instance.Settings.Area
-    instance.WorkArea = instance:GetAreaByPosition(area:Width(), area:Height())
-    instance:UpdateLogic()
     return instance
 end
 
---- func desc
----@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
----@param oldValue Point|nil
----@protected
-function Magnet:UpdateLogic(editType, oldValue)
-    Logging.LogInformation("Magnet:UpdateLogic %s", editType)
-    if (editType == nil) then
-        self:UpdateName()
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
-        self:UpdateName()
-        return
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
-        self:RemoveFromFireWall()
-    end
+function Magnet:initialize(id, type, callbackRemove, fireWall)
+    BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
+    local area = self._settings.Area
+    self.WorkArea = self:GetAreaByPosition(area:Width(), area:Height())
+    self:OnRename(self.Name)
+    -- Logging.LogDebug("Magnet:initialize %s", self)
 end
+
+-- --- func desc
+-- ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+-- ---@param oldValue Point|nil
+-- ---@protected
+-- function Magnet:UpdateLogic(editType, oldValue)
+--     Logging.LogInformation("Magnet:UpdateLogic %s", editType)
+--     if (editType == nil) then
+--         self:UpdateName()
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
+--         self:UpdateName()
+--         return
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
+--         self:RemoveFromFireWall()
+--     end
+-- end
 
 function Magnet:OnTimerCallback()
     --Logging.LogDebug("Magnet:OnTimerCallback self.FireWall %s", self.FireWall)
-    if (self.FireWall:Skip(self.Id)) then
+    if (self._fireWall:Skip(self.Id)) then
         return
     end
     -- Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
@@ -113,26 +115,25 @@ function Magnet:OnTimerCallback()
                     to,
                     Magnet.OnFlightComplete
                 )
-                flightObject:Start(self.Settings.Speed, self.Settings.Height)
+                flightObject:Start(self._settings.Speed, self._settings.Height)
                 OBJECTS_IN_FLIGHT:Add(flightObject)
                 countCapture = countCapture + 1
         end
     end
 end
 
-function Magnet:UpdateName()
-    Logging.LogInformation("Magnet:UpdateName %s", self.Name)
-    ---@type integer
-    local limit = 1
+function Magnet:OnRename(newValue)
+    Logging.LogInformation("Magnet:UpdateName %d %s -> %s", self.Id, self.Name, newValue)
+    BuildingFireWallBase.OnRename(self, newValue)
+
     local areaByName = self:GetAreaByName()
     local positionAreaByName = self:GetPositionAreaByName()
-
     if (areaByName ~= nil) then
         self.WorkArea = areaByName
     elseif (positionAreaByName ~= nil) then
         self.WorkArea = positionAreaByName
     else
-        self.WorkArea = self:GetAreaByPosition(self.Settings.Area:Width(), self.Settings.Area:Height())
+        self.WorkArea = self:GetAreaByPosition(self._settings.Area:Width(), self._settings.Area:Height())
     end
     self:UpdateGroup()
     -- Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
@@ -170,7 +171,7 @@ function Magnet:CaptureQuantity(storageId, storageProperties, objectInFly)
     -- Adjust max to be "how many could actually fit into crate"
     local maxCanCollect = storageProperties.Capacity - storageProperties.AmountStored - countFlying
 
-    local countInOnetime = self.Settings.CountOneTime
+    local countInOnetime = self._settings.CountOneTime
     maxCanCollect = math.max(0, math.min(countInOnetime, maxCanCollect, countInOnetime - countByMagnet))
     return maxCanCollect
 end

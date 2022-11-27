@@ -50,9 +50,12 @@ end
 ---@param lastId integer|nil
 ---@return ChangesItem|nil
 function Utils.ChangesSingleId(newId, lastId)
+    Logging.LogDebug("Utils.ChangesSingleId %s, %s", tostring(newId), tostring(lastId))
     if (newId == nil and lastId == nil) then
+        Logging.LogDebug("Utils.ChangesSingleId return nil", newId, lastId)
         return nil
     end
+    Logging.LogDebug("Utils.ChangesSingleId newId ~= nil and lastId ~= nil")
     if (newId == lastId) then
         return nil
     end
@@ -75,6 +78,8 @@ end
 ---@param location Point
 ---@return integer[]
 function Utils.GetAllSupportBuildings(location)
+    Logging.LogDebug("Utils.GetAllSupportBuildings %s", location)
+    -- Logging.LogDebug("Utils.GetAllSupportBuildings Utils.BuildingsFilter: %s", Utils.BuildingsFilter)
     ---@type integer[]
     local buildingIds = { }
     ---@type integer[]
@@ -86,9 +91,11 @@ function Utils.GetAllSupportBuildings(location)
         typeSubType[#typeSubType + 1] = CACHE_ITEM_INFO:GetInfo(id)
     end
 
+    -- Logging.LogDebug("Utils.GetAllSupportBuildings typeSubType: %s", typeSubType)
     typeSubType = Linq.Where(
         typeSubType,
-        function (value)
+        function (key, value)
+            -- Logging.LogDebug("Utils.GetAllSupportBuildings value.Category: %s", value.Category)
             local skipValues = Utils.BuildingsFilter[value.Category]
             if(skipValues == nil) then
                 return false
@@ -164,17 +171,26 @@ function Utils.ChangesIds(table, lastTable)
             )
         end
     )
-    local changes = {
-        Add = newIds,
-        Remove = removeIds
-    }
+
+    if (#newIds == 0 and #removeIds == 0) then
+        return nil
+    end
+
+    local changes = { }
+    if (#newIds > 0) then
+        changes.Add = newIds
+    end
+    if (#removeIds > 0) then
+        changes.Remove = removeIds
+    end
+
     return changes
 end
 
 --- func desc
----@alias TileInspectors "Storage"|"Buildings"
+---@alias TileInspectorTypes "Storage"|"Buildings"
 ---@param tileController TileController
 function Utils.AddInspectors(tileController)
-    tileController:AddInspector("Storage", Utils.GetStorage, Utils.ChangesSingleId)
+    tileController:AddInspector("Storage", function (location) return { [1] = Utils.GetStorage(location) } end, Utils.ChangesIds)
     tileController:AddInspector("Buildings", Utils.GetAllSupportBuildings, Utils.ChangesIds)
 end

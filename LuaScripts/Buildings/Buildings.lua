@@ -25,9 +25,6 @@ Buildings = {
         CustomModel = true,
     },
 
-    ---@alias Point2 integer[] # Point [1] = X, [2] = Y
-    ---@alias Point3 { X? :number, Y? :number, Z? :number }
-    ---@alias BuildingItem { Type :string, Name :string, Ingridients :string[], IngridientsAmount :integer[], ModelName :string, TopLeft :Point2, BottomRigth :Point2, AccessPoint :Point2 | nil, Scale? :number, Rotation? :Point3, Walkable? :boolean, CustomModel :boolean } # Item by building.
     ---@type BuildingItem #
     Inspector = {
         Type = ReferenceValue.new("Inspector"),
@@ -390,13 +387,13 @@ end
 ---@param type string #
 ---@return BuildingLevels #
 function Buildings.GetMagnetLevel(type)
-    if(type == Buildings.MagnetCrude.Type)then
+    if (type == Buildings.MagnetCrude.Type.Value) then
         return BuildingLevels.Crude
     end
-    if(type == Buildings.MagnetGood.Type)then
+    if (type == Buildings.MagnetGood.Type.Value) then
         return BuildingLevels.Good
     end
-    if(type == Buildings.MagnetSuper.Type)then
+    if (type == Buildings.MagnetSuper.Type.Value) then
         return BuildingLevels.Super
     end
     error("Unknown magnet type: "..type, 200)
@@ -405,6 +402,14 @@ end
 --- Add all buildings.
 function Buildings.CreateAll ()
     Logging.LogInformation("Buildings.CreateAll")
+
+    -- Extractor Inspector
+    Buildings.Create (Buildings.Extractor)
+    Buildings.Create (Buildings.Inspector)
+    Buildings.Create (Buildings.SwitchSuper)
+
+    -- Switch
+    Decoratives.CreateDecorative (Decoratives.SwitchOnSymbol)
 
     Buildings.Create (Buildings.MagnetCrude)
     Buildings.Create (Buildings.TransmitterCrude)
@@ -429,13 +434,6 @@ function Buildings.CreateAll ()
     Buildings.Create (Buildings.TransmitterSuper)
     Buildings.Create (Buildings.ReceiverSuper)
 
-    -- Extractor Inspector
-    Buildings.Create (Buildings.Extractor)
-    Buildings.Create (Buildings.Inspector)
-    Buildings.Create (Buildings.SwitchSuper)
-
-    -- Switch
-    Decoratives.CreateDecorative (Decoratives.SwitchOnSymbol)
     -- Misc Symbols
     Decoratives.CreateDecorative (Decoratives.SymbolBroken)
 end
@@ -457,7 +455,7 @@ end
 ---@param replaceType? string # Replace uniq type
 function Buildings.Create (building, replaceType)
     ---@type string
-    local type = building.Type
+    local type = building.Type.Value
     if (replaceType ~= nil) then
         type = replaceType
     end

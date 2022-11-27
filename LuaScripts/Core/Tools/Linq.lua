@@ -13,6 +13,11 @@ Linq = { }
 ---@param table2 table<TKey, TValue>
 ---@return table<TKey, TValue> # Concat in table1 values
 function Linq.Concat(table1, table2)
+    if (table1 == nil or table2 == nil) then
+        Logging.LogError("Linq.Concat table1: %s\ntable2: %s", table1, table2)
+        error("Linq.Concat table1 == nil or table2 == nil")
+    end
+
     for _, value in pairs(table2) do
         table1[#table1 + 1] = value
     end
@@ -115,4 +120,15 @@ function Linq.Select(table, keySelector)
         list[#list + 1] = keySelect
     end
     return list
+end
+
+--- func desc
+---@generic TKey :any|table
+---@generic TValue :any|table
+---@param table table<TKey, TValue>
+---@param action fun(key: TKey, value :TValue)
+function Linq.ForEach(table, action)
+    for key, value in pairs(table) do
+        action(key, value)
+    end
 end

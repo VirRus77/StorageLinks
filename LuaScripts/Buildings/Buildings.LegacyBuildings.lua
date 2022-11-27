@@ -96,10 +96,10 @@ function ReplaceOldBuildings()
     ---@type ReplaceItem[]
     local swapTypes = { }
     for index, value in ipairs(Buildings.MappingOldTypes) do
-        table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
+        table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type.Value })
     end
     for index, value in ipairs(Decoratives.MappingOldTypes) do
-        table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type })
+        table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type.Value })
     end
     Logging.LogDebug("Replace old...")
     ReplaceOldTypesToNewTypes(swapTypes)

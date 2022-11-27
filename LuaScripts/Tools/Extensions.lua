@@ -152,7 +152,7 @@ function Extensions.GetFullInformation(id)
     local converterProperties = Extensions.UnpackConverterProperties(ModConverter.GetConverterProperties(id))
     local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(id))
     local durability = ModObject.GetObjectDurability(id)
-    return StringFormat.UnpackStringFormat(
+    local message, isError StringFormat.UnpackStringFormat(
         "Id: %d\nCategory: %s\nSubcategory: %s\nDurability: %d\nObjectProperties:\n%s\nBuildingRequirements:\n%s\nConverterProperties:\n%s\nStorageInfo:\n%s",
         id,
         category,
@@ -163,4 +163,5 @@ function Extensions.GetFullInformation(id)
         converterProperties,
         storageInfo
     )
+    return message
 end

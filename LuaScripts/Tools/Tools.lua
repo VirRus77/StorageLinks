@@ -571,16 +571,14 @@ function ReplaceOldTypeToNewType(oldName, newName)
             if (ModObject.DestroyObject(uid)) then
                 newUID = ModBase.SpawnItem(newName, props.TileX, props.TileY, false, true, false)
                 if (newUID == -1 or newUID == nil) then
-                    Logging.LogDebug('Could not re-create ', serializeTable({
-                        props = props
-                    }))
+                    Logging.LogDebug('Could not re-create ', { props = props })
                 else
                     ModBuilding.SetRotation(newUID, rot)
                     ModBuilding.SetBuildingName(newUID, props.Name)
-                    Logging.LogDebug("Replace item: ", serializeTable({
+                    Logging.LogDebug("Replace item: ", {
                         props = props,
                         newUID = newUID
-                    }))
+                    })
                 end
 
             end -- of if object destroyed

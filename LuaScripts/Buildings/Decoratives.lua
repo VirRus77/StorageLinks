@@ -47,7 +47,7 @@ end
 ---@param replaceType string?
 function Decoratives.CreateDecorative (decorative, replaceType)
     ---@type string
-    local type = decorative.Type
+    local type = decorative.Type.Value
     if (replaceType ~= nil) then
         type = replaceType
     end

@@ -15,11 +15,11 @@ TileSubscriber = {
 TileSubscriber = Object:extend(TileSubscriber)
 
 --- func desc
----@alias callbackArgs { InspectingType :string, Values : any }
+---@alias TileController_CallbackArgs { Point :Point, Storage :{ Add: integer[], Remove: integer[] }, Buildings :{ Add: integer[], Remove: integer[] } }
 ---@param id integer
 ---@param location Point
 ---@param inspectingTypes string[]
----@param action fun(values :callbackArgs)
+---@param action fun(values :TileController_CallbackArgs)
 ---@return TileSubscriber
 function TileSubscriber.new(id, location, inspectingTypes, action)
     local instance = TileSubscriber:make(id, location, inspectingTypes, action)

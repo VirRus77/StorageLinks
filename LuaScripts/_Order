@@ -45,6 +45,8 @@ Buildings/Converters.lua
 Buildings/BuildingSettings.lua
 Buildings/BuildingsDependencyTree.lua
 Buildings/Logic/BuildingBase.lua
+Buildings/Logic/BuildingTypedBase.lua
+Buildings/Logic/BuildingFireWallBase.lua
 Buildings/Logic/BuildingStorageLinksBase.lua
 Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua

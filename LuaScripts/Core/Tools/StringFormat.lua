@@ -9,11 +9,14 @@ StringFormat = { }
 --- func desc
 ---@param stringFormat string
 ---@param ... any
----@return string
+---@return string, boolean
 function StringFormat.UnpackStringFormat(stringFormat, ...)
+    -- ModDebug.Log("select #: ", select("#", ...))
     local cahngedParamsStringFormat = { }
     for i = 1, select("#", ...) do
+        -- ModDebug.Log("value [", i, "]")
         local value = select(i, ...)
+        -- ModDebug.Log("value [", i, "] = ", value)
         if (type(value) == "boolean") then
             cahngedParamsStringFormat[i] = tostring(value)
         elseif (type(value) == "nil") then
@@ -22,21 +25,27 @@ function StringFormat.UnpackStringFormat(stringFormat, ...)
             cahngedParamsStringFormat[i] = string.format("[%s]", tostring(value))
         elseif (type(value) == "table") then
             if(value.__tostring ~= nil) then
+                -- ModDebug.Log("value.__tostring [", i, "]")
                 cahngedParamsStringFormat[i] = value:__tostring()
+            elseif (value.meta ~= nil and value.meta.__tostring ~= nil) then
+                -- ModDebug.Log("value.meta.__tostring [", i, "]")
+                cahngedParamsStringFormat[i] = value.meta.__tostring(value)
             else
-                cahngedParamsStringFormat[i] = serializeTable(value)
+                -- ModDebug.Log("serializeTable [", i, "]")
+                cahngedParamsStringFormat[i] = SerializeTable(value)
             end
         else
             cahngedParamsStringFormat[i] = value
         end
     end
 
+    -- ModDebug.Log("StringFormat.ValidateSringFormat")
     local error = StringFormat.ValidateSringFormat(stringFormat, table.unpack(cahngedParamsStringFormat))
     if (error ~= nil) then
-        return error
+        return error, true
     end
 
-    return string.format(stringFormat, table.unpack(cahngedParamsStringFormat))
+    return string.format(stringFormat, table.unpack(cahngedParamsStringFormat)), false
 end
 
 --- func desc

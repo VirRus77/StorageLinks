@@ -3,9 +3,12 @@
 ---@param name? any
 ---@param skipnewlines? any
 ---@param depth? any
-function serializeTable (val, name, skipnewlines, depth)
+---@param parentTables? table<table, boolean>
+function SerializeTable (val, name, skipnewlines, depth, parentTables)
+    -- ModDebug.Log("serializeTable")
     skipnewlines = skipnewlines or false
     depth = depth or 0
+    parentTables = parentTables or { }
 
     local indent = string.rep(" ", depth)
     local tmp = indent .. ""
@@ -14,28 +17,47 @@ function serializeTable (val, name, skipnewlines, depth)
         tmp = tmp .. name .. " = "
     end
 
-    if type(val) == "table" then
+    local typeValue = type(val)
+    if (typeValue == "table") then
+        if (parentTables[val] ~= nil) then
+            tmp = tmp .. "--== RECURSIVE ==--"
+            return tmp
+        end
+
+        parentTables[val] = true
+        -- ModDebug.Log("serializeTable table")
+        -- Add table Id
         tmp = tmp .. "{" .. (not skipnewlines and "\n" or "")
 
         for k, v in pairs(val) do
             local skip = (type(k) == "string" and k == "__index")
             if(not skip) then
-                tmp =  tmp .. serializeTable (v, k, skipnewlines, depth + 1) .. "," .. (not skipnewlines and "\n" or "")
+                tmp =  tmp .. SerializeTable (v, k, skipnewlines, depth + 1, parentTables) .. "," .. (not skipnewlines and "\n" or "")
             end
         end
+        parentTables[val] = nil
 
         tmp = tmp .. indent .. "}"
-    elseif type(val) == "number" then
+        -- If exist __tostring, don`t get refernece.
+        -- tmp = tmp .. "[" .. tostring(val) .. "]" .. " "
+    elseif (typeValue == "number") then
+        -- ModDebug.Log("serializeTable number")
         tmp = tmp .. tostring(val)
-    elseif type(val) == "string" then
+    elseif (typeValue == "string") then
+        -- ModDebug.Log("serializeTable string")
         tmp = tmp .. string.format("%q", val)
-    elseif type(val) == "boolean" then
+    elseif (typeValue == "boolean") then
+        -- ModDebug.Log("serializeTable boolean")
         tmp = tmp .. (val and "true" or "false")
+    elseif (typeValue == "nil") then
+        -- ModDebug.Log("serializeTable boolean")
+        tmp = tmp .. "nil"
     else
-        tmp = tmp .. "\"[inserializeable datatype:" .. type(val) .. "]\""
+        -- ModDebug.Log("serializeTable inserializeable")
+        tmp = tmp .. "\"[inserializeable datatype:" .. typeValue .. "]\""
     end
 
-    tmp = tmp .. " :" .. type(val)
+    tmp = tmp .. " :" .. typeValue
 
     return tmp
 end

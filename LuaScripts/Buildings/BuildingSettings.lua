@@ -4,13 +4,22 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@alias BuildingSettingItem { Type : { Type :string }, Settings :table }
+---@alias SettingPeriod { UpdatePeriod :number }
+---@generic T :SettingPeriod
+---@class BuildingSettingItem<T>
+---@field Type ReferenceValue<string>
+---@field Settings T
+BuildingSettingItem = {}
+
+
+---@generic T
+----@alias BuildingSettingItem<T> { Type :ReferenceValue<string>, Settings :T }
 ---@type table<string, BuildingSettingItem[]>
 BuildingSettings = {
-    ---@type InspectorSettingsItem[]
+    ---@type BuildingSettingItem<InspectorSettingsItem>[]
     Inspector = {
         {
-            Type = Buildings.Inspector,
+            Type = Buildings.Inspector.Type,
             ---@alias InspectorSettingsItem { UpdatePeriod :number, SwitchState :boolean, InspectPoint :Point } #
             Settings = {
                 UpdatePeriod = 1 / 4,
@@ -20,10 +29,10 @@ BuildingSettings = {
         }
     },
 
-    ---@type BuildingSettingItem[] #
+    ---@type BuildingSettingItem<MagnetSettingsItem2>[] #
     Magnets = {
         {
-            Type = Buildings.MagnetCrude,
+            Type = Buildings.MagnetCrude.Type,
             ---@alias MagnetSettingsItem2 { UpdatePeriod :number, CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer }
             Settings = {
                 UpdatePeriod = 1 / 4,
@@ -34,7 +43,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.MagnetGood,
+            Type = Buildings.MagnetGood.Type,
             Settings = {
                 UpdatePeriod = 1 / 4,
                 CountOneTime = 5,
@@ -44,7 +53,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.MagnetSuper,
+            Type = Buildings.MagnetSuper.Type,
             Settings = {
                 UpdatePeriod = 1 / 4,
                 CountOneTime = 15,
@@ -55,10 +64,10 @@ BuildingSettings = {
         }
     },
 
-    ---@type PumpSettingsItem[] #
+    ---@type BuildingSettingItem<PumpSettingsItem>[] #
     Pump = {
         {
-            Type = Buildings.PumpCrude,
+            Type = Buildings.PumpCrude.Type,
             ---@alias PumpSettingsItem { UpdatePeriod :number, MaxTransferPercentOneTime :integer, LogicType: "Transfer"|"Overflow"|"Balancer", InputPoint? :Point, OutputPoint? :Point }
             Settings = {
                 UpdatePeriod = 1,
@@ -67,7 +76,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.PumpGood,
+            Type = Buildings.PumpGood.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
@@ -75,7 +84,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.PumpSuper,
+            Type = Buildings.PumpSuper.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
@@ -83,7 +92,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.PumpSuperLong,
+            Type = Buildings.PumpSuperLong.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
@@ -94,10 +103,10 @@ BuildingSettings = {
         },
     },
 
-    ---@type PumpSettingsItem[] #
+    ---@type BuildingSettingItem<PumpSettingsItem>[] #
     OverflowPump = {
         {
-            Type = Buildings.OverflowPumpCrude,
+            Type = Buildings.OverflowPumpCrude.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 1,
@@ -105,7 +114,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.OverflowPumpGood,
+            Type = Buildings.OverflowPumpGood.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
@@ -113,7 +122,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.OverflowPumpSuper,
+            Type = Buildings.OverflowPumpSuper.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
@@ -122,10 +131,10 @@ BuildingSettings = {
         },
     },
 
-    ---@type PumpSettingsItem[] #
+    ---@type BuildingSettingItem<PumpSettingsItem>[] #
     BalancerPump = {
         {
-            Type = Buildings.BalancerCrude,
+            Type = Buildings.BalancerCrude.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 1,
@@ -133,7 +142,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.BalancerGood,
+            Type = Buildings.BalancerGood.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
@@ -141,7 +150,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.BalancerSuper,
+            Type = Buildings.BalancerSuper.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
@@ -149,7 +158,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.BalancerSuperLong,
+            Type = Buildings.BalancerSuperLong.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
@@ -160,11 +169,11 @@ BuildingSettings = {
         },
     },
 
-    ---@type TransmitterSettingsItem[] #
+    ---@type BuildingSettingItem<TransmitterSettingsItem>[] #
     Transmitter = {
         {
-            Type = Buildings.TransmitterCrude,
-            ---@alias TransmitterSettingsItem { UpdatePeriod :number, MaxTransferOneTime :integer, InputPoint? :Point, OutputPoint? :Point }
+            Type = Buildings.TransmitterCrude.Type,
+            ---@alias TransmitterSettingsItem { UpdatePeriod :number, MaxTransferOneTime :integer, InputPoint? :Point|nil, OutputPoint? :Point|nil }
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 1,
@@ -173,7 +182,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.TransmitterGood,
+            Type = Buildings.TransmitterGood.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 5,
@@ -182,7 +191,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.TransmitterSuper,
+            Type = Buildings.TransmitterSuper.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 15,
@@ -192,10 +201,10 @@ BuildingSettings = {
         },
     },
 
-    ---@type TransmitterSettingsItem[] #
+    ---@type BuildingSettingItem<TransmitterSettingsItem>[] #
     Receiver = {
         {
-            Type = Buildings.ReceiverCrude,
+            Type = Buildings.ReceiverCrude.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 1,
@@ -204,7 +213,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.ReceiverGood,
+            Type = Buildings.ReceiverGood.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 5,
@@ -213,7 +222,7 @@ BuildingSettings = {
             },
         },
         {
-            Type = Buildings.ReceiverSuper,
+            Type = Buildings.ReceiverSuper.Type,
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferOneTime = 15,
@@ -223,10 +232,10 @@ BuildingSettings = {
         },
     },
 
-    ---@type SwittcherSettingsItem[]
+    ---@type BuildingSettingItem<SwittcherSettingsItem>[]
     Switcher = {
         {
-            Type = Buildings.SwitchSuper,
+            Type = Buildings.SwitchSuper.Type,
             ---@alias SwittcherSettingsItem { UpdatePeriod :number, SwitchState :boolean } #
             Settings = {
                 UpdatePeriod = 1 / 4,
@@ -244,7 +253,7 @@ function BuildingSettings.GetSettingsByType(buildingType)
         if(type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
             for _, settingByType in ipairs(settings) do
-                if (settingByType.Type.Type == buildingType)then
+                if (settingByType.Type.Value == buildingType)then
                     return settingByType.Settings
                 end
             end
@@ -256,14 +265,14 @@ function BuildingSettings.GetSettingsByType(buildingType)
 end
 
 --- GetSettings by building type.
----@param buildingType { Type :string } # Builfing type.
+---@param buildingType { Type :ReferenceValue<string> } # Builfing type.
 ---@return table|nil
 function BuildingSettings.GetSettingsByReferenceType(buildingType)
     for _, settings in pairs(BuildingSettings) do
         if(type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
             for _, settingByType in ipairs(settings) do
-                if (settingByType.Type.Type == buildingType.Type)then
+                if (settingByType.Type.Value == buildingType.Type.Value)then
                     return settingByType.Settings
                 end
             end

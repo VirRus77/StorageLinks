@@ -7,7 +7,7 @@ inheritance and inheritable constructors. All other objects inherit from this.
 ---@function create
 ---@function make
 ---@function initialize(... vargs)
----@field base any # Base class
+---@field base Object # Base class
 Object = {}
 Object.meta = {__index = Object}
 
@@ -77,3 +77,22 @@ end
 
 function Object:initialize(...)
 end
+
+function Object:InstanceOf(class)
+    if (type(self) ~= 'table' or self.meta == nil or not class) then
+      return false
+    end
+    if self.meta.__index == class then
+      return true
+    end
+    local meta = self.meta
+    while (meta) do
+      if (meta.super == class) then
+        return true
+      elseif (meta.super == nil) then
+        return false
+      end
+      meta = meta.super.meta
+    end
+    return false
+  end

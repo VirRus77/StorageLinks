@@ -8,10 +8,12 @@ Author: Sotin NU aka VirRus77
 
 ---@class Transmitter :BuildingFireWallBase #
 ---@field _acccessType AcccessPointType
+---@field _linksVirtualNetwork table<integer, string>
+---@field _settings TransmitterSettingsItem #
 ---@field InputPoint Point|nil # Direction base rotation
 ---@field OutputPoint Point|nil # Direction base rotation
 ---@field AccessPoint Point #
----@field Settings TransmitterSettingsItem #
+---@field base BuildingFireWallBase
 Transmitter = {
     SupportTypes = {
         Buildings.TransmitterCrude.Type,
@@ -40,10 +42,120 @@ end
 
 ---@param self Transmitter
 function Transmitter:initialize(id, type, callbackRemove, fireWall)
-    self.base:initialize(id, type, callbackRemove, fireWall)
-    self.InputPoint = self._settings.Settings.InputPoint
-    self.OutputPoint = self._settings.Settings.OutputPoint
+    BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
+    self._linksVirtualNetwork = { }
+    self.InputPoint = self._settings.InputPoint
+    self.OutputPoint = self._settings.OutputPoint
     self._acccessType = self:GetAccessType()
+    self:AddSubsriber()
+    self:UpdateGroup()
+end
+
+--- func desc
+---@param newValue integer
+function Transmitter:OnRotate(newValue)
+    self:RemoveSubsriber()
+    self:RemoveLink(self._linksVirtualNetwork)
+    BuildingFireWallBase.OnRotate(self, newValue)
+    self:AddSubsriber()
+end
+
+--- func desc
+---@param newValue Point
+function Transmitter:OnMove(newValue)
+    self:RemoveSubsriber()
+    self:RemoveLink(self._linksVirtualNetwork)
+    BuildingFireWallBase.OnMove(self, newValue)
+    self:AddSubsriber()
+end
+
+function Transmitter:OnDestroy(newValue)
+    self:RemoveSubsriber()
+    self:RemoveLink(self._linksVirtualNetwork)
+    BuildingFireWallBase.OnDestroy(self, newValue)
+end
+
+--- func desc
+---@return Timer|nil
+function Transmitter:MakeTimer()
+    return nil
+    -- local timer = Timer.new(self._settings.UpdatePeriod, function () self:OnTimerCallback() end)
+    -- return timer
+end
+
+-- function Transmitter:UpdateLogic()
+--     local point = self:GetAccessPoint(self.Location)
+--     ---@type TileInspectorTypes[]
+
+--     local types = self:InspectorTypes();
+
+--     -- local sw = Stopwatch.Start()
+--     TILE_CONTROLLER:AddSubscriber(self.Id, point, types, self._settings.UpdatePeriod, function (values) self:AccessChanged(values) end)
+--     -- sw:Stop()
+--     -- Logging.LogDebug("Transmitter:UpdateLogic sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
+-- end
+
+--- func desc
+---@param changes TileController_CallbackArgs
+function Transmitter:AccessChanged(changes)
+    Logging.LogDebug("Transmitter:AccessChanged changes:\n%s", changes)
+    if (changes.Storage == nil and changes.Buildings == nil) then
+        return
+    end
+
+    local added = { }
+    local removed = { }
+    if (changes.Storage ~= nil) then
+        added = Linq.Concat(added, changes.Storage.Add or { })
+        removed = Linq.Concat(removed, changes.Storage.Remove or { })
+    end
+    if (changes.Buildings ~= nil) then
+        added = Linq.Concat(added, changes.Buildings.Add or { })
+        removed = Linq.Concat(removed, changes.Buildings.Remove or { })
+    end
+    Logging.LogDebug("Transmitter:AccessChanged Add: %s\nRemove: %s\n%s", added, removed, changes)
+    self:AddLink(added)
+    local removeRecords = { }
+    Linq.ForEach(
+        removed,
+        function (key, value)
+            if (self._linksVirtualNetwork[value] ~= nil) then
+                removeRecords[value] = self._linksVirtualNetwork[value]
+            end
+        end
+    )
+    self:RemoveLink(removeRecords)
+end
+
+--- func desc
+---@return string[]
+function Transmitter:InspectorTypes()
+    local types = { };
+    if (self._acccessType == "Transmitter" or self._acccessType == "Both") then
+        types[#types + 1] = "Storage"
+    end
+    if (self._acccessType == "Receiver" or self._acccessType == "Both") then
+        types[#types + 1] = "Buildings"
+    end
+    return types
+end
+
+function Transmitter:AddSubsriber()
+    local sw = Stopwatch.Start()
+    local accessPoint = self:GetAccessPoint(self.Location)
+    ---@type TileInspectorTypes[]
+    local types = self:InspectorTypes();
+
+    TILE_CONTROLLER:AddSubscriber(self.Id, accessPoint, types, self._settings.UpdatePeriod, function (values) self:AccessChanged(values) end)
+    Logging.LogDebug("Transmitter:AddSubsriber sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
+end
+
+function Transmitter:RemoveSubsriber()
+    local sw = Stopwatch.Start()
+    local accessPoint = self:GetAccessPoint(self.Location)
+
+    TILE_CONTROLLER:RemoveSubscriber(self.Id, accessPoint)
+    Logging.LogDebug("Transmitter:RemoveSubsriber sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
 end
 
 -- --- func desc
@@ -93,9 +205,10 @@ function Transmitter:GetAccessPoint(location)
     end
 
     if (accessPoint == nil) then
+        Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
         error("Transmitter:CheckAccessPoint all Access Points nil", 666)
-        --Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
-        return
+        -- Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
+        -- return
     end
 
     local accessPointRotate = Point.Rotate(accessPoint, self.Rotation)
@@ -161,41 +274,34 @@ end
 --     -- end
 -- end
 
--- --- func desc
--- ---@param removedItems table<integer, string>
--- function Transmitter:RemoveLink(removedItems)
---     -- if (self.AccessPointId == nil) then
---     --     return
---     -- end
+--- func desc
+---@param removedItems table<integer, string>
+function Transmitter:RemoveLink(removedItems)
+    for key, value in pairs(removedItems) do
+        if(self._acccessType == "Transmitter")then
+            VIRTUAL_NETWORK:RemoveProvider(value)
+        else
+            VIRTUAL_NETWORK:RemoveConsumer(value)
+        end
+        self._linksVirtualNetwork[key] = nil
+    end
+end
 
---     for key, value in pairs(removedItems) do
---         if(self._acccessType == "Transmitter")then
---             VIRTUAL_NETWORK:RemoveProvider(value)
---         else
---             VIRTUAL_NETWORK:RemoveConsumer(value)
---         end
---         self.LinkedBuildingIds[key] = nil
---     end
--- end
+--- func desc
+---@param addIds integer[]
+function Transmitter:AddLink(addIds)
+    if (#addIds == 0) then
+        return
+    end
 
--- --- func desc
--- ---@param addIds integer[]
--- function Transmitter:AddLink(addIds)
---     -- if (self.LinkedBuildingIds == nil) then
---     --     return
---     -- end
---     -- if ((self._acccessType == "Transmitter") and (not Tools.IsStorage(self.LinkedBuildingId))) then
---     --     return
---     -- end
-
---     for _, value in pairs(addIds) do
---         if (self._acccessType == "Transmitter") then
---             self.LinkedBuildingIds[value] = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, value, nil, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
---         else
---             self.LinkedBuildingIds[value] = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, value, self.Settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
---         end
---     end
--- end
+    for _, buildingId in pairs(addIds) do
+        if (self._acccessType == "Transmitter") then
+            self._linksVirtualNetwork[buildingId] = VIRTUAL_NETWORK:AddProvider(StorageProvider.new(self.Id, buildingId, nil, self._settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
+        else
+            self._linksVirtualNetwork[buildingId] = VIRTUAL_NETWORK:AddConsumer(BuildingConsumer.new(self.Id, buildingId, self._settings.MaxTransferOneTime, VIRTUAL_NETWORK.HashTables))
+        end
+    end
+end
 
 --- func desc
 ---@return AcccessPointType

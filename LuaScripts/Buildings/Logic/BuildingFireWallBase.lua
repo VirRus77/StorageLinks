@@ -5,18 +5,18 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class BuildingFireWallBase :BuildingTypedBase
+---@field base BuildingTypedBase
 ---@field _fireWall FireWall
 ---@field _groupName string|nil
-BuildingFireWallBase = {
-    BuildingEditType = {
-        Rotate = "Rotate",
-        Move = "Move",
-        Rename = "Rename",
-        Destroy = "Destroy"
-    }
-}
+BuildingFireWallBase = { }
 ---@type BuildingFireWallBase
 BuildingFireWallBase = BuildingTypedBase:extend(BuildingFireWallBase)
+BuildingFireWallBase.BuildingEditType = {
+    Rotate = "Rotate",
+    Move = "Move",
+    Rename = "Rename",
+    Destroy = "Destroy"
+}
 
 ---@param id integer #
 ---@param callbackRemove fun() #
@@ -28,18 +28,46 @@ function BuildingFireWallBase.new(id, uniqType, callbackRemove, fireWall)
     return instance
 end
 
+---@param id integer #
+---@param uniqType string #
+---@param callbackRemove fun() #
+---@param fireWall FireWall
 function BuildingFireWallBase:initialize(id, uniqType, callbackRemove, fireWall)
-    self.base:initialize(id, uniqType, callbackRemove)
+    BuildingTypedBase.initialize(self, id, uniqType, callbackRemove)
     self._fireWall = fireWall
+    -- self:OnRename(self.Name)
 end
 
 --- func desc
 ---@param newValue string
----@param updateGroup? boolean|nil
-function BuildingFireWallBase:OnRename(newValue, updateGroup)
-    self.base:OnRename(newValue)
-    if (updateGroup or updateGroup == nil) then
-        self:UpdateGroup()
+function BuildingFireWallBase:OnRename(newValue)
+    BuildingTypedBase.OnRename(self, newValue)
+    self:UpdateGroup()
+end
+
+function BuildingFireWallBase:OnDestroy(newValue)
+    Logging.LogDebug("BuildingFireWallBase:OnDestroy %d \"%s\"", self.Id, self.Name)
+    self:RemoveFromFireWall()
+    BuildingTypedBase.OnDestroy(self, newValue)
+end
+
+function BuildingFireWallBase:UpdateGroup()
+    Logging.LogDebug("BuildingFireWallBase:UpdateGroup %s", self._groupName)
+    local newGroup = self:GetGroupName()
+    Logging.LogDebug("BuildingFireWallBase:UpdateGroup %s -> %s", self.Name, ToTypedString(newGroup))
+    if (newGroup == self._groupName) then
+        return
+    end
+
+    if (self._groupName ~= nil) then
+        self._fireWall:Remove(self.Id)
+        self._groupName = nil
+    end
+
+    if (newGroup ~= nil) then
+        Logging.LogDebug("BuildingFireWallBase:UpdateGroup FireWall add [%d] \'%s\' -> \'%s\'", self.Id, self.Name, newGroup)
+        self._fireWall:Add(self.Id, newGroup)
+        self._groupName = newGroup
     end
 end
 
@@ -55,19 +83,10 @@ function BuildingFireWallBase:GetGroupName()
     return found[1]
 end
 
-function BuildingFireWallBase:UpdateGroup()
-    Logging.LogDebug("BuildingFireWallBase:UpdateGroup")
-    local newGroup = self:GetGroupName()
-    Logging.LogDebug("BuildingFireWallBase:UpdateGroup %s -> %s", self.Name, ToTypedString(newGroup))
-
-    if (self._groupName ~= nil) then
-        self._fireWall:Remove(self.Id)
-        self._groupName = nil
+function BuildingFireWallBase:RemoveFromFireWall()
+    if (self._groupName == nil) then
+        return
     end
 
-    if (newGroup ~= nil) then
-        Logging.LogDebug("BuildingFireWallBase:UpdateGroup FireWall add [%d] \'%s\' -> \'%s\'", self.Id, self.Name, newGroup)
-        self._fireWall:Add(self.Id, newGroup)
-        self._groupName = newGroup
-    end
+    self._fireWall:Remove(self.Id)
 end

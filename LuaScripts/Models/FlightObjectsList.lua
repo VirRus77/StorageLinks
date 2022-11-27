@@ -34,7 +34,7 @@ end
 function FlightObjectsList:Add(flightObject)
     -- Logging.LogDebug("FlightObjectsList:Add:\n%s", serializeTable(flightObject))
     if( self._items[flightObject.Id] ~= nil) then
-        Logging.LogError("FlightObjectsList:Add:\n%s", serializeTable(self._items[flightObject.Id]))
+        Logging.LogError("FlightObjectsList:Add:\n%s", self._items[flightObject.Id])
         error("Object In Flight", 666)
     end
 
