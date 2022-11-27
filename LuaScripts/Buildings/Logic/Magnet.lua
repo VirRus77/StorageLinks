@@ -122,10 +122,26 @@ function Magnet:OnTimerCallback()
     end
 end
 
+function Magnet:OnRotate(newValue)
+    BuildingFireWallBase.OnRotate(self, newValue)
+    self:UpdateWorkArea()
+end
+
+function Magnet:OnMove(newValue)
+    BuildingFireWallBase.OnMove(self, newValue)
+    self:UpdateWorkArea()
+end
+
 function Magnet:OnRename(newValue)
     Logging.LogInformation("Magnet:UpdateName %d %s -> %s", self.Id, self.Name, newValue)
     BuildingFireWallBase.OnRename(self, newValue)
 
+    self:UpdateWorkArea()
+    self:UpdateGroup()
+    -- Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
+end
+
+function Magnet:UpdateWorkArea()
     local areaByName = self:GetAreaByName()
     local positionAreaByName = self:GetPositionAreaByName()
     if (areaByName ~= nil) then
@@ -135,63 +151,6 @@ function Magnet:OnRename(newValue)
     else
         self.WorkArea = self:GetAreaByPosition(self._settings.Area:Width(), self._settings.Area:Height())
     end
-    self:UpdateGroup()
-    -- Logging.LogDebug("Magnet:UpdateName WorkArea: %s", self.WorkArea)
-end
-
---- func desc
----@param storageId integer
----@param storageProperties UnpackStorageInfo
----@param objectInFly FlightObjectsList|nil
-function Magnet:CaptureQuantity(storageId, storageProperties, objectInFly)
-    local countFlyToStorage = { }
-    if (objectInFly ~= nil) then
-        countFlyToStorage = objectInFly:FlightObjectByTarget(storageId)
-    end
-
-    local countByMagnet = 0
-    for _, value in ipairs(countFlyToStorage) do
-        if (value.InitiatorId == self.Id) then
-            countByMagnet = countByMagnet + 1
-        end
-    end
-    local countFlying = #countFlyToStorage
-
-    if (not storageProperties.Successfully) then
-        return 0
-    end
-
-    if storageProperties.AmountStored == nil then
-        return 0
-    end
-    if storageProperties.Capacity == nil then
-        return 0
-    end
-
-    -- Adjust max to be "how many could actually fit into crate"
-    local maxCanCollect = storageProperties.Capacity - storageProperties.AmountStored - countFlying
-
-    local countInOnetime = self._settings.CountOneTime
-    maxCanCollect = math.max(0, math.min(countInOnetime, maxCanCollect, countInOnetime - countByMagnet))
-    return maxCanCollect
-end
-
---- func desc
----@param flyingObject FlightObject
----@param successfully boolean
-function Magnet.OnFlightComplete(flyingObject, successfully)
-    -- Logging.LogDebug(' OnFlightComplete(successfully = %s)\n%s', successfully, serializeTable(flyingObject))
-    local flyingId = flyingObject.Id
-    if (not ModObject.IsValidObjectUID(flyingId)) then
-        return
-    end
-
-    local storageId = flyingObject.TagerId or -1
-    if (storageId == -1) then
-        return
-    end
-
-    StorageTools.AddItemToStorage(storageId, flyingId)
 end
 
 ---@return Area|nil
@@ -255,4 +214,59 @@ function Magnet:GetAreaByName()
     local area = Area.new(table.unpack(values))
     area = WORLD_LIMITS:ApplyLimits(area)
     return area
+end
+
+--- func desc
+---@param storageId integer
+---@param storageProperties UnpackStorageInfo
+---@param objectInFly FlightObjectsList|nil
+function Magnet:CaptureQuantity(storageId, storageProperties, objectInFly)
+    local countFlyToStorage = { }
+    if (objectInFly ~= nil) then
+        countFlyToStorage = objectInFly:FlightObjectByTarget(storageId)
+    end
+
+    local countByMagnet = 0
+    for _, value in ipairs(countFlyToStorage) do
+        if (value.InitiatorId == self.Id) then
+            countByMagnet = countByMagnet + 1
+        end
+    end
+    local countFlying = #countFlyToStorage
+
+    if (not storageProperties.Successfully) then
+        return 0
+    end
+
+    if storageProperties.AmountStored == nil then
+        return 0
+    end
+    if storageProperties.Capacity == nil then
+        return 0
+    end
+
+    -- Adjust max to be "how many could actually fit into crate"
+    local maxCanCollect = storageProperties.Capacity - storageProperties.AmountStored - countFlying
+
+    local countInOnetime = self._settings.CountOneTime
+    maxCanCollect = math.max(0, math.min(countInOnetime, maxCanCollect, countInOnetime - countByMagnet))
+    return maxCanCollect
+end
+
+--- func desc
+---@param flyingObject FlightObject
+---@param successfully boolean
+function Magnet.OnFlightComplete(flyingObject, successfully)
+    -- Logging.LogDebug(' OnFlightComplete(successfully = %s)\n%s', successfully, serializeTable(flyingObject))
+    local flyingId = flyingObject.Id
+    if (not ModObject.IsValidObjectUID(flyingId)) then
+        return
+    end
+
+    local storageId = flyingObject.TagerId or -1
+    if (storageId == -1) then
+        return
+    end
+
+    StorageTools.AddItemToStorage(storageId, flyingId)
 end

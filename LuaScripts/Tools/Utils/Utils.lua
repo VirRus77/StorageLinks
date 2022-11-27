@@ -109,13 +109,26 @@ function Utils.GetAllSupportBuildings(location)
     )
     -- Logging.LogDebug("Tools.GetAllBuilding (%s) Filter: %s", location, typeSubType)
 
+    -- ConverterFoundation
+    local converterFoundations = Tools.Where(typeSubType, function (value) return value.Type == "ConverterFoundation" end)
+    if (#converterFoundations > 0) then
+        -- Single
+        for _, value in pairs(converterFoundations) do
+            buildingIds[#buildingIds + 1] = value.Id
+            -- Single first
+            return buildingIds
+        end
+    end
+
     -- Storages
     local storages = Tools.Where(typeSubType, function (value) return value.Subcategory == SubCategory.BuildingsStorage end)
     if (#storages > 0) then
+        -- Get single last storage
+        -- buildingIds[#buildingIds + 1] = storages[#storages].Id
         local storageId = Tools.GetBuilding(location)
         if(storageId ~= nil) then
-            -- Get last storage
-            buildingIds[#buildingIds + 1] = storageId
+           -- Get single storage
+           buildingIds[#buildingIds + 1] = storageId
         end
     end
     typeSubType = Tools.Where(typeSubType, function (value) return value.Subcategory ~= SubCategory.BuildingsStorage end)
@@ -124,14 +137,15 @@ function Utils.GetAllSupportBuildings(location)
     local hidens = Tools.Where(typeSubType, function (value) return value.Category == "Hidden" end)
     if(#hidens > 0) then
         for _, value in pairs(hidens) do
-            buildingIds[#buildingIds + 1] = value["Id"]
+            buildingIds[#buildingIds + 1] = value.Id
+            -- Single
             break
         end
     end
     typeSubType = Tools.Where(typeSubType, function (value) return value.Category ~= "Hidden" end)
 
     for _, value in pairs(typeSubType) do
-        buildingIds[#buildingIds + 1] = value["Id"]
+        buildingIds[#buildingIds + 1] = value.Id
     end
 
     -- Logging.LogDebug("Tools.GetAllBuilding (%s) return %s", location, buildingIds)

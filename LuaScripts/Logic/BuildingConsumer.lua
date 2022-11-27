@@ -37,7 +37,7 @@ function BuildingConsumer:Update()
     self._requires = requires
 
     if (not ModObject.IsValidObjectUID(self.Id)) then
-        Logging.LogWarning("BuildingConsumer:Update Not valid id: %d", self.Id)
+        Logging.LogWarning("BuildingConsumer:Update Not valid id: %d info: %s", self.Id, CACHE_ITEM_INFO:GetInfo(self.Id))
         return requires
     end
 

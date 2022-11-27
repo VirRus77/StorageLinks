@@ -179,7 +179,10 @@ function VirtualNetwor.MakeChain(requires, provider)
                 -- Logging.LogDebug("VirtualNetwor.MakeChain after sort fuel:\n%s", requiresByReqType)
             else
                 -- Logging.LogDebug("VirtualNetwor.MakeChain before sort value:\n%s", requiresByReqType)
-                table.sort(requiresByReqType, function (a, b) return a.Amount < b.Amount end)
+                table.sort(requiresByReqType,
+                function (a, b)
+                    return (a.Requires.Value < b.Requires.Value)
+                end)
                 -- Logging.LogDebug("VirtualNetwor.MakeChain after sort value:\n%s", requiresByReqType)
             end
             for _, consumer in pairs(requiresByRequiredType[key]) do
