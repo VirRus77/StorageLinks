@@ -41,43 +41,11 @@ function BuildingConsumer:Update()
         return requires
     end
 
-    local objectType = ModObject.GetObjectType(self.Id)
-    --local selfLocation = Point.new(table.unpack(ModObject.GetObjectTileCoord(self.Id)))
-    --local allTypesOnTile = ModTiles.GetObjectTypeOnTile(selfLocation.X, selfLocation.Y)
-
-    -- ConverterFoundation
-    -- if (#allTypesOnTile > 0 and Tools.Contains(allTypesOnTile, "ConverterFoundation")) then
-    --     local ids = ModBuilding.GetBuildingUIDsOfType("ConverterFoundation", selfLocation.X, selfLocation.Y, selfLocation.X, selfLocation.Y)
-    --     if (#ids > 0) then
-    --         for _, converterId in pairs(ids) do
-    --             if (converterId ~= self.Id) then
-    --                 local buildingRequirements = self:GetBuildingRequirementsSelf(converterId)
-    --                 local requirements = self:MakeBuildingRequirements(converterId, buildingRequirements, bandwidth)
-    --                 Tools.TableConcat(requires, requirements)
-    --             end
-    --         end
-    --     end
-    -- end
-
-    -- Analysis of new opportunities.
-    -- if (subCategory == "BuildingsSpecial") then
-    --     -- Logging.LogDebug("BuildingConsumer:Update FullInfo:\n%s", Extensions.GetFullInformation(self.Id))
-    --     if(#allTypesOnTile > 1) then
-    --         Logging.LogDebug("BuildingConsumer:Update All type objects on tile: %s", allTypesOnTile)
-    --         for _, buildingType in pairs(allTypesOnTile) do
-    --             local ids = ModBuilding.GetBuildingUIDsOfType(buildingType, selfLocation[1], selfLocation[2], selfLocation[1], selfLocation[2])
-    --             for _, converterId in pairs(ids) do
-    --                 if (converterId ~= self.Id) then
-    --                     Logging.LogDebug("BuildingConsumer:Update FullInfo:\n%s", Extensions.GetFullInformation(converterId))
-    --                 end
-    --             end
-    --         end
-    --     end
-    -- end
+    local objectInfo = CACHE_ITEM_INFO:GetInfo(self.Id)
 
     -- Not support Colonist House
     -- Bug: ColonistHouse always require.
-    if (Tools.IsColonistHouse(objectType)) then
+    if (Tools.IsColonistHouse(objectInfo.Type)) then
         Logging.LogDebug("BuildingConsumer:Update IsColonistHouse exit.")
         return requires
     end

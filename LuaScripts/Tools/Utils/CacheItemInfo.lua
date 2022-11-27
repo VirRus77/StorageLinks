@@ -30,12 +30,13 @@ function CacheItemInfo:Clear()
     self._cachedItems = { }
 end
 
----@alias CacheItemInfoItem { Id :integer, Category :string, Subcategory :SubCategoryValue }
+---@alias CacheItemInfoItem { Id :integer, Type :string, Category :string, Subcategory :SubCategoryValue }
 ---@param id integer
 ---@return CacheItemInfoItem
 function CacheItemInfo.MakeCachItem(id)
     return {
         Id = id,
+        Type = ModObject.GetObjectType(id),
         Category = ModObject.GetObjectCategory(id),
         Subcategory = ModObject.GetObjectSubcategory(id)
         --["Requires"] = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(id))

@@ -90,49 +90,6 @@ function VirtualNetwor:Clear()
     self.HashTables = { }
 end
 
--- -----@param aggregateHash AggregateConsumerProvider
--- ---@return { ItemType :string, Chains :ChainItem }[]
--- function VirtualNetwor.MakeChain(aggregateHash)
-    -- -- Logging.LogDebug("VirtualNetwor.MakeChain\naggregateHash = %s", aggregateHash)
-    -- ---@type { ItemType :string, Chains :ChainItem[] }[]
-    -- local chainList = { }
-    -- for itemType, aggregateValue in pairs(aggregateHash) do
-        -- if (aggregateValue.Providers ~= nil) then
-            -- local chains =  VirtualNetwor.SumChain(aggregateValue.Consumers, aggregateValue.Providers)
-            -- chainList[#chainList + 1] = { ItemType = itemType, Chains = chains }
-        -- end
-    -- end
-    -- return chainList
--- end
-
--- --- func desc
--- ---@param consumers { Id :integer, Require: integer }[]
--- ---@param providers { Id :integer, Amount: integer }[]
--- ---@return { SourceId :integer, DestinationId :integer, Count :integer}[]
--- function VirtualNetwor.ZipChain(consumers, providers)
---     ---@type ChainItem[]
---     local chains = { }
---     for _, consumerValue in pairs(consumers) do
---         local consumerId = consumerValue.Id
---         local required = consumerValue.Require
---         ---@type ChainItem
---         local chain = { DestinationId = consumerId }
---         for providerIndex, providerValue in pairs(providers) do
---             if(consumerId ~= providerValue.Id and providerValue.Amount > 0) then
---                 chain.SourceId = providerValue.Id
---                 chain.Count = math.min(required, providerValue.Amount)
---                 required = required - chain.Count
---                 providers[providerIndex].Amount = providerValue.Amount - chain.Count
---                 chains[#chains + 1] = chain
---                 if (required == 0) then
---                     break
---                 end
---             end
---         end
---     end
---     return chains
--- end
-
 function VirtualNetwor:ChainProcess()
     self:ClearHashTables()
     ---@type RequireItem[]
@@ -159,6 +116,8 @@ function VirtualNetwor:ChainProcess()
     if (#requires == 0) then
         Logging.LogDebug("VirtualNetwor:ChainProcess #requires 0. Exit.")
         return
+    else
+        -- Logging.LogDebug("VirtualNetwor:ChainProcess requires: %s", requires)
     end
 
     ---@type ProviderItem[]
@@ -172,11 +131,15 @@ function VirtualNetwor:ChainProcess()
             if (providerItem ~= nil and providerItem.FullAmount.Value > 0) then
                 providers[#providers + 1] = providerItem
             end
+        else
+            -- Logging.LogDebug("VirtualNetwor:ChainProcess skip %d", provider.Author)
         end
     end
     if (#providers == 0) then
         Logging.LogDebug("VirtualNetwor:ChainProcess #providers 0. Exit.")
         return
+    else
+        -- Logging.LogDebug("VirtualNetwor:ChainProcess providers: %s", providers)
     end
 
     -- Aggregates

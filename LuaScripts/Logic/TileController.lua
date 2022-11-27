@@ -82,21 +82,26 @@ function TileController:AddSubscriber(id, point, inspectingTypes, period, action
     -- Add to _timers
     ---@type string | nil
     local timerId = self._timers[pointString]
-    if (timerId ~= nil) then
-        return
+    if (timerId == nil) then
+        local timer = Timer.new(
+            period,
+            function ()
+                -- Logging.LogDebug("TileController:AddSubscriber self:CheckPoint")
+                -- local sw = Stopwatch.Start()
+                self:CheckPoint(point)
+                -- Logging.LogDebug("TileController:AddSubscriber self:CheckPoint sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
+            end
+        )
+        timer:RandomizeStart()
+        self._timers[pointString] = self._timerStack:AddTimer(timer)
     end
-    local timer = Timer.new(
-        period,
-        function ()
-            -- Logging.LogDebug("TileController:AddSubscriber self:CheckPoint")
-            -- local sw = Stopwatch.Start()
-            self:CheckPoint(point)
-            -- Logging.LogDebug("TileController:AddSubscriber self:CheckPoint sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
-        end
-    )
-    timer:RandomizeStart()
-    self._timers[pointString] = self._timerStack:AddTimer(timer)
 
+    -- Update subscriber
+    self:AppendLastChanges(id, point, inspectingTypes, action)
+end
+
+function TileController:AppendLastChanges(id, point, inspectingTypes, action)
+    Logging.LogDebug("TileController:AppendLastChanges %d (%s)", id, point)
     -- Update subscriber
     local lastValues = self._inspectingsLastResult[point:ToString()]
     if (lastValues == nil) then
@@ -110,8 +115,10 @@ function TileController:AddSubscriber(id, point, inspectingTypes, period, action
         inspectingTypes,
         function (key, value)
             if (lastValues[value] ~= nil) then
-                argsCallback[value] = { }
-                argsCallback[value].Add = lastValues[value]
+                argsCallback[value] = {
+                    Add = lastValues[value]
+                }
+                --argsCallback[value].Add = lastValues[value]
             end
         end
     )

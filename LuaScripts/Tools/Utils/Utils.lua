@@ -125,6 +125,7 @@ function Utils.GetAllSupportBuildings(location)
     if(#hidens > 0) then
         for _, value in pairs(hidens) do
             buildingIds[#buildingIds + 1] = value["Id"]
+            break
         end
     end
     typeSubType = Tools.Where(typeSubType, function (value) return value.Category ~= "Hidden" end)

@@ -79,26 +79,12 @@ end
 ---@return Timer|nil
 function Transmitter:MakeTimer()
     return nil
-    -- local timer = Timer.new(self._settings.UpdatePeriod, function () self:OnTimerCallback() end)
-    -- return timer
 end
-
--- function Transmitter:UpdateLogic()
---     local point = self:GetAccessPoint(self.Location)
---     ---@type TileInspectorTypes[]
-
---     local types = self:InspectorTypes();
-
---     -- local sw = Stopwatch.Start()
---     TILE_CONTROLLER:AddSubscriber(self.Id, point, types, self._settings.UpdatePeriod, function (values) self:AccessChanged(values) end)
---     -- sw:Stop()
---     -- Logging.LogDebug("Transmitter:UpdateLogic sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
--- end
 
 --- func desc
 ---@param changes TileController_CallbackArgs
 function Transmitter:AccessChanged(changes)
-    Logging.LogDebug("Transmitter:AccessChanged changes:\n%s", changes)
+    -- Logging.LogDebug("Transmitter:AccessChanged %d changes:\n%s", self.Id, changes)
     if (changes.Storage == nil and changes.Buildings == nil) then
         return
     end
@@ -113,7 +99,7 @@ function Transmitter:AccessChanged(changes)
         added = Linq.Concat(added, changes.Buildings.Add or { })
         removed = Linq.Concat(removed, changes.Buildings.Remove or { })
     end
-    Logging.LogDebug("Transmitter:AccessChanged Add: %s\nRemove: %s\n%s", added, removed, changes)
+    -- Logging.LogDebug("Transmitter:AccessChanged %d Add: %s\nRemove: %s", self.Id, added, removed)
     self:AddLink(added)
     local removeRecords = { }
     Linq.ForEach(
@@ -158,42 +144,6 @@ function Transmitter:RemoveSubsriber()
     Logging.LogDebug("Transmitter:RemoveSubsriber sw: %s", Stopwatch.ToTimeSpanString(sw:Elapsed()))
 end
 
--- --- func desc
--- ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
--- ---@param oldValue Point|nil
--- ---@protected
--- function Transmitter:UpdateLogic(editType, oldValue)
---     Logging.LogInformation("Transmitter:UpdateLogic %s", editType)
---     if (editType == nil) then
---         self:CheckAccessPoint()
---         self:UpdateGroup()
---     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
---         self:UpdateGroup()
---         return
---     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Move) then
---         self:CheckAccessPoint(oldValue)
---         return
---     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
---         self:RemoveLink(self.LinkedBuildingIds)
---         self:RemoveFromFireWall()
---         return
---     end
--- end
-
--- function Transmitter:OnTimerCallback()
---     -- Logging.LogInformation("Transmitter:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
---     self:CheckAccessPoint()
--- end
-
--- --- func desc
--- ---@param oldLocation Point|nil
--- function Transmitter:MoveAccessPoint(oldLocation)
---     if (oldLocation ~= nil) then
-
---     end
-
--- end
-
 --- func desc
 ---@param location Point
 ---@return Point
@@ -215,64 +165,6 @@ function Transmitter:GetAccessPoint(location)
     accessPoint = Point.new(location.X + accessPointRotate.X, location.Y + accessPointRotate.Y)
     return accessPoint
 end
-
--- function Transmitter:CheckAccessPoint()
---     local location = self.Location
---     ---@type Point
---     local accessPoint = self.InputPoint
---     if (self._acccessType == "Receiver") then
---         accessPoint = self.OutputPoint
---     end
-
---     if (accessPoint == nil) then
---         error("Transmitter:CheckAccessPoint all Access Points nil", 666)
---         --Logging.LogError("Transmitter:CheckAccessPoint all Access Points nil")
---         return
---     end
-
---     local accessRotate = Point.Rotate(accessPoint, self.Rotation)
---     accessPoint = Point.new(location.X + accessRotate.X, location.Y + accessRotate.Y)
-
-
---     -- local buildingIds = Tools.GetAllBuilding(accessPoint)
---     -- -- Logging.LogDebug("Transmitter:CheckAccessPoint buildingIds:\n%s", buildingIds)
---     -- if (self._acccessType == "Transmitter") then
---     --     buildingIds = Tools.Where(
---     --         buildingIds,
---     --         function (id)
---     --             return Tools.IsStorage(id)
---     --         end
---     --     )
---     -- end
-
---     -- ---@type integer[]
---     -- local notExistIds = Tools.Where(
---     --     buildingIds,
---     --     function (value)
---     --         return self.LinkedBuildingIds[value] == nil
---     --     end
---     -- )
-
---     -- ---@type table<integer, string>
---     -- local removeIds = Tools.WhereTable(
---     --     self.LinkedBuildingIds,
---     --     function (key, value)
---     --         return not Tools.Contains(buildingIds, key)
---     --     end
---     -- )
---     -- if (#notExistIds == 0 and #removeIds == 0) then
---     --     return
---     -- end
---     -- Logging.LogDebug("Transmitter:CheckAccessPoint %d (%s) notExistIds:\n%s\nremoveIds:\n%s", self.Id, self.Location, notExistIds, removeIds)
-
---     -- if (#removeIds > 0) then
---     --     self:RemoveLink(removeIds)
---     -- end
-
---     -- if (#notExistIds > 0) then
---     --     self:AddLink(notExistIds)
---     -- end
--- end
 
 --- func desc
 ---@param removedItems table<integer, string>
