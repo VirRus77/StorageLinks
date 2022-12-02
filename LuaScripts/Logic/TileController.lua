@@ -35,7 +35,8 @@ end
 
 --- func desc
 ---@param name string
----@param func fun(point :Point) :any
+---@param funcGetValues fun(point :Point) :any
+---@param funcGetDelta fun(point :Point) :any
 function TileController:AddInspector(name, funcGetValues, funcGetDelta)
     Logging.LogDebug("TileController:AddInspector \"%s\" \"%s\" \"%s\"", name, funcGetValues, funcGetDelta)
 

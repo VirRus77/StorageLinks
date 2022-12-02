@@ -5,6 +5,7 @@ Author: Sotin NU aka VirRus77
 
 
 ---@class Point :Object #
+---@operator add(Point): Point
 ---@field X integer
 ---@field Y integer
 Point = {
@@ -29,6 +30,7 @@ function Point:initialize(x, y)
     self.Y = y
     self.meta.__eq = Point.Equals
     self.meta.__tostring = Point.ToString
+    self.meta.__add = Point.Add
 end
 
 --- Rotate the coordinate point clockwise by 90 degrees. 
@@ -36,9 +38,7 @@ end
 ---@param point Point
 ---@param countRotate? integer|nil # Count rotation by 90 degrees. Default 1.
 function Point.Rotate(point, countRotate)
-    if (countRotate == nil) then
-        countRotate = 1
-    end
+    countRotate = countRotate or 1
 
     countRotate = countRotate % 4
     if (countRotate == 0) then
@@ -65,6 +65,14 @@ end
 ---@return boolean
 function Point.Equals(point1, point2)
     return point1.X == point2.X and point1.Y == point2.Y
+end
+
+--- func desc
+---@param point1 Point
+---@param point2 Point
+---@return Point
+function Point.Add(point1, point2)
+    return Point.new(point1.X + point2.X, point1.Y + point2.Y)
 end
 
 --- func desc

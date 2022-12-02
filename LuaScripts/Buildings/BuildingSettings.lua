@@ -33,13 +33,14 @@ BuildingSettings = {
     Magnets = {
         {
             Type = Buildings.MagnetCrude.Type,
-            ---@alias MagnetSettingsItem2 { UpdatePeriod :number, CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer }
+            ---@alias MagnetSettingsItem2 { UpdatePeriod :number, CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer, OutputPoint :Point }
             Settings = {
                 UpdatePeriod = 1 / 4,
                 CountOneTime = 1,
                 Speed = 10,
                 Height = 10,
                 Area = Area.new(0, 0, 10, 10),
+                OutputPoint = Point.new(1, 0),
             },
         },
         {
@@ -50,6 +51,7 @@ BuildingSettings = {
                 Speed = 15,
                 Height = 10,
                 Area = Area.new(0, 0, 10, 10),
+                OutputPoint = Point.new(1, 0),
             },
         },
         {
@@ -60,6 +62,7 @@ BuildingSettings = {
                 Speed = 20,
                 Height = 10,
                 Area = Area.new(0, 0, 10, 10),
+                OutputPoint = Point.new(1, 0),
             },
         }
     },
@@ -68,11 +71,13 @@ BuildingSettings = {
     Pump = {
         {
             Type = Buildings.PumpCrude.Type,
-            ---@alias PumpSettingsItem { UpdatePeriod :number, MaxTransferPercentOneTime :integer, LogicType: "Transfer"|"Overflow"|"Balancer", InputPoint? :Point, OutputPoint? :Point }
+            ---@alias PumpSettingsItem { UpdatePeriod :number, MaxTransferPercentOneTime :integer, LogicType: "Transfer"|"Overflow"|"Balancer", InputPoint :Point, OutputPoint :Point }
             Settings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 1,
                 LogicType = "Transfer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -81,6 +86,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
                 LogicType = "Transfer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -89,6 +96,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
                 LogicType = "Transfer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -111,6 +120,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 1,
                 LogicType = "Overflow",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -119,6 +130,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
                 LogicType = "Overflow",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -127,6 +140,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
                 LogicType = "Overflow",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
     },
@@ -139,6 +154,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 1,
                 LogicType = "Balancer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -147,6 +164,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 5,
                 LogicType = "Balancer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {
@@ -155,6 +174,8 @@ BuildingSettings = {
                 UpdatePeriod = 1,
                 MaxTransferPercentOneTime = 10,
                 LogicType = "Balancer",
+                InputPoint  = Point.new(0, -1),
+                OutputPoint = Point.new(0,  1),
             },
         },
         {

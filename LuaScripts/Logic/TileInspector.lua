@@ -31,12 +31,11 @@ end
 ---@param name string # Inspecting name
 ---@param fun fun(location :Point) :any
 function TileInspector:AddInspecting(name, fun)
-    Tools.Dictionary.GetOrAddValue(self._inspectings, name, fun)
+    Tools.Dictionary.GetOrAddValueLazy(self._inspectings, name, fun)
 end
 
 --- func desc
 ---@param name string # Inspecting name
----@param fun fun(location :Point) :any
 function TileInspector:RemoveInspecting(name)
     self._inspectings[name] = nil
 end

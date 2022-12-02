@@ -15,7 +15,6 @@ Magnet = {
         Buildings.MagnetGood.Type,
         Buildings.MagnetSuper.Type,
     },
-    OutputPoint = Point.new(1, 0),
 }
 ---@type Magnet
 Magnet = BuildingFireWallBase:extend(Magnet)
@@ -36,6 +35,7 @@ function Magnet:initialize(id, type, callbackRemove, fireWall)
     BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
     local area = self._settings.Area
     self.WorkArea = self:GetAreaByPosition(area:Width(), area:Height())
+    self.OutputPoint = self._settings.OutputPoint
     self:OnRename(self.Name)
     -- Logging.LogDebug("Magnet:initialize %s", self)
 end

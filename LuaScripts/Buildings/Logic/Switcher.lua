@@ -91,9 +91,11 @@ function Switcher:UpdateVisualState()
     end
 
     if (self.SwitchState.Value) then
-        self.LinkedSymbolId = ModBase.SpawnItem(Decoratives.SwitchOnSymbol.Type, self.Location.X, self.Location.Y, false, true, false)
+        ModObject.SetNodeMaterial(self.Id, "Cylinder", "GlowingGreen")
+        -- self.LinkedSymbolId = ModBase.SpawnItem(Decoratives.SwitchOnSymbol.Type.Value, self.Location.X, self.Location.Y, false, true, false)
         --end
     else
+        ModObject.SetNodeMaterial(self.Id, "Cylinder", "GlowingRed")
         self:RemoveLink()
     end
 end

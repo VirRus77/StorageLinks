@@ -67,10 +67,14 @@ function Utils.ChangesSingleId(newId, lastId)
     if (lastId ~= nil) then
         removeIds[#removeIds + 1] = lastId
     end
-    local changes = {
-        Add = newIds,
-        Remove = removeIds
-    }
+
+    local changes = { }
+    if (#newIds > 0) then
+        changes.Add = newIds
+    end
+    if (#removeIds > 0) then
+        changes.Remove = removeIds
+    end
     return changes
 end
 
@@ -153,7 +157,7 @@ function Utils.GetAllSupportBuildings(location)
 end
 
 --- func desc
----@alias ChangesItem { Add :integer[], Remove :integer[] }
+---@alias ChangesItem { Add :integer[]|nil, Remove :integer[]|nil }
 ---@param table integer[]
 ---@param lastTable integer[]|nil
 ---@return ChangesItem|nil

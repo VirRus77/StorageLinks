@@ -4,11 +4,11 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class PumpBase :BuildingStorageLinksBase #
+---@class PumpBase :BuildingFireWallBase #
 ---@field WorkArea Area #
 ---@field InputPoint Point # Direction default rotation
 ---@field OutputPoint Point # Direction default rotation
----@field Settings PumpSettingsItem # Settings
+---@field _settings PumpSettingsItem # Settings
 PumpBase = {
     SupportTypes = {
         Buildings.PumpCrude,
@@ -25,11 +25,9 @@ PumpBase = {
         Buildings.BalancerSuper,
         Buildings.BalancerSuperLong,
     },
-    InputPoint  = Point.new(0, -1),
-    OutputPoint = Point.new(0,  1),
 }
 ---@type PumpBase
-PumpBase = BuildingStorageLinksBase:extend(PumpBase)
+PumpBase = BuildingFireWallBase:extend(PumpBase)
 
 ---@param id integer #
 ---@param type string #
@@ -38,16 +36,20 @@ PumpBase = BuildingStorageLinksBase:extend(PumpBase)
 ---@return PumpBase
 function PumpBase.new(id, type, callbackRemove, fireWall)
     Logging.LogInformation("PumpBase.new %d, %s", id, callbackRemove)
-    ---@type PumpSettingsItem
-    local settings = BuildingSettings.GetSettingsByType(type) or error("PumpBase Settings not found", 666) or { }
-
     ---@type PumpBase
-    local instance = PumpBase:make(id, type, callbackRemove, nil, nil, settings.UpdatePeriod, fireWall)
-    instance.Settings = settings
-    instance.InputPoint = settings.InputPoint or instance.InputPoint
-    instance.OutputPoint = settings.OutputPoint or instance.OutputPoint
-    instance:UpdateLogic()
+    local instance = PumpBase:make(id, type, callbackRemove, fireWall)
     return instance
+end
+
+---@param id integer #
+---@param type string #
+---@param callbackRemove fun() #
+---@param fireWall FireWall #
+function PumpBase:initialize(id, type, callbackRemove, fireWall)
+    BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
+    self.InputPoint = self._settings.InputPoint
+    self.OutputPoint = self._settings.OutputPoint
+    self:UpdateGroup()
 end
 
 --- func desc
@@ -68,18 +70,20 @@ function PumpBase:UpdateLogic(editType, oldValue)
 end
 
 function PumpBase:OnTimerCallback()
-    if (self.FireWall:Skip(self.Id)) then
+    if (self._fireWall:Skip(self.Id)) then
         return
     end
     -- Logging.LogInformation("PumpBase:OnTimerCallback \"%s\" (%s) R:%s", self.Name, self.Location, self.Rotation)
     local location = self.Location
     local inputRotate = Point.Rotate(self.InputPoint, self.Rotation)
-    local inputPoint = Point.new(location.X + inputRotate.X, location.Y + inputRotate.Y)
+    ---@type Point
+    local inputPoint = location + inputRotate
     local outputRotate = Point.Rotate(self.OutputPoint, self.Rotation)
-    local outputPoint =  Point.new(location.X + outputRotate.X, location.Y + outputRotate.Y)
+    ---@type Point
+    local outputPoint =  location + outputRotate
 
-    local storageInputId = GetStorageIdOnTile(inputPoint.X, inputPoint.Y)
-    local storageOutputId = GetStorageIdOnTile(outputPoint.X, outputPoint.Y)
+    local storageInputId = Utils.GetStorage(inputPoint)
+    local storageOutputId = Utils.GetStorage(outputPoint)
 
     if (storageInputId == nil or storageOutputId == nil) then
         return
@@ -102,11 +106,11 @@ function PumpBase:OnTimerCallback()
         return
     end
 
-    if (self.Settings.LogicType == "Transfer") then
+    if (self._settings.LogicType == "Transfer") then
         self:TransferLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
-    elseif (self.Settings.LogicType == "Overflow") then
+    elseif (self._settings.LogicType == "Overflow") then
         self:OwerflowLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
-    elseif (self.Settings.LogicType == "Balancer") then
+    elseif (self._settings.LogicType == "Balancer") then
         self:BalancerLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
     end
 end
@@ -126,7 +130,7 @@ function PumpBase:TransferLogic(storageInputId, storageInputInfo, storageOutputI
     if (canQuatityTransfer <= 0) then
         return
     end
-    local transferLimit = math.ceil( math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self.Settings.MaxTransferPercentOneTime / 100) )
+    local transferLimit = math.ceil( math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self._settings.MaxTransferPercentOneTime / 100) )
     canQuatityTransfer = math.min(canQuatityTransfer, transferLimit)
     canQuatityTransfer = math.max(1, canQuatityTransfer)
 
@@ -141,8 +145,9 @@ end
 function PumpBase:OwerflowLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
     Logging.LogDebug("PumpBase:OwerflowLogic")
     local freeSpace = StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT)
-    Logging.LogDebug("PumpBase:OwerflowLogic freeSpace:%d", freeSpace)
-    if(StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT) > 0) then
+    local limitFreeSpace = math.ceil(storageInputInfo.Capacity * 0.05) + 1
+    Logging.LogDebug("PumpBase:OwerflowLogic freeSpace: %d", freeSpace)
+    if(StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT) > limitFreeSpace) then
         return
     end
 
@@ -155,7 +160,7 @@ function PumpBase:OwerflowLogic(storageInputId, storageInputInfo, storageOutputI
     if (canQuatityTransfer <= 0) then
         return
     end
-    local transferLimit = math.ceil( math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self.Settings.MaxTransferPercentOneTime / 100) )
+    local transferLimit =  math.ceil(math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self._settings.MaxTransferPercentOneTime / 100))
     canQuatityTransfer = math.min(canQuatityTransfer, transferLimit)
     canQuatityTransfer = math.max(1, canQuatityTransfer)
 
@@ -209,7 +214,7 @@ function PumpBase:BalancerLogic(storageInputId, storageInputInfo, storageOutputI
     if (canQuatityTransfer <= 0) then
         return
     end
-    local transferLimit = math.ceil( math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self.Settings.MaxTransferPercentOneTime / 100) )
+    local transferLimit = math.ceil( math.min(storageInputInfo.Capacity, storageOutputInfo.Capacity) * (self._settings.MaxTransferPercentOneTime / 100) )
     canQuatityTransfer = math.min(canQuatityTransfer, transferLimit)
     canQuatityTransfer = math.max(1, canQuatityTransfer)
 

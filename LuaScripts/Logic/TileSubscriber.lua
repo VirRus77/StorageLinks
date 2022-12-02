@@ -15,7 +15,7 @@ TileSubscriber = {
 TileSubscriber = Object:extend(TileSubscriber)
 
 --- func desc
----@alias TileController_CallbackArgs { Point :Point, Storage :{ Add: integer[], Remove: integer[] }, Buildings :{ Add: integer[], Remove: integer[] } }
+---@alias TileController_CallbackArgs { Point :Point, Storage :ChangesItem|nil, Buildings :ChangesItem|nil }
 ---@param id integer
 ---@param location Point
 ---@param inspectingTypes string[]
