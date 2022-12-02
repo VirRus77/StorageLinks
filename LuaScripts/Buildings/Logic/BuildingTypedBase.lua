@@ -14,7 +14,7 @@ BuildingTypedBase = BuildingBase:extend(BuildingTypedBase)
 
 ---@param id integer #
 ---@param uniqType string # Building uniq type
----@param callbackRemove fun() #
+---@param callbackRemove fun(value :BuildingBase) #
 ---@return BuildingTypedBase
 function BuildingTypedBase.new(id, uniqType, callbackRemove)
     ---@type BuildingTypedBase

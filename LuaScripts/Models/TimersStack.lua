@@ -61,6 +61,11 @@ end
 
 ---@param key string # TimerId
 function TimersStack:RemoveTimer(key)
+    if (self._timers[key] == nil) then
+        Logging.LogWarning("TimersStack:RemoveTimer timer not exist %s", key)
+        return
+    end
+
     self._timers[key] = nil
 end
 

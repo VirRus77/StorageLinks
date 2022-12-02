@@ -57,6 +57,7 @@ end
 -- end
 
 function Magnet:OnTimerCallback()
+    BuildingFireWallBase.OnTimerCallback(self)
     --Logging.LogDebug("Magnet:OnTimerCallback self.FireWall %s", self.FireWall)
     if (self._fireWall:Skip(self.Id)) then
         return

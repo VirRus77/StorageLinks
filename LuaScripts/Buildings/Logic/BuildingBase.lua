@@ -9,8 +9,8 @@ Author: Sotin NU aka VirRus77
 ---@field SupportTypes SupportTypesItem[]
 SupportTypesBase = { }
 
----@class BuildingBase :Object
----@field _callbackRemove fun()
+---@class BuildingBase :Object, SupportTypesBase
+---@field _callbackRemove fun(value :BuildingBase)
 ---@field Id integer
 ---@field Location Point
 ---@field Rotation integer
@@ -27,7 +27,7 @@ BuildingBase = {
 BuildingBase = Object:extend(BuildingBase)
 
 ---@param id integer #
----@param callbackRemove fun() #
+---@param callbackRemove fun(value :BuildingBase) #
 ---@return BuildingBase
 function BuildingBase.new(id, callbackRemove)
     ---@type BuildingBase
@@ -35,6 +35,8 @@ function BuildingBase.new(id, callbackRemove)
     return instance
 end
 
+---@param id integer #
+---@param callbackRemove fun(value :BuildingBase) #
 function BuildingBase:initialize(id, callbackRemove)
     Logging.LogDebug("BuildingBase:initialize %d", id)
     local objectProperties = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(id))
@@ -45,7 +47,7 @@ function BuildingBase:initialize(id, callbackRemove)
     self.Rotation = ModBuilding.GetRotation(id)
     self.Name = objectProperties.Name
     self._callbackRemove = callbackRemove
-    Logging.LogInformation("BuildingBase:initialize Id: %d, Location: %d, CallbackRemove: %s, Rotation: %d", id, self.Location, callbackRemove, self.Rotation)
+    Logging.LogInformation("BuildingBase:initialize Id: %d, Location: %s, CallbackRemove: %s, Rotation: %d", id, self.Location, callbackRemove, self.Rotation)
 
     ModBuilding.RegisterForBuildingEditedCallback(id, function (buildingUID, editType, newValue) self:OnEditedCallback(buildingUID, editType, newValue); end)
     ModBuilding.RegisterForBuildingStateChangedCallback(id, function (buildingUID, newState) self:OnStateChangedCallback(buildingUID, newState); end )
@@ -107,4 +109,5 @@ end
 function BuildingBase:OnDestroy(newValue)
     Logging.LogDebug("BuildingBase:OnDestroy %d %s %s", self.Id, self.Name, newValue)
     ModBuilding.UnregisterForBuildingEditedCallback(self.Id)
+    self._callbackRemove(self)
 end

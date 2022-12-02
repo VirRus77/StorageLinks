@@ -107,19 +107,21 @@ end
 
 ---@param oldBuilding BuildingStorageLinksBase
 function BuildingController:Remove(oldBuilding)
-    Logging.LogDebug("BuildingController.Remove")
+    Logging.LogDebug("BuildingController.Remove %d \"%s\"", oldBuilding.Id, oldBuilding.Name)
     local buildingId = oldBuilding.Id
     if (self.Buildings[buildingId] == nil) then
-        Logging.LogError("BuildingController not contains %d", oldBuilding.Id)
+        Logging.LogError("BuildingController.Remove not contains %d", oldBuilding.Id)
         return
     end
 
     self.Buildings[buildingId] = nil
     local timerId = self.Timers[buildingId]
-    if (timerId ~= nil) then
-        self._timersStack:RemoveTimer(timerId)
-        self.Timers[buildingId] = nil
+    if (timerId == nil) then
+        Logging.LogWarning("BuildingController.Remove not contains timer %d \"%s\"", oldBuilding.Id, oldBuilding.Name)
+        return
     end
+    self._timersStack:RemoveTimer(timerId)
+    self.Timers[buildingId] = nil
 end
 
 ---@protected

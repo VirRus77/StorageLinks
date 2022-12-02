@@ -25,6 +25,15 @@
                 "steam://rungameid/979120"
             ],
             "dependsOn": [ "Publish" ]
+        },
+        {
+            "label": "Run AvsP",
+            "type": "shell",
+            "command": "start",
+            "args": [
+                "steam://rungameid/1907720"
+            ],
+            "dependsOn": [ "Publish" ]
         }
     ]
 }
