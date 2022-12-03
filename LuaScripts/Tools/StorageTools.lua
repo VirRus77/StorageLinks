@@ -16,22 +16,49 @@ StorageTools = {}
 ---@param count integer # Count transfer.
 function StorageTools.TransferItems(storesType, storageSourceId, storageSourceInfo, storageDestId, storageDestInfo, count)
     Logging.LogDebug("StorageTools.TransferItems")
+    if (count <= 0) then
+        Logging.LogWarning("StorageTools.TransferItems count: %d exit.", count)
+    end
     local isDurability = Tools.IsDurability(HASH_TABLES.Durability, storesType)
     Logging.LogDebug("StorageTools.TransferItems %d == %d x %s ==> %d", storageSourceId, count, storesType, storageDestId)
-    Logging.LogDebug("StorageTools.TransferItems storageSourceInfo\n%s", storageSourceInfo)
-    Logging.LogDebug("StorageTools.TransferItems storageDestInfo\n%s", storageDestInfo)
+    Logging.LogDebug(
+        "StorageTools.TransferItems storageSourceInfo \"%s\" (%s)\n%s",
+        Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(storageSourceId)).Name,
+        Point.new(table.unpack(ModObject.GetObjectTileCoord(storageSourceId))),
+        storageSourceInfo
+    )
+    Logging.LogDebug(
+        "StorageTools.TransferItems storageDestInfo \"%s\" (%s)\n%s",
+        Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(storageDestId)).Name,
+        Point.new(table.unpack(ModObject.GetObjectTileCoord(storageDestId))),
+        storageDestInfo
+    )
     if (not isDurability) then
         local sourceAmount = storageSourceInfo.AmountStored - count
+        Logging.LogTrace("StorageTools.TransferItems Source %d => %d", storageSourceInfo.AmountStored, sourceAmount)
         if (not ModStorage.SetStorageQuantityStored(storageSourceId, sourceAmount)) then
-            Logging.LogError("StorageTools.TransferItems not change Sourve storage amount [%d] %s => %s\nstorageSourceInfo = %s", storageSourceId, Logging.ValueType(storageSourceInfo.AmountStored),  Logging.ValueType(sourceAmount), storageSourceInfo)
+            Logging.LogError(
+                "StorageTools.TransferItems not change Sourve storage amount [%d] %s => %s\nstorageSourceInfo = %s",
+                storageSourceId,
+                Logging.ValueType(storageSourceInfo.AmountStored),
+                Logging.ValueType(sourceAmount),
+                storageSourceInfo
+            )
         end
         storageSourceInfo.AmountStored = sourceAmount
 
         local destinationAmount = storageDestInfo.AmountStored + count
+        Logging.LogTrace("StorageTools.TransferItems Destination %d => %d", storageDestInfo.AmountStored, destinationAmount)
         if (not ModStorage.SetStorageQuantityStored(storageDestId, destinationAmount)) then
-            Logging.LogError("StorageTools.TransferItems not change Destination storage amount [%d] %d => %d\nstorageSourceInfo = %s", storageDestId, storageDestInfo.AmountStored, destinationAmount, storageDestInfo)
+            Logging.LogError(
+                "StorageTools.TransferItems not change Destination storage amount [%d] %d => %d\nstorageSourceInfo = %s",
+                storageDestId,
+                storageDestInfo.AmountStored,
+                destinationAmount,
+                storageDestInfo
+            )
         end
-        storageSourceInfo.AmountStored = destinationAmount
+        storageDestInfo.AmountStored = destinationAmount
         return
     end
 
@@ -183,6 +210,7 @@ function StorageTools.AddItemToStorage(storageId, itemId)
 
     -- still valid?
     if ModObject.IsValidObjectUID(itemId) then
+        Logging.LogError("StorageTools.AddItemToStorage Remove Item [%d] %d%d", storageId, itemId)
         ModObject.DestroyObject(itemId)
     end -- make sure!
 end

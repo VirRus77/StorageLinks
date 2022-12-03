@@ -1,4 +1,4 @@
-Logging.SetMinimalLevel(LogLevel.Error)
+Logging.SetMinimalLevel(LogLevel.Warning)
 
 VERSION_WITH_CLASSMETHODCHECK_FUNCTION = "137.15" -- dev version. Update before uploading to steam!!
 
