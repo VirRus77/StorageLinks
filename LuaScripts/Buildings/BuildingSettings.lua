@@ -4,7 +4,10 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@alias SettingPeriod { UpdatePeriod :number }
+---@class SettingPeriod
+---@field UpdatePeriod number
+SettingPeriod = {}
+
 ---@generic T :SettingPeriod
 ---@class BuildingSettingItem<T>
 ---@field Type ReferenceValue<string>

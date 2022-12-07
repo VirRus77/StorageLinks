@@ -52,6 +52,7 @@ Buildings/Logic/BasicExtractor.lua
 Buildings/Logic/Magnet.lua
 Buildings/Logic/PumpBase.lua
 Buildings/Logic/Transmitter.lua
+Buildings/Logic/SwitcherBase.lua
 Buildings/Logic/Switcher.lua
 Buildings/Logic/InspectorBase.lua
 Translates/Translates.lua
