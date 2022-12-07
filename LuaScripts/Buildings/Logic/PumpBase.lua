@@ -52,26 +52,28 @@ function PumpBase:initialize(id, type, callbackRemove, fireWall)
     self:UpdateGroup()
 end
 
---- func desc
----@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
----@param oldValue Point|nil
----@protected
-function PumpBase:UpdateLogic(editType, oldValue)
-    Logging.LogInformation("PumpBase:UpdateLogic %s", editType)
-    if (editType == nil) then
-        self:UpdateGroup()
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
-        self:UpdateGroup()
-        return
-    elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
-        self:RemoveFromFireWall()
-        return
-    end
-end
+-- --- func desc
+-- ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
+-- ---@param oldValue Point|nil
+-- ---@protected
+-- function PumpBase:UpdateLogic(editType, oldValue)
+--     Logging.LogInformation("PumpBase:UpdateLogic %s", editType)
+--     if (editType == nil) then
+--         self:UpdateGroup()
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
+--         self:UpdateGroup()
+--         return
+--     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Destroy) then
+--         self:RemoveFromFireWall()
+--         return
+--     end
+-- end
 
 function PumpBase:OnTimerCallback()
     if (self._fireWall:Skip(self.Id)) then
         return
+    else
+        Logging.LogTrace("PumpBase:OnTimerCallback \"%s\" (%s)\n%s", self.Name, self.Location, self._fireWall)
     end
     -- Logging.LogInformation("PumpBase:OnTimerCallback \"%s\" (%s) R:%s", self.Name, self.Location, self.Rotation)
     local location = self.Location
@@ -93,11 +95,11 @@ function PumpBase:OnTimerCallback()
     local storageOutputInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageOutputId))
     -- Logging.LogDebug("%d %s -> %d %s", storageInputId, inputPoint, storageOutputId, outputPoint)
 
-    if(not storageInputInfo.Successfully) then
+    if (not storageInputInfo.Successfully) then
         Logging.LogWarning("Not read storageInputInfo Id:%d", storageInputId)
         return
     end
-    if(not storageOutputInfo.Successfully) then
+    if (not storageOutputInfo.Successfully) then
         Logging.LogWarning("Not read storageInputInfo Id:%d", storageOutputId)
         return
     end
@@ -145,9 +147,10 @@ end
 function PumpBase:OwerflowLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
     Logging.LogDebug("PumpBase:OwerflowLogic")
     local freeSpace = StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT)
+    -- Full = (5% of MaxCapacity)
     local limitFreeSpace = math.ceil(storageInputInfo.Capacity * 0.05) + 1
     Logging.LogDebug("PumpBase:OwerflowLogic freeSpace: %d", freeSpace)
-    if(StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT) > limitFreeSpace) then
+    if (StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT) > limitFreeSpace) then
         return
     end
 

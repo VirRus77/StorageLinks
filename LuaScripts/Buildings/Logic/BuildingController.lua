@@ -89,7 +89,7 @@ end
 function BuildingController:Add(newBuilding)
     Logging.LogDebug("BuildingController.Add (start)")
     local buildingId = newBuilding.Id
-    if(self.Buildings[buildingId] ~= nil) then
+    if (self.Buildings[buildingId] ~= nil) then
         Logging.LogError("BuildingController contains %d", buildingId)
     end
     self.Buildings[buildingId] = newBuilding

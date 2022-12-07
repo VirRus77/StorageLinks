@@ -45,7 +45,7 @@ end
 --- func desc
 ---@param inspectings string[]|nil
 function TileSubscriber:RemoveInspection(inspectings)
-    if(inspectings == nil) then
+    if (inspectings == nil) then
         self._inspectingsLocation = { }
         return
     end

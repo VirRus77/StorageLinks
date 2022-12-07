@@ -31,7 +31,7 @@ function SerializeTable (val, name, skipnewlines, depth, parentTables)
 
         for k, v in pairs(val) do
             local skip = (type(k) == "string" and k == "__index")
-            if(not skip) then
+            if (not skip) then
                 tmp =  tmp .. SerializeTable (v, k, skipnewlines, depth + 1, parentTables) .. "," .. (not skipnewlines and "\n" or "")
             end
         end

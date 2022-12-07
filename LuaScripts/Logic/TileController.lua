@@ -40,7 +40,7 @@ end
 function TileController:AddInspector(name, funcGetValues, funcGetDelta)
     Logging.LogDebug("TileController:AddInspector \"%s\" \"%s\" \"%s\"", name, funcGetValues, funcGetDelta)
 
-    if(self._inspectingTypes[name] ~= nil) then
+    if (self._inspectingTypes[name] ~= nil) then
         Logging.LogError("TileController:AddInspector %s exist.", name)
         return
     end
@@ -52,7 +52,7 @@ end
 --- func desc
 ---@param name string
 function TileController:RemoveInspector(name)
-    if(self._inspectingTypes[name] ~= nil) then
+    if (self._inspectingTypes[name] ~= nil) then
         Logging.LogError("TileController:AddInspector %s not exist.", name)
         return
     end

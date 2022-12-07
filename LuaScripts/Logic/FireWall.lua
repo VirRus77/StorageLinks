@@ -50,7 +50,7 @@ end
 ---@param groupName string
 ---@param refFlag ReferenceValue<boolean>
 function FireWall:AddSwitcher(id, groupName, refFlag)
-    Logging.LogDebug("FireWall:AddSwitcher [%d] '%s'", id, groupName)
+    Logging.LogDebug("FireWall:AddSwitcher [%d] '%s' ref:%s", id, groupName, tostring(refFlag))
     local idsInGroup = self._filterGroup[groupName]
     if (idsInGroup ~= nil and idsInGroup._switchers[id] ~= nil) then
         Logging.LogWarning("FireWall:AddSwitcher contains item %d %s", id, groupName)

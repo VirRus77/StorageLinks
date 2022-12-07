@@ -84,7 +84,7 @@ end
 --     local amount = 0
 --     local id = providers[1].Id
 --     for _, provider in pairs(providers) do
---         if(provider.Id ~= id)then
+--         if (provider.Id ~= id)then
 --             error("Consumer.Aggregate Id not equals.", 666)
 --         end
 --         amount = amount + provider:Amount()

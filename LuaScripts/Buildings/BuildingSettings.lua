@@ -271,7 +271,7 @@ BuildingSettings = {
 ---@return table|nil
 function BuildingSettings.GetSettingsByType(buildingType)
     for _, settings in pairs(BuildingSettings) do
-        if(type(settings) ~= "function") then
+        if (type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
             for _, settingByType in ipairs(settings) do
                 if (settingByType.Type.Value == buildingType)then
@@ -290,7 +290,7 @@ end
 ---@return table|nil
 function BuildingSettings.GetSettingsByReferenceType(buildingType)
     for _, settings in pairs(BuildingSettings) do
-        if(type(settings) ~= "function") then
+        if (type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
             for _, settingByType in ipairs(settings) do
                 if (settingByType.Type.Value == buildingType.Type.Value)then

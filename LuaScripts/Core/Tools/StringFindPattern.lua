@@ -96,7 +96,7 @@ end
 function StringFindPattern:AddChild(findPattern)
     ---@type StringFindPattern
     local pattern
-    if(type(findPattern) == "string")then
+    if (type(findPattern) == "string")then
         pattern = StringFindPattern.new(findPattern)
     else
         pattern = findPattern

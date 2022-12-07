@@ -129,12 +129,12 @@ end
 --- func desc
 ---@param removeFromFirewall boolean|nil
 function InspectorBase:RemoveLink(removeFromFirewall)
-    -- if(self.LinkedSymbolId ~= nil)then
+    -- if (self.LinkedSymbolId ~= nil)then
     --     ModObject.DestroyObject(self.LinkedSymbolId)
     --     self.LinkedSymbolId = nil
     -- end
     if (removeFromFirewall) then
-        if(self._groupName ~= nil) then
+        if (self._groupName ~= nil) then
             self.FireWall:RemoveSwitcher(self.Id, self._groupName)
         end
     end

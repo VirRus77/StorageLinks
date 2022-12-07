@@ -170,7 +170,7 @@ end
 ---@param removedItems table<integer, string>
 function Transmitter:RemoveLink(removedItems)
     for key, value in pairs(removedItems) do
-        if(self._acccessType == "Transmitter")then
+        if (self._acccessType == "Transmitter")then
             VIRTUAL_NETWORK:RemoveProvider(value)
         else
             VIRTUAL_NETWORK:RemoveConsumer(value)

@@ -119,6 +119,7 @@ function Creation()
     Converters.CreateAll()
     CACHE_ITEM_INFO:Clear()
 
+    ModObject.AddMaterialsToCache("Materials")
     -- Buildings:UpdateTypeByUniq()
     -- Decoratives:UpdateTypeByUniq()
     -- Converters:UpdateTypeByUniq()
@@ -128,7 +129,7 @@ function Creation()
     -- ModObject.AddMaterialsToCache("Material")
 
 
-    -- if(not INIT_MATERIALS) then
+    -- if (not INIT_MATERIALS) then
     --     ModObject.AddMaterialsToCache("Switch")
     --     INIT_MATERIALS = true
     -- end
@@ -235,7 +236,7 @@ function OnUpdate(timeDelta)
     OBJECTS_IN_FLIGHT:Check()
 
     if (not Settings.DebugMode.Value) then
-        if(ModBase.GetGameState() == "Normal") then
+        if (ModBase.GetGameState() == "Normal") then
             TIMERS_STACK:AppendDelta(timeDelta)
         end
     end

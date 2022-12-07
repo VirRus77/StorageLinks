@@ -138,10 +138,10 @@ function Tools.GetAllBuilding(location)
         typeSubType,
         function (value)
             local skipValues = Tools.BuildingsFilter[value.Category]
-            if(skipValues == nil) then
+            if (skipValues == nil) then
                 return false
             end
-            if(skipValues.Skip ~= nil and skipValues.Skip[value.Subcategory] == true) then
+            if (skipValues.Skip ~= nil and skipValues.Skip[value.Subcategory] == true) then
                 return false
             end
 
@@ -154,7 +154,7 @@ function Tools.GetAllBuilding(location)
     local storages = Tools.Where(typeSubType, function (value) return value["Subcategory"] == SubCategory.BuildingsStorage end)
     if (#storages > 0) then
         local storageId = Tools.GetBuilding(location)
-        if(storageId ~= nil) then
+        if (storageId ~= nil) then
             -- Get last storage
             buildingIds[#buildingIds + 1] = storageId
         end
@@ -163,7 +163,7 @@ function Tools.GetAllBuilding(location)
 
     -- Hidden
     local hidens = Tools.Where(typeSubType, function (value) return value["Category"] == "Hidden" end)
-    if(#hidens > 0) then
+    if (#hidens > 0) then
         for _, value in pairs(hidens) do
             buildingIds[#buildingIds + 1] = value["Id"]
         end
@@ -279,7 +279,7 @@ end
 ---@param invert boolean|nil
 function Tools.Compare(a, b, invert)
     local result = (a < b)
-    if(invert) then
+    if (invert) then
         return not result
     end
     return result

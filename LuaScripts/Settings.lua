@@ -27,7 +27,7 @@ function Settings:ExposedVariableCallbackSelf(value, name)
     --     name = name,
     --     Settings = self
     -- }))
-    if(self.DebugMode.Name == name) then
+    if (self.DebugMode.Name == name) then
         self.DebugMode.Value = value
     end
     if (self.ReplaceOldBuildings.Name == name) then

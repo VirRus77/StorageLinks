@@ -38,7 +38,7 @@ function StorageConsumer:Update()
         self._updated = true
         return
     end
-    if(self.Type ~= storageInfo.TypeStores) then
+    if (self.Type ~= storageInfo.TypeStores) then
         Logging.LogWarning("StorageConsumer:Update change Type %s ==> %s", self.Type, storageInfo.TypeStores)
         self.Type = storageInfo.TypeStores
     end

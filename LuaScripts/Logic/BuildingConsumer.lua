@@ -126,7 +126,7 @@ end
 function BuildingConsumer.MakeRequirements(author, id, list, requireType, bandwidth, sortToBig, takeFirst)
     ---@type RequireItem[]
     local result = { }
-    if(list == nil) then
+    if (list == nil) then
         return result
     end
     if (sortToBig ~= nil) then
@@ -177,7 +177,7 @@ function BuildingConsumer.MakeRequirements(author, id, list, requireType, bandwi
                 break
             end
             local item = addElement(value)
-            if(item ~= nil)then
+            if (item ~= nil)then
                 result[#result + 1] = item
             end
         end

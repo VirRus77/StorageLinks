@@ -24,7 +24,7 @@ function StringFormat.UnpackStringFormat(stringFormat, ...)
         elseif (type(value) == "function") then
             cahngedParamsStringFormat[i] = string.format("[%s]", tostring(value))
         elseif (type(value) == "table") then
-            if(value.__tostring ~= nil) then
+            if (value.__tostring ~= nil) then
                 -- ModDebug.Log("value.__tostring [", i, "]")
                 cahngedParamsStringFormat[i] = value:__tostring()
             elseif (value.meta ~= nil and value.meta.__tostring ~= nil) then
@@ -70,11 +70,11 @@ function StringFormat.ValidateSringFormat(stringFormat, ...)
     for i = 1, argsCount, 1 do
         local value = select(i, ...)
         local type = type(value)
-        if(patterns[i] == "s" and type ~= "string") then
+        if (patterns[i] == "s" and type ~= "string") then
             return string.format("Error string format. %d[%%s] have type(%s)", i, type) .. " argument \'" .. stringFormat .. "\'"
-        elseif(patterns[i] == "d" and type ~= "number") then
+        elseif (patterns[i] == "d" and type ~= "number") then
             return string.format("Error number format. %d[%%d] have type(%s)", i, type) .. " argument \'" .. stringFormat .. "\'"
-        elseif(patterns[i] == "f" and type ~= "number") then
+        elseif (patterns[i] == "f" and type ~= "number") then
             return string.format("Error number format. %d[%%f] have type(%s)", i, type) .. " argument \'" .. stringFormat .. "\'"
         end
     end

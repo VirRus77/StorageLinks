@@ -164,7 +164,7 @@ function Magnet:GetPositionAreaByName()
     local height = self.WorkArea:Height()
 
     local found = findPattern:Find(self.Name, 1)
-    if(found == nil or #found ~= 2)then
+    if (found == nil or #found ~= 2)then
         return nil
     end
     if (found ~= nil and #found == 2) then

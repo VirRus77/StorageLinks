@@ -57,9 +57,15 @@ function BasicExtractor:OnTimerCallback()
     if (storageId == nil)then
         return
     end
+
     local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
+    -- Unreadable if the stored type is not set.
+    if (not storageInfo.Successfully) then
+        return
+    end
+
     local amount = storageInfo.AmountStored
-    if(amount <= 0) then
+    if (amount <= 0) then
         return
     end
 

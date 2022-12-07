@@ -203,7 +203,7 @@ function BuildingStorageLinksBase:GetGroupName()
     local findPattern = StringFindPattern.new("%[[^[]+%]")
         :AfterFind(function (value) return string.sub(value, 2, string.len(value) - 1) end)
     local found = findPattern:Find(self.Name, 1)
-    if(found == nil or #found ~= 1 or string.len(found[1]) == 0) then
+    if (found == nil or #found ~= 1 or string.len(found[1]) == 0) then
         return nil
     end
     return found[1]
@@ -228,7 +228,7 @@ function BuildingStorageLinksBase:UpdateGroup()
 end
 
 function BuildingStorageLinksBase:RemoveFromFireWall()
-    if(self._groupName ~= nil) then
+    if (self._groupName ~= nil) then
         self.FireWall:Remove(self.Id)
     end
 end

@@ -101,10 +101,10 @@ function Utils.GetAllSupportBuildings(location)
         function (key, value)
             -- Logging.LogDebug("Utils.GetAllSupportBuildings value.Category: %s", value.Category)
             local skipValues = Utils.BuildingsFilter[value.Category]
-            if(skipValues == nil) then
+            if (skipValues == nil) then
                 return false
             end
-            if(skipValues.Skip ~= nil and skipValues.Skip[value.Subcategory] == true) then
+            if (skipValues.Skip ~= nil and skipValues.Skip[value.Subcategory] == true) then
                 return false
             end
 
@@ -130,7 +130,7 @@ function Utils.GetAllSupportBuildings(location)
         -- Get single last storage
         -- buildingIds[#buildingIds + 1] = storages[#storages].Id
         local storageId = Tools.GetBuilding(location)
-        if(storageId ~= nil) then
+        if (storageId ~= nil) then
            -- Get single storage
            buildingIds[#buildingIds + 1] = storageId
         end
@@ -139,7 +139,7 @@ function Utils.GetAllSupportBuildings(location)
 
     -- Hidden
     local hidens = Tools.Where(typeSubType, function (value) return value.Category == "Hidden" end)
-    if(#hidens > 0) then
+    if (#hidens > 0) then
         for _, value in pairs(hidens) do
             buildingIds[#buildingIds + 1] = value.Id
             -- Single

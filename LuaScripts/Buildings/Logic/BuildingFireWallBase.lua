@@ -35,7 +35,8 @@ end
 function BuildingFireWallBase:initialize(id, uniqType, callbackRemove, fireWall)
     BuildingTypedBase.initialize(self, id, uniqType, callbackRemove)
     self._fireWall = fireWall
-    -- self:OnRename(self.Name)
+    -- Each successor must call itself at the end of its initialization.
+    -- self:UpdateGroup()
 end
 
 --- func desc

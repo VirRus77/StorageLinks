@@ -156,7 +156,7 @@ function MakeDevelopMap:Make()
     local maxX = startPoint.X + self.Width
     local canDrop = {}
     for key, value in pairs(TilesMap) do
-        if(type(value) ~= "function")then
+        if (type(value) ~= "function")then
             ModTiles.SetTile(currentPoint.X, currentPoint.Y, value)
             canDrop[value] = ModBase.SpawnItem("Rock", currentPoint.X, currentPoint.Y) ~= -1
             currentPoint.X = currentPoint.X + 1
@@ -176,19 +176,18 @@ DiscoveredAllMap = {
 
 function DiscoveredAllMap:Go()
     local location = Point.new(table.unpack(ModPlayer.GetLocation()))
-    if(location.X == -1 or location.Y == -1) then
+    if (location.X == -1 or location.Y == -1) then
         Logging.LogDebug("DiscoveredAllMap player not found.") 
         return
     end
     local discoveredArea = Area.new(0, 0, 10, 12)
     local newLocation = Point.new(5, 6)
-    local x = 0
     for x = 5, WORLD_LIMITS.Width, discoveredArea:Width() do
         for y = 6, WORLD_LIMITS.Height, discoveredArea:Height() do
             ModPlayer.SetStartLocation(x, y)
-            local newLocation = Point.new(table.unpack(ModPlayer.GetLocation()))
+            newLocation = Point.new(table.unpack(ModPlayer.GetLocation()))
             Logging.LogDebug("Teleprt %d:%d %s", x, y, newLocation)
-            if(newLocation.X == x and newLocation.Y == y) then
+            if (newLocation.X == x and newLocation.Y == y) then
                 return
             end
         end

@@ -93,7 +93,7 @@ function StorageTools.TransferFuel(storesType, storageSourceId, storageSourceInf
 
     if (not ModBuilding.AddFuel(destinationId, fuelAmount * count)) then
         Logging.LogDebug("StorageTools.TransferFuel. Fuel not added. [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
-        if(not ModConverter.AddFuelToSpecifiedConverter(destinationId, fuelAmount * count)) then
+        if (not ModConverter.AddFuelToSpecifiedConverter(destinationId, fuelAmount * count)) then
             Logging.LogWarning("StorageTools.AddFuelToSpecifiedConverter. Fuel not added. [%d] ==(%d x %s)==> [%d]", storageSourceId, count, storesType, destinationId)
             return
         end
@@ -137,7 +137,7 @@ function StorageTools.TransferIngredient(storesType, storageSourceId, storageSou
 
     local countAdded = 0
     for i = 1, count, 1 do
-        if(not ModConverter.AddIngredientToSpecifiedConverter(destinationId, storesType)) then
+        if (not ModConverter.AddIngredientToSpecifiedConverter(destinationId, storesType)) then
             Logging.LogWarning("StorageTools.TransferIngredient not added: [%d] %d x %s", destinationId, count - countAdded, storesType)
             break
         end
@@ -186,7 +186,7 @@ function StorageTools.TransferHeart(storesType, storageSourceId, storageSourceIn
     --         local changed = false
     --         for key, value in pairs(heartAmountsBefore) do
     --             changed = changed or (heartAmountsAfter[key] == nil)
-    --             if(not changed) then
+    --             if (not changed) then
     --                 changed = heartAmountsAfter[key].AmountStored ~= value.AmountStored
     --             end
     --         end
@@ -262,7 +262,7 @@ function StorageTools.AddItemToStorage(storageId, itemId)
 
     -- still valid?
     if ModObject.IsValidObjectUID(itemId) then
-        Logging.LogError("StorageTools.AddItemToStorage Remove Item [%d] %d%d", storageId, itemId)
+        Logging.LogWarning("StorageTools.AddItemToStorage Remove Item [%d] %d", storageId, itemId)
         ModObject.DestroyObject(itemId)
     end -- make sure!
 end
@@ -271,7 +271,7 @@ function StorageTools.ExtractItemFromStorage(storageId, itemType, location)
     --Logging.LogDebug("ExtractItemFromStorage storageId:%d itemType:%s location:%s", storageId, itemType, location)
     local itemId = -1
     local freshUIDs = ModStorage.RemoveFromStorage(storageId, 1, location.X, location.Y)
-    if(freshUIDs == nil or #freshUIDs == 0) then
+    if (freshUIDs == nil or #freshUIDs == 0) then
         return itemId
     end
     itemId = freshUIDs[1]
