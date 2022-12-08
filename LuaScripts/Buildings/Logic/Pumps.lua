@@ -4,12 +4,12 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class PumpBase :BuildingFireWallBase #
+---@class Pumps :BuildingFireWallBase #
 ---@field WorkArea Area #
 ---@field InputPoint Point # Direction default rotation
 ---@field OutputPoint Point # Direction default rotation
 ---@field _settings PumpSettingsItem # Settings
-PumpBase = {
+Pumps = {
     SupportTypes = {
         Buildings.PumpCrude,
         Buildings.PumpGood,
@@ -26,18 +26,18 @@ PumpBase = {
         Buildings.BalancerSuperLong,
     },
 }
----@type PumpBase
-PumpBase = BuildingFireWallBase:extend(PumpBase)
+---@type Pumps
+Pumps = BuildingFireWallBase:extend(Pumps)
 
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
 ---@param fireWall FireWall #
----@return PumpBase
-function PumpBase.new(id, type, callbackRemove, fireWall)
-    Logging.LogInformation("PumpBase.new %d, %s", id, callbackRemove)
-    ---@type PumpBase
-    local instance = PumpBase:make(id, type, callbackRemove, fireWall)
+---@return Pumps
+function Pumps.new(id, type, callbackRemove, fireWall)
+    Logging.LogInformation("Pumps.new %d, %s", id, callbackRemove)
+    ---@type Pumps
+    local instance = Pumps:make(id, type, callbackRemove, fireWall)
     return instance
 end
 
@@ -45,7 +45,7 @@ end
 ---@param type string #
 ---@param callbackRemove fun() #
 ---@param fireWall FireWall #
-function PumpBase:initialize(id, type, callbackRemove, fireWall)
+function Pumps:initialize(id, type, callbackRemove, fireWall)
     BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
     self.InputPoint = self._settings.InputPoint
     self.OutputPoint = self._settings.OutputPoint
@@ -56,8 +56,8 @@ end
 -- ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
 -- ---@param oldValue Point|nil
 -- ---@protected
--- function PumpBase:UpdateLogic(editType, oldValue)
---     Logging.LogInformation("PumpBase:UpdateLogic %s", editType)
+-- function Pumps:UpdateLogic(editType, oldValue)
+--     Logging.LogInformation("Pumps:UpdateLogic %s", editType)
 --     if (editType == nil) then
 --         self:UpdateGroup()
 --     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
@@ -69,13 +69,13 @@ end
 --     end
 -- end
 
-function PumpBase:OnTimerCallback()
+function Pumps:OnTimerCallback()
     if (self._fireWall:Skip(self.Id)) then
         return
     else
-        Logging.LogTrace("PumpBase:OnTimerCallback \"%s\" (%s)\n%s", self.Name, self.Location, self._fireWall)
+        Logging.LogTrace("Pumps:OnTimerCallback \"%s\" (%s)\n%s", self.Name, self.Location, self._fireWall)
     end
-    -- Logging.LogInformation("PumpBase:OnTimerCallback \"%s\" (%s) R:%s", self.Name, self.Location, self.Rotation)
+    -- Logging.LogInformation("Pumps:OnTimerCallback \"%s\" (%s) R:%s", self.Name, self.Location, self.Rotation)
     local location = self.Location
     local inputRotate = Point.Rotate(self.InputPoint, self.Rotation)
     ---@type Point
@@ -122,7 +122,7 @@ end
 ---@param storageInputInfo UnpackStorageInfo
 ---@param storageOutputId integer
 ---@param storageOutputInfo UnpackStorageInfo
-function PumpBase:TransferLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
+function Pumps:TransferLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
     local canQuatityTransfer = math.min(
         -- Free space destination
         StorageTools.GetFreeSpace(storageOutputId, storageOutputInfo, OBJECTS_IN_FLIGHT),
@@ -144,12 +144,12 @@ end
 ---@param storageInputInfo UnpackStorageInfo
 ---@param storageOutputId integer
 ---@param storageOutputInfo UnpackStorageInfo
-function PumpBase:OwerflowLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
-    Logging.LogDebug("PumpBase:OwerflowLogic")
+function Pumps:OwerflowLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
+    Logging.LogDebug("Pumps:OwerflowLogic")
     local freeSpace = StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT)
     -- Full = (5% of MaxCapacity)
     local limitFreeSpace = math.ceil(storageInputInfo.Capacity * 0.05) + 1
-    Logging.LogDebug("PumpBase:OwerflowLogic freeSpace: %d", freeSpace)
+    Logging.LogDebug("Pumps:OwerflowLogic freeSpace: %d", freeSpace)
     if (StorageTools.GetFreeSpace(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT) > limitFreeSpace) then
         return
     end
@@ -175,13 +175,13 @@ end
 ---@param storageInputInfo UnpackStorageInfo
 ---@param storageOutputId integer
 ---@param storageOutputInfo UnpackStorageInfo
-function PumpBase:BalancerLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
-    -- Logging.LogDebug("PumpBase:BalancerLogic")
+function Pumps:BalancerLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
+    -- Logging.LogDebug("Pumps:BalancerLogic")
     local inputAmount = StorageTools.GetAmount(storageInputId, storageInputInfo, OBJECTS_IN_FLIGHT)
     local outputAmount = StorageTools.GetAmount(storageOutputId, storageOutputInfo, OBJECTS_IN_FLIGHT)
     local averageAmount = math.floor((inputAmount + outputAmount) / 2)
 
-    -- Logging.LogDebug("PumpBase:BalancerLogic inputAmount: %d outputAmount: %d averageAmount: %d", inputAmount, outputAmount, averageAmount)
+    -- Logging.LogDebug("Pumps:BalancerLogic inputAmount: %d outputAmount: %d averageAmount: %d", inputAmount, outputAmount, averageAmount)
 
     if (inputAmount == averageAmount or outputAmount == averageAmount) then
         return
@@ -212,7 +212,7 @@ function PumpBase:BalancerLogic(storageInputId, storageInputInfo, storageOutputI
         -- Request transfer
         needTransfer
     )
-    -- Logging.LogDebug("PumpBase:BalancerLogic needTransfer: %d canQuatityTransfer: %d", needTransfer, canQuatityTransfer)
+    -- Logging.LogDebug("Pumps:BalancerLogic needTransfer: %d canQuatityTransfer: %d", needTransfer, canQuatityTransfer)
 
     if (canQuatityTransfer <= 0) then
         return

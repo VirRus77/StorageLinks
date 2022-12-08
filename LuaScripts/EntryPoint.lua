@@ -209,12 +209,12 @@ function AfterLoad()
     Converters.UpdateState()
     BuildingsDependencyTree.SwitchAllLockState()
     BUILDING_CONTROLLER:RegistryTypes({
-        BasicExtractor,
+        Extractor,
         Magnet,
-        PumpBase,
+        Pumps,
         Transmitter,
         Switcher,
-        InspectorBase
+        Inspector
     })
 end
 

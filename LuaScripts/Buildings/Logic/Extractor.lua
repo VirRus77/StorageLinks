@@ -4,8 +4,8 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class BasicExtractor :BuildingStorageLinksBase #
-BasicExtractor = {
+---@class Extractor :BuildingStorageLinksBase #
+Extractor = {
     SupportTypes = { Buildings.Extractor },
     OutputPoint = 0,
     InputPoint  = 2,
@@ -13,18 +13,18 @@ BasicExtractor = {
     MinStackLimit = 1,
     MaxStackLimit = 5
 }
----@type BasicExtractor #
-BasicExtractor = BuildingStorageLinksBase:extend(BasicExtractor)
+---@type Extractor #
+Extractor = BuildingStorageLinksBase:extend(Extractor)
 
 --- func desc
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
----@return BasicExtractor
-function BasicExtractor.new(id, type, callbackRemove, fireWall)
-    Logging.LogInformation("BasicExtractor.new %d, %s, %s", id, callbackRemove, fireWall)
-    ---@type BasicExtractor
-    local instance = BasicExtractor:make(id, type, callbackRemove, nil, nil, 1)
+---@return Extractor
+function Extractor.new(id, type, callbackRemove, fireWall)
+    Logging.LogInformation("Extractor.new %d, %s, %s", id, callbackRemove, fireWall)
+    ---@type Extractor
+    local instance = Extractor:make(id, type, callbackRemove, nil, nil, 1)
     instance:UpdateLogic()
     return instance
 end
@@ -33,8 +33,8 @@ end
 ---@param editType BuildingBase.BuildingEditType|nil # nesw = 0123
 ---@param oldValue Point|nil
 ---@protected
-function BasicExtractor:UpdateLogic(editType, oldValue)
-    Logging.LogInformation("BasicExtractor:UpdateLogic %s", editType)
+function Extractor:UpdateLogic(editType, oldValue)
+    Logging.LogInformation("Extractor:UpdateLogic %s", editType)
     if (editType == nil) then
         self:UpdateName()
     elseif (editType == BuildingStorageLinksBase.BuildingEditType.Rename) then
@@ -43,12 +43,12 @@ function BasicExtractor:UpdateLogic(editType, oldValue)
     end
 end
 
-function BasicExtractor:OnTimerCallback()
-    -- Logging.LogDebug("BasicExtractor:OnTimerCallback (%s) R:%d \"%s\" Limit:%d", tostring(self.Location), self.Rotation, self.Name, self.StackLimit)
+function Extractor:OnTimerCallback()
+    -- Logging.LogDebug("Extractor:OnTimerCallback (%s) R:%d \"%s\" Limit:%d", tostring(self.Location), self.Rotation, self.Name, self.StackLimit)
     local location = self.Location
     local rotation = self.Rotation
-    local outputDelta = DirectionDeltaPoint[(BasicExtractor.OutputPoint + rotation) % 4]
-    local inputDelta  = DirectionDeltaPoint[(BasicExtractor.InputPoint + rotation) % 4]
+    local outputDelta = DirectionDeltaPoint[(Extractor.OutputPoint + rotation) % 4]
+    local inputDelta  = DirectionDeltaPoint[(Extractor.InputPoint + rotation) % 4]
     local outputPoint = Point.new(location.X + outputDelta.X, location.Y + outputDelta.Y)
     local inputPoint  = Point.new(location.X + inputDelta.X, location.Y + inputDelta.Y)
 
@@ -79,8 +79,8 @@ function BasicExtractor:OnTimerCallback()
     end
 end
 
-function BasicExtractor:UpdateName()
-    Logging.LogInformation("BasicExtractor:UpdateName %s", self.Name)
+function Extractor:UpdateName()
+    Logging.LogInformation("Extractor:UpdateName %s", self.Name)
     ---@type integer
     local limit = 1
     local startString, endString = string.find(self.Name, 'x%d+')
@@ -89,6 +89,6 @@ function BasicExtractor:UpdateName()
     end
     limit = math.max(self.MinStackLimit, limit)
     limit = math.min(self.MaxStackLimit, limit)
-    Logging.LogInformation("BasicExtractor:UpdateName limit %d", limit)
+    Logging.LogInformation("Extractor:UpdateName limit %d", limit)
     self.StackLimit = limit
 end

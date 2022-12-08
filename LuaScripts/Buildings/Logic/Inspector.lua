@@ -4,37 +4,37 @@ Author: Sotin NU aka VirRus77
 --]]
 
 
----@class InspectorBase :SwitcherBase #
+---@class Inspector :SwitcherBase #
 ---@field InspectPoint Point # Direction base rotation
 ---@field SwitchState ReferenceValue<boolean>
 ---@field _settings InspectorSettingsItem #
-InspectorBase = {
+Inspector = {
     SupportTypes = {
         Buildings.Inspector,
     }
 }
----@type InspectorBase
-InspectorBase = SwitcherBase:extend(InspectorBase)
+---@type Inspector
+Inspector = SwitcherBase:extend(Inspector)
 
 ---@param id integer #
 ---@param type string #
 ---@param callbackRemove fun() #
 ---@param fireWall FireWall #
----@return InspectorBase
-function InspectorBase.new(id, type, callbackRemove, fireWall)
-    Logging.LogInformation("InspectorBase.new %d, %s", id, callbackRemove)
-    ---@type InspectorBase
-    local instance = InspectorBase:make(id, type, callbackRemove, fireWall)
+---@return Inspector
+function Inspector.new(id, type, callbackRemove, fireWall)
+    Logging.LogInformation("Inspector.new %d, %s", id, callbackRemove)
+    ---@type Inspector
+    local instance = Inspector:make(id, type, callbackRemove, fireWall)
     return instance
 end
 
-function InspectorBase:initialize(id, type, callbackRemove, fireWall)
+function Inspector:initialize(id, type, callbackRemove, fireWall)
     SwitcherBase.initialize(self, id, type, callbackRemove, fireWall)
     self.InspectPoint = self._settings.InspectPoint
     self:UpdateGroup()
 end
 
-function InspectorBase:OnTimerCallback()
+function Inspector:OnTimerCallback()
     local location = self.Location
     local inspectPointRotate = Point.Rotate(self.InspectPoint, self.Rotation)
     local inspectPoint = location + inspectPointRotate
@@ -54,7 +54,7 @@ function InspectorBase:OnTimerCallback()
     self:UpdateVisualState()
 end
 
-function InspectorBase:UpdateVisualState()
+function Inspector:UpdateVisualState()
     if (not ModObject.IsValidObjectUID(self.Id)) then
         return
     end

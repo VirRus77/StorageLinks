@@ -48,13 +48,13 @@ Buildings/Logic/BuildingBase.lua
 Buildings/Logic/BuildingTypedBase.lua
 Buildings/Logic/BuildingFireWallBase.lua
 Buildings/Logic/BuildingStorageLinksBase.lua
-Buildings/Logic/BasicExtractor.lua
+Buildings/Logic/Extractor.lua
 Buildings/Logic/Magnet.lua
-Buildings/Logic/PumpBase.lua
+Buildings/Logic/Pumps.lua
 Buildings/Logic/Transmitter.lua
 Buildings/Logic/SwitcherBase.lua
 Buildings/Logic/Switcher.lua
-Buildings/Logic/InspectorBase.lua
+Buildings/Logic/Inspector.lua
 Translates/Translates.lua
 Translates/Translates.Russian.lua
 Translates/Translates.English.lua

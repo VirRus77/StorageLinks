@@ -11,7 +11,7 @@ SettingPeriod = {}
 ---@generic T :SettingPeriod
 ---@class BuildingSettingItem<T>
 ---@field Type ReferenceValue<string>
----@field Settings T
+---@field Settings SettingPeriod
 BuildingSettingItem = {}
 
 

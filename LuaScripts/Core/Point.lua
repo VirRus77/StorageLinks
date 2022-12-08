@@ -8,9 +8,8 @@ Author: Sotin NU aka VirRus77
 ---@operator add(Point): Point
 ---@field X integer
 ---@field Y integer
+---@field Empty Point
 Point = {
-    X = 0,
-    Y = 0
 }
 ---@type Point
 Point = Object:extend(Point)
