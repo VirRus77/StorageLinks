@@ -67,16 +67,18 @@ end
 ---@param id integer
 ---@param groupName string
 function FireWall:RemoveSwitcher(id, groupName)
+    Logging.LogTrace("FireWall:RemoveSwitcher id: %d, GroupName: \"%s\" %s", id, groupName, self)
     local idsInGroup = self._filterGroup[groupName]
     if (idsInGroup == nil) then
         Logging.LogWarning("FireWall:RemoveSwitcher group not exist %s", groupName)
         return
     end
-    if (idsInGroup._switchers[id] ~= nil) then
+    if (idsInGroup._switchers[id] == nil) then
         Logging.LogWarning("FireWall:RemoveSwitcher item not exist %d %s", id, groupName)
         return
     end
     idsInGroup:Remove(id)
+    Logging.LogTrace("FireWall:RemoveSwitcher (end) %s", self)
 end
 
 -- --- func desc

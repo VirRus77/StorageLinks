@@ -25,7 +25,7 @@ end
 
 function SwitcherBase:initialize(id, type, callbackRemove, fireWall)
     BuildingFireWallBase.initialize(self, id, type, callbackRemove, fireWall)
-    self.SwitchState = ReferenceValue.new(false)
+    self.SwitchState = ReferenceValue.new(true)
     self:UpdateGroup()
     Logging.LogDebug("SwitcherBase:initialize switchState: %s Ref: %s",  self.SwitchState.Value, tostring(self.SwitchState))
 end
@@ -62,6 +62,7 @@ end
 --- func desc
 ---@param removeFromFirewall boolean|nil
 function SwitcherBase:RemoveLink(removeFromFirewall)
+    Logging.LogTrace("SwitcherBase:RemoveLink %s FireWall: %s", removeFromFirewall, self._fireWall)
     if (removeFromFirewall) then
         if (self._groupName ~= nil) then
             self._fireWall:RemoveSwitcher(self.Id, self._groupName)
