@@ -49,8 +49,8 @@ function Extractor:OnTimerCallback()
     local rotation = self.Rotation
     local outputDelta = DirectionDeltaPoint[(Extractor.OutputPoint + rotation) % 4]
     local inputDelta  = DirectionDeltaPoint[(Extractor.InputPoint + rotation) % 4]
-    local outputPoint = Point.new(location.X + outputDelta.X, location.Y + outputDelta.Y)
-    local inputPoint  = Point.new(location.X + inputDelta.X, location.Y + inputDelta.Y)
+    local outputPoint = location + outputDelta
+    local inputPoint  = location + inputDelta
 
     ---@type integer|nil
     local storageId = GetStorageIdOnTile(inputPoint.X, inputPoint.Y)

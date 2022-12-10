@@ -204,7 +204,7 @@ function AfterLoad()
     end
 
     TIMERS_STACK:AddTimer  (Timer.new(5, BuildingsDependencyTree.SwitchAllLockState):RandomizeStart())
-    TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end))
+    TIMERS_STACK:AddTimer  (Timer.new(1, function() VIRTUAL_NETWORK:TimeCallback() end):RandomizeStart())
 
     Converters.UpdateState()
     BuildingsDependencyTree.SwitchAllLockState()
