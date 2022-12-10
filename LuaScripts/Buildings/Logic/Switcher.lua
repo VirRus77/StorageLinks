@@ -57,11 +57,11 @@ function Switcher:UpdateVisualState()
     end
 
     if (self.SwitchState.Value) then
-        ModObject.SetNodeMaterial(self.Id, "^Cube_Cube.003$", "Materials/_GlowingGreen")
-        -- self.LinkedSymbolId = ModBase.SpawnItem(Decoratives.SwitchOnSymbol.Type.Value, self.Location.X, self.Location.Y, false, true, false)
+        -- ModObject.SetNodeMaterial(self.Id, "^Cube_Cube.003$", "Materials/_GlowingGreen")
+        self.LinkedSymbolId = ModBase.SpawnItem(Decoratives.SwitchOnSymbol.Type.Value, self.Location.X, self.Location.Y, false, true, false)
         --end
     else
-        ModObject.SetNodeMaterial(self.Id, "^Cube_Cube.003$", "Materials/_GlowingRed")
+        -- ModObject.SetNodeMaterial(self.Id, "^Cube_Cube.003$", "Materials/_GlowingRed")
         self:RemoveLink()
     end
 end

@@ -5,7 +5,7 @@ Author: Sotin NU aka VirRus77
 
 
 BuildingsDependencyTree = {
-    ---@alias DependecyItem { Buildings :{ Type : string }[], DependencyOn :string[]|nil } #
+    ---@alias DependecyItem { Buildings :{ Type : ReferenceValue<string> }[], DependencyOn :string[]|nil } #
     ---@type DependecyItem[] #
     Dependencies = { }
 }
@@ -113,7 +113,7 @@ function BuildingsDependencyTree.SwitchLockByUnlockBuildings(dependecy)
         )
     end
 
-    for _, value in pairs(invertBuildings) do        
+    for _, value in pairs(invertBuildings) do
         ModVariable.SetVariableForObjectAsInt(value.Type.Value, "Unlocked", stateValue)
         -- Logging.LogDebug("BuildingsDependencyTree.SwitchLockByUnlockBuildings %s %d == %d", value.Type, stateValue, ModVariable.GetVariableForObjectAsInt(value.Type, "Unlocked"))
     end
