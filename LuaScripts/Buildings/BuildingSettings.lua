@@ -38,7 +38,7 @@ BuildingSettings = {
             Type = Buildings.MagnetCrude.Type,
             ---@alias MagnetSettingsItem2 { UpdatePeriod :number, CountOneTime :integer, Speed :integer, Height :integer, Area :Area, StackLimit :integer, OutputPoint :Point }
             Settings = {
-                UpdatePeriod = 1 / 4,
+                UpdatePeriod = 1,
                 CountOneTime = 1,
                 Speed = 10,
                 Height = 10,
@@ -49,7 +49,7 @@ BuildingSettings = {
         {
             Type = Buildings.MagnetGood.Type,
             Settings = {
-                UpdatePeriod = 1 / 4,
+                UpdatePeriod = 1,
                 CountOneTime = 5,
                 Speed = 15,
                 Height = 10,
@@ -60,7 +60,7 @@ BuildingSettings = {
         {
             Type = Buildings.MagnetSuper.Type,
             Settings = {
-                UpdatePeriod = 1 / 4,
+                UpdatePeriod = 1,
                 CountOneTime = 15,
                 Speed = 20,
                 Height = 10,
@@ -276,7 +276,7 @@ function BuildingSettings.GetSettingsByType(buildingType)
     for _, settings in pairs(BuildingSettings) do
         if (type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
-            for _, settingByType in ipairs(settings) do
+            for _, settingByType in pairs(settings) do
                 if (settingByType.Type.Value == buildingType)then
                     return settingByType.Settings
                 end
@@ -295,7 +295,7 @@ function BuildingSettings.GetSettingsByReferenceType(buildingType)
     for _, settings in pairs(BuildingSettings) do
         if (type(settings) ~= "function") then
             --Logging.LogDebug("BuildingSettings.GetSettingsByType %s K:%s S:%s", buildingType, _, settings)
-            for _, settingByType in ipairs(settings) do
+            for _, settingByType in pairs(settings) do
                 if (settingByType.Type.Value == buildingType.Type.Value)then
                     return settingByType.Settings
                 end

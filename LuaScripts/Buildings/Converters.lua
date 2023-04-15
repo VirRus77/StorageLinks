@@ -23,7 +23,7 @@ function Converters:UpdateTypeByUniq()
     if (self.NameUpdated) then
         return
     end
-    for _, buildingValue in ipairs(self.AllTypes) do
+    for _, buildingValue in pairs(self.AllTypes) do
         buildingValue.Type = Constants.UniqueName(buildingValue.Type)
     end
     self.NameUpdated = true
@@ -33,7 +33,7 @@ end
 function Converters.CreateAll ()
     Logging.LogInformation("Converters.CreateAll")
 
-    for _, value in ipairs(Converters.AllTypes) do
+    for _, value in pairs(Converters.AllTypes) do
         Converters.CreateConverter(value)
     end
 end
@@ -78,7 +78,7 @@ function Converters.CreateConverter (converter, replaceType)
 end
 
 function Converters.UpdateState()
-    -- for _, converter in ipairs(Converters.AllTypes) do
+    -- for _, converter in pairs(Converters.AllTypes) do
     --     if (converter.AccessPoint == nil) then
     --         ModBuilding.ShowBuildingAccessPoint(converter.Type, false)
     --     end

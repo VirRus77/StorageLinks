@@ -75,7 +75,7 @@ end
 function VirtualNetwor:TimeCallback()
     local sw = Stopwatch.Start()
     self:ChainProcess()
-    -- Logging.LogDebug("VirtualNetwor duration: %f", sw:Elapsed())
+    Logging.LogDebug("VirtualNetwor:TimeCallback SW: %s", sw.ToTimeSpanString(sw:Elapsed()))
 end
 
 function VirtualNetwor:ClearHashTables()

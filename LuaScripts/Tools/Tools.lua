@@ -298,7 +298,7 @@ function Tools.TableSort(tableValue, valueComparer)
     end
     table.sort(tempTable, function(a, b) return valueComparer(a.Value, b.Value) end)
     local newTable = { }
-    for _, value in ipairs(tempTable) do
+    for _, value in pairs(tempTable) do
         newTable[#newTable + 1] = value
     end
     return newTable
@@ -436,7 +436,7 @@ end
 ---@param table2 table<integer,TValue>
 ---@return table<integer,TValue>
 function Tools.TableConcat(table, table2)
-    for index, value in ipairs(table2) do
+    for index, value in pairs(table2) do
         table[#table + 1] = value
     end
     return table
@@ -455,10 +455,10 @@ end
 function GetUidsByTypesOnMap(buildingTypes)
     -- Logging.LogDebug("GetUidsByTypesOnMap %s", buildingTypes)
     local uids = { }
-    for _, buildingType in ipairs(buildingTypes) do
+    for _, buildingType in pairs(buildingTypes) do
         -- Logging.LogDebug("GetUidsByTypesOnMap k:%s v:%s", _, buildingType)
         local tempUids = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
-        for _, uid in ipairs(tempUids) do
+        for _, uid in pairs(tempUids) do
             uids[#uids + 1] = uid
         end
     end
@@ -470,7 +470,7 @@ end
 ---@return table<string, integer[]> #
 function GetTypedUidsByTypesOnMap(buildingTypes)
     local uids = { }
-    for _, buildingType in ipairs(buildingTypes) do
+    for _, buildingType in pairs(buildingTypes) do
         --local uidsByType = ModTiles.GetObjectUIDsOfType
         local uidsByType = ModBuilding.GetBuildingUIDsOfType(buildingType, 0, 0, WORLD_LIMITS.Width, WORLD_LIMITS.Height)
         uids[buildingType] = uidsByType
@@ -521,7 +521,7 @@ function GetStorageIdOnTile(x, y)
         return buildingId
     else
         -- uids = ModTiles.GetObjectUIDsOnTile(x,y)
-        -- for _, uid in ipairs(uids) do
+        -- for _, uid in pairs(uids) do
         -- 	if ModObject.GetObjectSubcategory(uid) == 'BuildingsStorage' then return uid end
         -- end
     end
@@ -530,7 +530,7 @@ function GetStorageIdOnTile(x, y)
     -- if ModTiles.IsSubcategoryOnTile(x,y,'Vehicles') then
         -- -- Check if it is a train carriage?
         -- types = ModTiles.GetObjectTypeOnTile(x, y)
-        -- for _, typ in ipairs(types)
+        -- for _, typ in pairs(types)
         -- do
             -- if string.sub(typ, 1, 8) == 'Carriage' then
                 -- uids = ModTiles.GetObjectsOfTypeInAreaUIDs(typ, x, y, x, y)
@@ -546,7 +546,7 @@ end
 ---@alias ReplaceItem { OldType :string, NewType :string } #
 ---@param replaceList ReplaceItem[] #
 function ReplaceOldTypesToNewTypes(replaceList)
-    for _, value in ipairs(replaceList) do
+    for _, value in pairs(replaceList) do
         ReplaceOldTypeToNewType(value.OldType, value.NewType)
     end
 end
@@ -564,7 +564,7 @@ function ReplaceOldTypeToNewType(oldName, newName)
     end
     Logging.LogDebug("Replace OldType...")
     local props, newUID, rot
-    for _, uid in ipairs(oldB) do
+    for _, uid in pairs(oldB) do
         props = Extensions.UnpackObjectProperties( ModObject.GetObjectProperties(uid) ) -- Properties [1]=Type, [2]=TileX, [3]=TileY, [4]=Rotation, [5]=Name,
         if (props.Successfully) then
             rot = ModBuilding.GetRotation(uid)

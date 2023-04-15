@@ -79,10 +79,10 @@ function FlightObject:Check()
 end
 
 ---@protected
----@param successfully? boolean
+---@param successfully? boolean|nil
 function FlightObject:OnFlightComplete(successfully)
     -- Logging.LogDebug("FlightObject.OnFlightComplete %s", serializeTable(self))
-    for _, callback in ipairs(self._callbacksComplete) do
+    for _, callback in pairs(self._callbacksComplete) do
         callback(self, successfully == nil or successfully)
     end
 end

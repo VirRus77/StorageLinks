@@ -444,7 +444,7 @@ function Buildings:UpdateTypeByUniq()
     if (self.NameUpdated) then
         return
     end
-    for _, buildingValue in ipairs(self.AllTypes) do
+    for _, buildingValue in pairs(self.AllTypes) do
         buildingValue.Type.Value = Constants.UniqueName(buildingValue.Type.Value)
     end
     self.NameUpdated = true

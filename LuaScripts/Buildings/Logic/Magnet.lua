@@ -57,9 +57,10 @@ end
 -- end
 
 function Magnet:OnTimerCallback()
+    local sw = Stopwatch.Start()
     BuildingFireWallBase.OnTimerCallback(self)
-    --Logging.LogDebug("Magnet:OnTimerCallback self.FireWall %s", self.FireWall)
     if (self._fireWall:Skip(self.Id)) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
     -- Logging.LogInformation("Magnet:OnTimerCallback \"%s\" [%s] R:%s", self.Name, self.WorkArea, self.Rotation)
@@ -69,22 +70,26 @@ function Magnet:OnTimerCallback()
 
     local storageId = GetStorageIdOnTile(outputPoint.X, outputPoint.Y)
     if (storageId == nil) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
     -- query storage for min/max
     ---@type UnpackStorageInfo
     local storageInfo = Extensions.UnpackStorageInfo(ModStorage.GetStorageInfo(storageId))
     if (not storageInfo.Successfully) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
 
     local buildingProperties = Extensions.UnpackObjectProperties(ModObject.GetObjectProperties(storageId))
     if (not buildingProperties.Successfully) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
 
     local captureQuantity = self:CaptureQuantity(storageId, storageInfo, OBJECTS_IN_FLIGHT)
     if (captureQuantity == 0) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
 
@@ -96,11 +101,13 @@ function Magnet:OnTimerCallback()
         workArea.Right,
         workArea.Bottom
     )
-    if (holdables == nil or holdables[1] == nil) then
+    if (holdables == nil or #holdables == 0) then
+        Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
+
     local countCapture = 0
-    for _, holdableId in ipairs(holdables) do
+    for _, holdableId in pairs(holdables) do
         if (countCapture >= captureQuantity) then
             break
         end
@@ -121,6 +128,7 @@ function Magnet:OnTimerCallback()
                 countCapture = countCapture + 1
         end
     end
+    Logging.LogDebug("Magnet:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
 end
 
 function Magnet:OnRotate(newValue)
@@ -228,7 +236,7 @@ function Magnet:CaptureQuantity(storageId, storageProperties, objectInFly)
     end
 
     local countByMagnet = 0
-    for _, value in ipairs(countFlyToStorage) do
+    for _, value in pairs(countFlyToStorage) do
         if (value.InitiatorId == self.Id) then
             countByMagnet = countByMagnet + 1
         end

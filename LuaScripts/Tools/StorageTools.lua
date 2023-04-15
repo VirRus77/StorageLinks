@@ -63,7 +63,7 @@ function StorageTools.TransferItems(storesType, storageSourceId, storageSourceIn
     end
 
     local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
-    for _, itemId in ipairs(itemIds) do
+    for _, itemId in pairs(itemIds) do
         if (ModStorage.AddToStorage(storageDestId, itemId)) then
             Logging.LogError("StorageTools.TransferItems cant add item: %d", itemId)
         end
@@ -163,7 +163,7 @@ function StorageTools.TransferHeart(storesType, storageSourceId, storageSourceIn
     -- Not supported current API.
 
     -- local itemIds = ModStorage.RemoveFromStorage(storageSourceId, count, 0, 0)
-    -- for _, itemId in ipairs(itemIds) do
+    -- for _, itemId in pairs(itemIds) do
     --     local requiredBefore = Extensions.UnpackBuildingRequirements(ModBuilding.GetBuildingRequirements(destinationId))
     --     local heartAmountsBefore = Tools.GroupBy(requiredBefore.Heart, function (v) return v.Type end)
 

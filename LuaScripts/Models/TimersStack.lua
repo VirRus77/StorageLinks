@@ -27,9 +27,13 @@ end
  --- Append delta time.
  ---@param deltaTime number
 function TimersStack:AppendDelta(deltaTime)
+    local sw = Stopwatch.Start()
+    local count = 0
     for _, value in pairs(self._timers) do
         value:AppendDelta(deltaTime)
+        count = count + 1
     end
+    Logging.LogDebug("TimersStack:AppendDelta Count: %d SW: %s", count, sw.ToTimeSpanString(sw:Elapsed()))
 end
 
 function TimersStack:Immediately()

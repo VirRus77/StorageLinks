@@ -10,7 +10,7 @@ Author: Sotin NU aka VirRus77
 ---@field Location Point
 TileInspector = {
 }
----@type TileController
+---@type TileInspector
 TileInspector = Object:extend(TileInspector)
 
 --- func desc

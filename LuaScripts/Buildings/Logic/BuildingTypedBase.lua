@@ -36,11 +36,11 @@ end
 ---@return Timer
 function BuildingTypedBase:MakeTimer()
     local timer = Timer.new(self._settings.UpdatePeriod, function () self:OnTimerCallback() end)
-    return timer
+    return timer:RandomizeStart()
 end
 
 function BuildingTypedBase:OnTimerCallback()
-    Logging.LogInformation("BuildingTypedBase:OnTimerCallback %s (%s)", self.Name, self.Location)
+    Logging.LogInformation("BuildingTypedBase:OnTimerCallback %d %s (%s)", self.Id, self.Name, self.Location)
     --local buildingRotation = ModBuilding.GetRotation(self.Id)
     --Logging.LogInformation("buildingRotation: %d", buildingRotation)
 end

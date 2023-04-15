@@ -56,7 +56,7 @@ function BuildingsDependencyTree.IsAnyBuildingUnlocked(buildingTable)
         return false
     end
 
-    for _, value in ipairs(buildingTable) do
+    for _, value in pairs(buildingTable) do
         if (ModVariable.GetVariableForObjectAsInt(value, "Unlocked") > 0) then
             return true
         end
@@ -71,7 +71,7 @@ function BuildingsDependencyTree.IsAllBuildingUnlocked(buildingTable)
         return true
     end
 
-    for _, value in ipairs(buildingTable) do
+    for _, value in pairs(buildingTable) do
         local lockValue = (ModVariable.GetVariableForObjectAsInt(value, "Unlocked"))
         if (not (lockValue > 0)) then
             Logging.LogDebug("BuildingsDependencyTree.IsAllBuildingUnlocked %s %d",value, lockValue)
@@ -85,7 +85,7 @@ end
 --- Switch lock all dependency buildings.
 function BuildingsDependencyTree.SwitchAllLockState()
     Logging.LogDebug("BuildingsDependencyTree.SwitchAllLockState")
-    for _, dependency in ipairs(BuildingsDependencyTree.Dependencies) do
+    for _, dependency in pairs(BuildingsDependencyTree.Dependencies) do
         BuildingsDependencyTree.SwitchLockByUnlockBuildings (dependency)
     end
 end
@@ -125,7 +125,7 @@ end
 ---@return BuildingItem[] #
 function BuildingsDependencyTree.GetBuildingsUnlockedState(buildings, state)
     local result = { }
-    for _, value in ipairs(buildings) do
+    for _, value in pairs(buildings) do
         local lockState = ModVariable.GetVariableForObjectAsInt(value.Type.Value, "Unlocked")
         local flag = (lockState > 0) == state
         if (flag) then

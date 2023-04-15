@@ -133,7 +133,7 @@ function Extensions.UnpackBuildingRequirements (properties)
         return result
     end
 
-    for _, value in ipairs(properties) do
+    for _, value in pairs(properties) do
         local group = Tools.Dictionary.GetOrAddValue(result, value[4], { })
         group[#group + 1] = { Type = value[1], Capacity = value[2], Amount = value[3] }
     end

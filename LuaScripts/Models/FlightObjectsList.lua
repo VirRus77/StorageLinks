@@ -28,11 +28,16 @@ end
 ---@param flightObject FlightObject
 function FlightObjectsList:Remove(flightObject)
     self._items[flightObject.Id] = nil
+    local newArray = { }
+    for id, value in pairs(self._items) do
+        newArray[id] = self._items[id]
+    end
+    self._items = newArray
 end
 
 ---@param flightObject FlightObject
 function FlightObjectsList:Add(flightObject)
-    -- Logging.LogDebug("FlightObjectsList:Add:\n%s", serializeTable(flightObject))
+    Logging.LogTrace("FlightObjectsList:Add:\n%s", flightObject)
     if (self._items[flightObject.Id] ~= nil) then
         Logging.LogError("FlightObjectsList:Add:\n%s", self._items[flightObject.Id])
         error("Object In Flight", 666)
@@ -40,12 +45,12 @@ function FlightObjectsList:Add(flightObject)
 
     flightObject:AddCallback(
         function (sender, successfully)
-            -- Logging.LogDebug("Remove Object In Flight:\n%s", serializeTable(sender))
+            Logging.LogTrace("Remove Object In Flight:\n%s", sender)
             self:Remove(sender)
         end
     )
     self._items[flightObject.Id] = flightObject
-    -- Logging.LogDebug("FlightObjectsList:Add: End\n%s", serializeTable(self._items[flightObject.Id]))
+    Logging.LogTrace("FlightObjectsList:Add: End\n%s", self._items[flightObject.Id])
 end
 
 function FlightObjectsList:Check()

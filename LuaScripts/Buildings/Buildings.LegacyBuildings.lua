@@ -63,11 +63,11 @@ Buildings.MappingOldTypes = {
 
 ---@obsolete
 function Buildings.CreateOldTypes()
-    for _, value in ipairs(Buildings.MappingOldTypes) do
+    for _, value in pairs(Buildings.MappingOldTypes) do
         Buildings.Create (value.NewItem, value.OldType)
     end
 
-    for _, value in ipairs(Decoratives.MappingOldTypes) do
+    for _, value in pairs(Decoratives.MappingOldTypes) do
         Buildings.CreateDecorative (value.NewItem, value.OldType)
     end
 end
@@ -86,29 +86,29 @@ function ReplaceOldBuildings()
     --     "Decoratives.MappingOldTypes"
     -- }))
 
-    for _, value in ipairs(Buildings.MappingOldTypes) do
+    for _, value in pairs(Buildings.MappingOldTypes) do
         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
     end
-    for _, value in ipairs(Decoratives.MappingOldTypes) do
+    for _, value in pairs(Decoratives.MappingOldTypes) do
         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 1)
     end
 
     ---@type ReplaceItem[]
     local swapTypes = { }
-    for index, value in ipairs(Buildings.MappingOldTypes) do
+    for index, value in pairs(Buildings.MappingOldTypes) do
         table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type.Value })
     end
-    for index, value in ipairs(Decoratives.MappingOldTypes) do
+    for index, value in pairs(Decoratives.MappingOldTypes) do
         table.insert(swapTypes, { OldType = value.OldType, NewType = value.NewItem.Type.Value })
     end
     Logging.LogDebug("Replace old...")
     ReplaceOldTypesToNewTypes(swapTypes)
 
     Logging.LogDebug("Disable old...")
-    for _, value in ipairs(Buildings.MappingOldTypes) do
+    for _, value in pairs(Buildings.MappingOldTypes) do
         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
     end
-    for _, value in ipairs(Decoratives.MappingOldTypes) do
+    for _, value in pairs(Decoratives.MappingOldTypes) do
         ModVariable.SetVariableForObjectAsInt(value.OldType, "Unlocked", 0)
     end
 end

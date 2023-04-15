@@ -70,7 +70,9 @@ end
 -- end
 
 function Pumps:OnTimerCallback()
+    local sw = Stopwatch.Start()
     if (self._fireWall:Skip(self.Id)) then
+        Logging.LogDebug("Pumps:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     else
         Logging.LogTrace("Pumps:OnTimerCallback \"%s\" (%s)\n%s", self.Name, self.Location, self._fireWall)
@@ -88,6 +90,7 @@ function Pumps:OnTimerCallback()
     local storageOutputId = Utils.GetStorage(outputPoint)
 
     if (storageInputId == nil or storageOutputId == nil) then
+        Logging.LogDebug("Pumps:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
 
@@ -97,10 +100,12 @@ function Pumps:OnTimerCallback()
 
     if (not storageInputInfo.Successfully) then
         Logging.LogWarning("Not read storageInputInfo Id:%d", storageInputId)
+        Logging.LogDebug("Pumps:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
     if (not storageOutputInfo.Successfully) then
         Logging.LogWarning("Not read storageInputInfo Id:%d", storageOutputId)
+        Logging.LogDebug("Pumps:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
         return
     end
 
@@ -115,6 +120,7 @@ function Pumps:OnTimerCallback()
     elseif (self._settings.LogicType == "Balancer") then
         self:BalancerLogic(storageInputId, storageInputInfo, storageOutputId, storageOutputInfo)
     end
+    Logging.LogDebug("Pumps:OnTimerCallback Id: %d SW: \"%s\"", self.Id, sw.ToTimeSpanString(sw:Elapsed()))
 end
 
 --- func desc

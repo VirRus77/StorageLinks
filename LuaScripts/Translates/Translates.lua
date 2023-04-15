@@ -38,7 +38,7 @@ end
 ---@param namesList TranslateItem[] #
 function Translates.UpdateDescriptions(namesList)
     Logging.LogInformation("Translates.UpdateDescriptions")
-    for _, value in ipairs(namesList) do
+    for _, value in pairs(namesList) do
         -- Logging.LogDebug("K:%s V:%s", _, value)
         if (value.UpdateDescription ~= nil) then
             value.UpdateDescription(value)
@@ -49,7 +49,7 @@ end
 --- func desc
 ---@param namesList { Building :{ Type :ReferenceValue<string> }, Name :string, Description :string|nil }[] #
 function Translates.SetNamesList(namesList)
-    for _, value in ipairs(namesList) do
+    for _, value in pairs(namesList) do
         ModText.SetText(value.Building.Type.Value, value.Name)
         if (value.Description ~= nil) then
             ModText.SetDescription(value.Building.Type.Value, value.Description)

@@ -130,7 +130,7 @@ end
 function BuildingController:InitializeTypes(buildingTypes, addNewCallback)
     ---@type string[] #
     local buildingNameTypes = { }
-    for _, value in ipairs(buildingTypes) do
+    for _, value in pairs(buildingTypes) do
         if (value.Type ~= nil) then
             buildingNameTypes[#buildingNameTypes + 1] = value.Type.Value
         elseif (value.Value ~= nil) then
@@ -144,12 +144,12 @@ function BuildingController:InitializeTypes(buildingTypes, addNewCallback)
     local existBuildings = GetTypedUidsByTypesOnMap(buildingNameTypes)
     for type, ids in pairs(existBuildings) do
         Logging.LogDebug("BuildingController.InitializeTypes Found %s = %d", type, #ids)
-        for _, id in ipairs(ids) do
+        for _, id in pairs(ids) do
             BuildingController.OnSpawnedCallback(id, type, false, false, addNewCallback)
         end
     end
 
-    for _, buildingType in ipairs(buildingNameTypes) do
+    for _, buildingType in pairs(buildingNameTypes) do
         ModBuilding.RegisterForBuildingTypeSpawnedCallback(
             buildingType,
             function (callBuildingId, callBuildingType, callIsBlueprint, callIsDragging)

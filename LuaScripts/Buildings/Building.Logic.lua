@@ -24,7 +24,7 @@ Buildings.Dependencies = {
 }
 
 function Buildings.AddDependencies()
-    for _, value in ipairs(Buildings.Dependencies) do
+    for _, value in pairs(Buildings.Dependencies) do
         BuildingsDependencyTree.AddDependency (value)
     end
 end
